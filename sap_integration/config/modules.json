@@ -1,0 +1,10 @@
+[
+    {
+        "module_name": "SAP Integration",
+        "category": "Modules",
+        "label": "SAP Integration",
+        "icon": "fa fa-plug",
+        "color": "#3498db",
+        "type": "module"
+    }
+]

@@ -5,6 +5,43 @@ app_description = "conexion a sap"
 app_email = "informatica@yaesta.com.gt"
 app_license = "mit"
 
+
+scheduler_events = {
+    "cron": {
+        "*/5 * * * *": [
+            "sap_integration.api.sap_clientes.sincronizar_clientes_desde_sap"
+        ]
+    }
+}
+
+fixtures = [
+    {
+        "dt": "Custom Field",
+        "filters": [["name", "in", [
+            "Customer-custom_cardcode",
+            "Customer-custom_nit",
+            "Address-custom_cardcode"
+        ]]]
+    }
+]
+
+
+
+# app_include_js = [
+#     "sap_integration/public/js/sap_credentials.js"
+# ]
+
+# fixtures = ["Module Def"]  # ¡Exactamente "Module Def"!
+
+# # hooks.py
+# scheduled_events = {
+#     "daily": [
+#         ("sap_integration.tu_modulo.sincronizar_clientes_desde_sap", "40 13 * * *")  # 05:00 AM
+#     ]
+# }
+
+# doctypes = ["Configuracion SAP", "Mapeo Clientes SAP"]
+
 # Apps
 # ------------------
 

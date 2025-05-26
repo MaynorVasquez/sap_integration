@@ -1,0 +1,10 @@
+[
+    {
+        "module_name": "SAP Integration",
+        "label": "SAP Integration",
+        "standard": 0,
+        "icon": "fa fa-sap",
+        "type": "module",
+        "_doctype": "Desktop Icon"
+    }
+]

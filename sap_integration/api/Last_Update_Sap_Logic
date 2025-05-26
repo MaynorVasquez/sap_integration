@@ -1,0 +1,36 @@
+import frappe
+from datetime import datetime
+
+def actualizar_last_sync(tipo_entidad: str, code: str, fecha_sync: datetime):
+    """
+    Inserta o actualiza un registro de sincronización en el Doctype 'Sync Tracker',
+    dentro de la tabla secundaria 'Sync Record', filtrando por 'tipo_entidad' y 'code'.
+    """
+    if not (tipo_entidad and code and fecha_sync):
+        frappe.log_error("Faltan datos para actualizar la sincronización en Sync Tracker")
+        return
+
+    try:
+        # Obtener el Doctype individual 'Sync Tracker'
+        tracker = frappe.get_doc("Sync Tracker", "Sync Tracker")
+
+        # Buscar si ya existe una fila con ese tipo_entidad y code
+        existente = False
+        for fila in tracker.sincronizaciones:
+            if fila.tipo_entidad == tipo_entidad and fila.code == code:
+                fila.last_sync = fecha_sync
+                existente = True
+                break
+
+        if not existente:
+            tracker.append("sincronizaciones", {
+                "tipo_entidad": tipo_entidad,
+                "code": code,
+                "last_sync": fecha_sync
+            })
+
+        tracker.save(ignore_permissions=True)
+        frappe.db.commit()
+
+    except Exception as e:
+        frappe.log_error(f"Error actualizando Sync Tracker para {tipo_entidad} {code}: {str(e)}")

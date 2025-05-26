@@ -1,0 +1,42 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2025-05-23 15:47:44.922898",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "cardcode"
+ ],
+ "fields": [
+  {
+   "fieldname": "cardcode",
+   "fieldtype": "Data",
+   "label": "Cardcode"
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "issingle": 1,
+ "links": [],
+ "modified": "2025-05-23 15:49:36.780221",
+ "modified_by": "Administrator",
+ "module": "Sap Integration",
+ "name": "Configuracion Sincronizacion SAP",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "print": 1,
+   "read": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

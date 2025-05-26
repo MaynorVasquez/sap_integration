@@ -1,0 +1,26 @@
+{
+ "allow_roles": [
+  {
+   "role": "Administrator"
+  }
+ ],
+ "creation": "2025-05-23 12:43:12.670697",
+ "docstatus": 0,
+ "doctype": "Module Onboarding",
+ "documentation_url": "sap_integration",
+ "idx": 0,
+ "is_complete": 0,
+ "modified": "2025-05-23 12:43:12.670697",
+ "modified_by": "Administrator",
+ "module": "Sap Integration",
+ "name": "Sap integration",
+ "owner": "Administrator",
+ "steps": [
+  {
+   "step": "Data import"
+  }
+ ],
+ "subtitle": "Sap Integration",
+ "success_message": "Sap Integration",
+ "title": "Sap integration"
+}
