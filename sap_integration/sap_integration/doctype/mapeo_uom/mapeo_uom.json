@@ -1,27 +1,28 @@
 {
  "actions": [],
  "allow_rename": 1,
- "creation": "2025-05-23 15:47:44.922898",
+ "creation": "2025-05-30 10:29:35.524350",
  "doctype": "DocType",
  "engine": "InnoDB",
  "field_order": [
-  "cardcode"
+  "mapeo_uom"
  ],
  "fields": [
   {
-   "fieldname": "cardcode",
-   "fieldtype": "Data",
-   "label": "Cardcode"
+   "fieldname": "mapeo_uom",
+   "fieldtype": "Table",
+   "label": "Mapeo UOM",
+   "options": "Mapeo Campos SAP"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "issingle": 1,
  "links": [],
- "modified": "2025-05-23 15:49:36.780221",
+ "modified": "2025-05-30 10:30:07.341761",
  "modified_by": "Administrator",
  "module": "Sap Integration",
- "name": "Configuracion Sincronizacion SAP",
+ "name": "Mapeo UOM",
  "owner": "Administrator",
  "permissions": [
   {

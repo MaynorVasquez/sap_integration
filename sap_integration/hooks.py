@@ -6,13 +6,13 @@ app_email = "informatica@yaesta.com.gt"
 app_license = "mit"
 
 
-scheduler_events = {
-    "cron": {
-        "*/5 * * * *": [
-            "sap_integration.api.sap_clientes.sincronizar_clientes_desde_sap"
-        ]
-    }
-}
+# scheduler_events = {
+#     "cron": {
+#         "*/5 * * * *": [
+#             "sap_integration.api.sap_clientes.sincronizar_clientes_desde_sap"
+#         ]
+#     }
+# }
 
 fixtures = [
     {

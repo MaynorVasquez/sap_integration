@@ -5,5 +5,5 @@
 from frappe.model.document import Document
 
 
-class MepeoClienteDirecciones(Document):
+class SincronizacionArticulosGrupoSAP(Document):
 	pass

@@ -67,7 +67,7 @@ def get_mapeo_cliente():
     # Procesar la estructura de datos recibida
     mapeo = {
         "key_field": "CardCode",  # Campo clave en SAP
-        "erp_key_field": "code_sap",  # Campo clave en ERPNext
+        "erp_key_field": "custom_cardcode",  # Campo clave en ERPNext
         "sap_fields": {},  # Diccionario para mapeos campo_erp: campo_sap
         "defaults": {}  # Valores por defecto si es necesario
     }
@@ -93,7 +93,7 @@ def get_mapeo_cliente():
 def get_mapeo_cliente_direcciones():
     """Función adaptada para procesar la estructura actual del mapeo"""
     resultado = obtener_mapeo(
-        doctype_padre="Mepeo Cliente Direcciones",
+        doctype_padre="Mapeo Cliente Direcciones",
         doctype_hijo="Mapeo Campos SAP",
         campos_mapeo={
             "campo_erp": "campo_erpnext",
@@ -107,7 +107,225 @@ def get_mapeo_cliente_direcciones():
     # Procesar la estructura de datos recibida
     mapeo = {
         "key_field": "CardCode",  # Campo clave en SAP
-        "erp_key_field": "CardCode",  # Campo clave en ERPNext
+        "erp_key_field": "custom_cardcode",  # Campo clave en ERPNext
+        "sap_fields": {},  # Diccionario para mapeos campo_erp: campo_sap
+        "defaults": {}  # Valores por defecto si es necesario
+    }
+    
+    for item in resultado['data']:
+        # Verificamos que tenga los campos necesarios y no esté duplicado
+        if all(key in item for key in ['campo_erpnext', 'campo_sap']):
+            campo_erp = item['campo_erpnext'].strip()  # Eliminamos espacios en blanco
+            campo_sap = item['campo_sap'].strip()
+            
+            if campo_erp not in mapeo["sap_fields"]:
+                mapeo["sap_fields"][campo_erp] = campo_sap
+    
+    if not mapeo["sap_fields"]:
+        frappe.throw("El mapeo obtenido no contiene campos válidos")
+    
+    return mapeo
+
+@frappe.whitelist()
+def get_mapeo_lista_precio():
+    """Función adaptada para procesar la estructura actual del mapeo"""
+    resultado = obtener_mapeo(
+        doctype_padre="Mapeo Lista De Precios",
+        doctype_hijo="Mapeo Campos SAP",
+        campos_mapeo={
+            "campo_erp": "campo_erpnext",
+            "campo_externo": "campo_sap"
+        }
+    )
+    
+    if not resultado or not resultado.get('success') or not resultado.get('data'):
+        frappe.throw("No se pudo obtener el mapeo de campos para clientes o la estructura es inválida")
+    
+    # Procesar la estructura de datos recibida
+    mapeo = {
+        "key_field": "PriceListNo",  # Campo clave en SAP
+        "erp_key_field": "custom_pricelistno",  # Campo clave en ERPNext
+        "sap_fields": {},  # Diccionario para mapeos campo_erp: campo_sap
+        "defaults": {}  # Valores por defecto si es necesario
+    }
+    
+    for item in resultado['data']:
+        # Verificamos que tenga los campos necesarios y no esté duplicado
+        if all(key in item for key in ['campo_erpnext', 'campo_sap']):
+            campo_erp = item['campo_erpnext'].strip()  # Eliminamos espacios en blanco
+            campo_sap = item['campo_sap'].strip()
+            
+            if campo_erp not in mapeo["sap_fields"]:
+                mapeo["sap_fields"][campo_erp] = campo_sap
+    
+    if not mapeo["sap_fields"]:
+        frappe.throw("El mapeo obtenido no contiene campos válidos")
+    
+    return mapeo
+
+
+def get_mapeo_vendedores():
+    """Función adaptada para procesar la estructura actual del mapeo"""
+    resultado = obtener_mapeo(
+        doctype_padre="Mapeo Vendedores",
+        doctype_hijo="Mapeo Campos SAP",
+        campos_mapeo={
+            "campo_erp": "campo_erpnext",
+            "campo_externo": "campo_sap"
+        }
+    )
+    
+    if not resultado or not resultado.get('success') or not resultado.get('data'):
+        frappe.throw("No se pudo obtener el mapeo de campos para clientes o la estructura es inválida")
+    
+    # Procesar la estructura de datos recibida
+    mapeo = {
+        "key_field": "SalesEmployeeCode",  # Campo clave en SAP
+        "erp_key_field": "custom_salesemployeecode",  # Campo clave en ERPNext
+        "sap_fields": {},  # Diccionario para mapeos campo_erp: campo_sap
+        "defaults": {}  # Valores por defecto si es necesario
+    }
+    
+    for item in resultado['data']:
+        # Verificamos que tenga los campos necesarios y no esté duplicado
+        if all(key in item for key in ['campo_erpnext', 'campo_sap']):
+            campo_erp = item['campo_erpnext'].strip()  # Eliminamos espacios en blanco
+            campo_sap = item['campo_sap'].strip()
+            
+            if campo_erp not in mapeo["sap_fields"]:
+                mapeo["sap_fields"][campo_erp] = campo_sap
+    
+    if not mapeo["sap_fields"]:
+        frappe.throw("El mapeo obtenido no contiene campos válidos")
+    
+    return mapeo
+
+def get_mapeo_categoria_uom():
+    """Función adaptada para procesar la estructura actual del mapeo"""
+    resultado = obtener_mapeo(
+        doctype_padre="Mapeo Categoria UOM",
+        doctype_hijo="Mapeo Campos SAP",
+        campos_mapeo={
+            "campo_erp": "campo_erpnext",
+            "campo_externo": "campo_sap"
+        }
+    )
+    
+    if not resultado or not resultado.get('success') or not resultado.get('data'):
+        frappe.throw("No se pudo obtener el mapeo de campos para clientes o la estructura es inválida")
+    
+    # Procesar la estructura de datos recibida
+    mapeo = {
+        "key_field": "AbsEntry",  # Campo clave en SAP
+        "erp_key_field": "custom_absentry",  # Campo clave en ERPNext
+        "sap_fields": {},  # Diccionario para mapeos campo_erp: campo_sap
+        "defaults": {}  # Valores por defecto si es necesario
+    }
+    
+    for item in resultado['data']:
+        # Verificamos que tenga los campos necesarios y no esté duplicado
+        if all(key in item for key in ['campo_erpnext', 'campo_sap']):
+            campo_erp = item['campo_erpnext'].strip()  # Eliminamos espacios en blanco
+            campo_sap = item['campo_sap'].strip()
+            
+            if campo_erp not in mapeo["sap_fields"]:
+                mapeo["sap_fields"][campo_erp] = campo_sap
+    
+    if not mapeo["sap_fields"]:
+        frappe.throw("El mapeo obtenido no contiene campos válidos")
+    
+    return mapeo
+
+def get_mapeo_uom():
+    """Función adaptada para procesar la estructura actual del mapeo"""
+    resultado = obtener_mapeo(
+        doctype_padre="Mapeo UOM",
+        doctype_hijo="Mapeo Campos SAP",
+        campos_mapeo={
+            "campo_erp": "campo_erpnext",
+            "campo_externo": "campo_sap"
+        }
+    )
+    
+    if not resultado or not resultado.get('success') or not resultado.get('data'):
+        frappe.throw("No se pudo obtener el mapeo de campos para clientes o la estructura es inválida")
+    
+    # Procesar la estructura de datos recibida
+    mapeo = {
+        "key_field": "AbsEntry",  # Campo clave en SAP
+        "erp_key_field": "custom_absentry",  # Campo clave en ERPNext
+        "sap_fields": {},  # Diccionario para mapeos campo_erp: campo_sap
+        "defaults": {}  # Valores por defecto si es necesario
+    }
+    
+    for item in resultado['data']:
+        # Verificamos que tenga los campos necesarios y no esté duplicado
+        if all(key in item for key in ['campo_erpnext', 'campo_sap']):
+            campo_erp = item['campo_erpnext'].strip()  # Eliminamos espacios en blanco
+            campo_sap = item['campo_sap'].strip()
+            
+            if campo_erp not in mapeo["sap_fields"]:
+                mapeo["sap_fields"][campo_erp] = campo_sap
+    
+    if not mapeo["sap_fields"]:
+        frappe.throw("El mapeo obtenido no contiene campos válidos")
+    
+    return mapeo
+
+def get_mapeo_almacenes():
+    """Función adaptada para procesar la estructura actual del mapeo"""
+    resultado = obtener_mapeo(
+        doctype_padre="Mapeo Almacenes SAP",
+        doctype_hijo="Mapeo Campos SAP",
+        campos_mapeo={
+            "campo_erp": "campo_erpnext",
+            "campo_externo": "campo_sap"
+        }
+    )
+    
+    if not resultado or not resultado.get('success') or not resultado.get('data'):
+        frappe.throw("No se pudo obtener el mapeo de campos para clientes o la estructura es inválida")
+    
+    # Procesar la estructura de datos recibida
+    mapeo = {
+        "key_field": "WarehouseCode",  # Campo clave en SAP
+        "erp_key_field": "custom_warehousecode",  # Campo clave en ERPNext
+        "sap_fields": {},  # Diccionario para mapeos campo_erp: campo_sap
+        "defaults": {}  # Valores por defecto si es necesario
+    }
+    
+    for item in resultado['data']:
+        # Verificamos que tenga los campos necesarios y no esté duplicado
+        if all(key in item for key in ['campo_erpnext', 'campo_sap']):
+            campo_erp = item['campo_erpnext'].strip()  # Eliminamos espacios en blanco
+            campo_sap = item['campo_sap'].strip()
+            
+            if campo_erp not in mapeo["sap_fields"]:
+                mapeo["sap_fields"][campo_erp] = campo_sap
+    
+    if not mapeo["sap_fields"]:
+        frappe.throw("El mapeo obtenido no contiene campos válidos")
+    
+    return mapeo
+
+def mapping_blueprint(doctype, key_field_sap, key_field_erpnext):
+    """Función adaptada para procesar la estructura actual del mapeo"""
+    resultado = obtener_mapeo(
+        doctype_padre=doctype,
+        doctype_hijo="Mapeo Campos SAP",
+        campos_mapeo={
+            "campo_erp": "campo_erpnext",
+            "campo_externo": "campo_sap"
+        }
+    )
+    
+    if not resultado or not resultado.get('success') or not resultado.get('data'):
+        frappe.throw("No se pudo obtener el mapeo de campos para clientes o la estructura es inválida")
+    
+    # Procesar la estructura de datos recibida
+    mapeo = {
+        "key_field": key_field_sap,  # Campo clave en SAP
+        "erp_key_field": key_field_erpnext,  # Campo clave en ERPNext
         "sap_fields": {},  # Diccionario para mapeos campo_erp: campo_sap
         "defaults": {}  # Valores por defecto si es necesario
     }

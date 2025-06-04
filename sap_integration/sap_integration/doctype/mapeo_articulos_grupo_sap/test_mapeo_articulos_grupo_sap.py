@@ -5,5 +5,5 @@
 from frappe.tests.utils import FrappeTestCase
 
 
-class TestMepeoClienteDirecciones(FrappeTestCase):
+class TestMapeoArticulosGrupoSAP(FrappeTestCase):
 	pass

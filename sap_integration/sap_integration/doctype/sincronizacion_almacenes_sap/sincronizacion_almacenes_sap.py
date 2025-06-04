@@ -5,5 +5,5 @@
 from frappe.model.document import Document
 
 
-class ConfiguracionSincronizacionSAP(Document):
+class SincronizacionAlmacenesSAP(Document):
 	pass

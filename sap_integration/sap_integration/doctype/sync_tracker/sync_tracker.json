@@ -5,11 +5,11 @@
  "doctype": "DocType",
  "engine": "InnoDB",
  "field_order": [
-  "sync_tracker"
+  "sincronizaciones"
  ],
  "fields": [
   {
-   "fieldname": "sync_tracker",
+   "fieldname": "sincronizaciones",
    "fieldtype": "Table",
    "label": "Tabla de registros",
    "options": "Sync Record"
@@ -19,7 +19,7 @@
  "index_web_pages_for_search": 1,
  "issingle": 1,
  "links": [],
- "modified": "2025-05-23 21:24:52.754470",
+ "modified": "2025-05-27 10:19:20.487973",
  "modified_by": "Administrator",
  "module": "Sap Integration",
  "name": "Sync Tracker",

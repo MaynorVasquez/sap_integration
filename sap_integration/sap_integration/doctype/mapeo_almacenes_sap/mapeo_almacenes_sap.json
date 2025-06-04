@@ -1,17 +1,18 @@
 {
  "actions": [],
  "allow_rename": 1,
- "creation": "2025-05-19 12:03:00.318708",
+ "autoname": "format:{YYYY}-{MM}-{DD}-{######}",
+ "creation": "2025-05-30 23:15:44.824268",
  "doctype": "DocType",
  "engine": "InnoDB",
  "field_order": [
-  "mapeo_cliente_direcciones"
+  "mapeo_almacenes"
  ],
  "fields": [
   {
-   "fieldname": "mapeo_cliente_direcciones",
+   "fieldname": "mapeo_almacenes",
    "fieldtype": "Table",
-   "label": "Mapeo capos",
+   "label": "Mapeo Almacenes",
    "options": "Mapeo Campos SAP"
   }
  ],
@@ -19,10 +20,11 @@
  "index_web_pages_for_search": 1,
  "issingle": 1,
  "links": [],
- "modified": "2025-05-19 12:04:14.170813",
+ "modified": "2025-05-30 23:17:56.062100",
  "modified_by": "Administrator",
  "module": "Sap Integration",
- "name": "Mapeo Cliente Direcciones",
+ "name": "Mapeo Almacenes SAP",
+ "naming_rule": "Expression",
  "owner": "Administrator",
  "permissions": [
   {
