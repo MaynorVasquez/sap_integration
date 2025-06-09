@@ -14,16 +14,7 @@ app_license = "mit"
 #     }
 # }
 
-fixtures = [
-    {
-        "dt": "Custom Field",
-        "filters": [["name", "in", [
-            "Customer-custom_cardcode",
-            "Customer-custom_nit",
-            "Address-custom_cardcode"
-        ]]]
-    }
-]
+fixtures = ["Custom Field", "Property Setter", "Client Script", "Server Script"]
 
 doc_events = {
     "Sales Invoice": {
