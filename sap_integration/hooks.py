@@ -14,7 +14,19 @@ app_license = "mit"
 #     }
 # }
 
-fixtures = ["Custom Field", "Property Setter", "Client Script", "Server Script"]
+fixtures = [
+    "Custom Field",
+    "Property Setter",
+    "Client Script",
+    "Server Script",
+    "Print Format",
+    "Report",
+    {
+        "dt": "Workspace",
+        "filters": [["module", "in", ["Sap Integration"]]]
+    }
+]
+
 
 doc_events = {
     "Sales Invoice": {
