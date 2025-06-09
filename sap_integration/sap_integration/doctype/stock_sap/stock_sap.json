@@ -1,0 +1,67 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2025-06-05 12:26:56.923966",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "itemcode",
+  "batchnum",
+  "whscode",
+  "quantity",
+  "expdate"
+ ],
+ "fields": [
+  {
+   "fieldname": "itemcode",
+   "fieldtype": "Data",
+   "label": "C\u00f3digo"
+  },
+  {
+   "fieldname": "whscode",
+   "fieldtype": "Data",
+   "label": "Almacen"
+  },
+  {
+   "fieldname": "quantity",
+   "fieldtype": "Float",
+   "label": "Cantidad"
+  },
+  {
+   "fieldname": "expdate",
+   "fieldtype": "Data",
+   "label": "Fecha vencimiento"
+  },
+  {
+   "fieldname": "batchnum",
+   "fieldtype": "Data",
+   "label": "Lote"
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2025-06-05 12:53:00.174467",
+ "modified_by": "Administrator",
+ "module": "Sap Integration",
+ "name": "Stock SAP",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

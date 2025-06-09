@@ -3,144 +3,147 @@ from frappe import _
 import requests
 import json
 import traceback  # Importación añadida
-from .sap_auth import login_sap 
-from .logs import log_sincronizacion
+from collections import defaultdict
 
-def sincronizar_factores_conversion(docname=None):
-    debug_messages = []
-    total_procesados = 0
-    session = None
-    detalles = []
-    doctype_logs = "Sincronizacion UOM"
+def obtener_mapeo(doctype_padre, doctype_hijo, campos_mapeo):
+    """
+    Función genérica para obtener mapeos entre sistemas
 
+    Args:
+        doctype_padre (str): Nombre del Doctype padre (ej: "Mapeo Cliente")
+        doctype_hijo (str): Nombre del Doctype hijo/table (ej: "Mapeo Campos SAP")
+        campos_mapeo (dict): Diccionario con los campos a mapear 
+                             (ej: {"campo_erp": "campo_erpnext", "campo_externo": "campo_sap"})
+
+    Returns:
+        dict: {"success": bool, "data": list, "count": int, "error": str}
+    """
     try:
-        debug_messages.append("Iniciando autenticación con SAP...")
-        session = login_sap()
+        # Validación de existencia de Doctypes
+        if not frappe.db.exists("DocType", doctype_padre):
+            return {"success": False, "error": _(f"Doctype padre '{doctype_padre}' no existe")}
 
-        if not session or not isinstance(session, requests.Session):
-            raise Exception("La sesión SAP no se creó correctamente")
-        debug_messages.append("✔ Autenticación exitosa")
+        if not frappe.db.exists("DocType", doctype_hijo):
+            return {"success": False, "error": _(f"Doctype hijo '{doctype_hijo}' no existe")}
 
-        base_url = "https://apisap.yaesta.com.gt/b1s/v1/UnitOfMeasurementGroups"
-        debug_messages.append(f"✔ Consultando SAP: {base_url}")
-        response = session.get(base_url, timeout=30)
-        response.raise_for_status()
-        data = response.json()
+        # Construcción dinámica de campos para la consulta
+        campos_select = [
+            f"parent AS documento_padre",
+            f"{campos_mapeo['campo_erp']} AS campo_erpnext",
+            f"{campos_mapeo['campo_externo']} AS campo_sap"
+        ]
 
-        grupos = data.get('value', [])
-        if not grupos:
-            debug_messages.append("✗ No se recibieron grupos de UOM desde SAP.")
-        else:
-            debug_messages.append(f"✔ {len(grupos)} grupos de UOM obtenidos")
+        # Campos opcionales
+        if "tipo" in campos_mapeo:
+            campos_select.append(f"{campos_mapeo['tipo']} AS tipo")
+        if "valor" in campos_mapeo:
+            campos_select.append(f"{campos_mapeo['valor']} AS valor")
 
-            for grupo in grupos:
-                categoria_id = grupo.get("AbsEntry")
-                categoria = frappe.get_value("UOM Category", {"custom_absentry": categoria_id}, "name")
-                if not categoria:
-                    debug_messages.append(f"✗ Categoría ID {categoria_id} no encontrada en ERPNext")
-                    continue
-
-                base_uom_code = grupo.get("BaseUoM")
-                if base_uom_code == -1:
-                    continue
-
-                base_uom = frappe.get_value("UOM", {"custom_absentry": base_uom_code}, "name")
-                if not base_uom:
-                    debug_messages.append(f"✗ Base UOM ID {base_uom_code} no encontrado en ERPNext")
-                    continue
-
-                for definicion in grupo.get("UoMGroupDefinitionCollection", []):
-                    if definicion.get("AlternateUoM") == -1 or definicion.get("Active") != "tYES":
-                        continue
-
-                    alt_uom_code = definicion.get("AlternateUoM")
-                    alt_uom = frappe.get_value("UOM", {"custom_absentry": alt_uom_code}, "name")
-                    if not alt_uom:
-                        debug_messages.append(f"✗ UOM alternativo ID {alt_uom_code} no encontrado en ERPNext")
-                        continue
-
-                    factor = definicion.get("BaseQuantity", 1)
-                    if factor == 0:
-                        debug_messages.append(f"✗ Factor no válido (0) para {alt_uom} ➜ {base_uom}")
-                        continue
-
-                    try:
-                        conversion = frappe.get_all("UOM Conversion Factor", filters={
-                            "category": categoria,
-                            "from_uom": alt_uom,
-                            "to_uom": base_uom
-                        })
-
-                        if conversion:
-                            doc = frappe.get_doc("UOM Conversion Factor", conversion[0].name)
-                            doc.conversion_factor = factor
-                            doc.value = factor
-                            doc.save(ignore_permissions=True)
-                            debug_messages.append(f"✓ Factor actualizado: {alt_uom} ➜ {base_uom} ({factor})")
-                        else:
-                            doc = frappe.get_doc({
-                                "doctype": "UOM Conversion Factor",
-                                "category": categoria,
-                                "from_uom": alt_uom,
-                                "to_uom": base_uom,
-                                "conversion_factor": factor,
-                                "value": factor
-                            })
-                            doc.insert(ignore_permissions=True)
-                            debug_messages.append(f"✓ Factor creado: {alt_uom} ➜ {base_uom} ({factor})")
-
-                        total_procesados += 1
-                        detalles.append({
-                            "from": alt_uom,
-                            "to": base_uom,
-                            "factor": factor
-                        })
-
-                    except Exception as ex:
-                        frappe.log_error(f"Error al insertar factor:\n{frappe.as_json(doc)}", "Error en UOM Conversion Factor")
-                        debug_messages.append(f"✗ Error al crear factor: {alt_uom} ➜ {base_uom}: {str(ex)}")
-
-            frappe.db.commit()
-
-    except Exception as e:
-        error_msg = f"Error durante sincronización: {str(e)}\n{traceback.format_exc()}"
-        debug_messages.append(f"✗ {error_msg}")
-        frappe.log_error(title="Error al sincronizar factores UOM desde SAP", message=error_msg)
-
-        if docname:
-            log_sincronizacion(
-                doctype=doctype_logs,
-                docname=docname,
-                status="Error",
-                total=total_procesados,
-                detalles={},
-                errores=error_msg
-            )
+        # Consulta a la base de datos
+        registros = frappe.db.sql(f"""
+            SELECT {', '.join(campos_select)}
+            FROM `tab{doctype_hijo}`
+            WHERE parenttype = %s
+        """, doctype_padre, as_dict=True)
 
         return {
-            "status": "error",
-            "message": "Ocurrió un error durante la sincronización",
-            "debug": debug_messages,
-            "total": total_procesados
+            "success": True,
+            "count": len(registros),
+            "data": registros
         }
 
-    finally:
-        if session and isinstance(session, requests.Session):
-            session.close()
-            debug_messages.append("✓ Sesión SAP cerrada correctamente")
+    except Exception as e:
+        frappe.log_error(_("Error en obtener_mapeo"), f"Doctypes: {doctype_padre}/{doctype_hijo}\nError: {str(e)}")
+        return {"success": False, "error": str(e)}
 
-        if docname:
-            log_sincronizacion(
-                doctype=doctype_logs,
-                docname=docname,
-                status="Exitoso" if total_procesados > 0 else "Sin cambios",
-                total=total_procesados,
-                detalles=detalles,
-                errores=""
-            )
 
-    return {
-        "status": "success" if total_procesados > 0 else "warning",
-        "total": total_procesados,
-        "debug": debug_messages
+def mapping_blueprint(doctype, key_field_sap, key_field_erpnext):
+    """Obtiene el mapeo de campos desde un Doctype personalizado, incluyendo URL y filtros opcionales."""
+    resultado = obtener_mapeo(
+        doctype_padre=doctype,
+        doctype_hijo="Mapeo campos",
+        campos_mapeo={
+            "campo_erp": "campo_erpnext",
+            "campo_externo": "campo_sap",
+            "tipo": "tipo",          # puede ser 'map', 'url' o 'filter'
+            "valor": "valor"         # usado para filtros y url
+        }
+    )
+
+    if not resultado or not resultado.get('success') or not resultado.get('data'):
+        frappe.throw("No se pudo obtener el mapeo de campos o la estructura es inválida.")
+
+    mapeo = {
+        "key_field": key_field_sap,
+        "erp_key_field": key_field_erpnext,
+        "sap_fields": {},
+        "defaults": {},
+        "url": None,
+        "filters": []
     }
+
+    for item in resultado["data"]:
+        tipo = (item.get("tipo") or "").strip().lower()
+        campo_erp = (item.get("campo_erpnext") or "").strip()
+        campo_sap = (item.get("campo_sap") or "").strip()
+        valor = (item.get("valor") or "").strip()
+
+        if tipo == "map" and campo_erp and campo_sap:
+            mapeo["sap_fields"][campo_erp] = campo_sap
+
+        elif tipo == "url" and valor:
+            mapeo["url"] = valor
+
+        elif tipo == "filter" and campo_sap and valor:
+            #mapeo["filters"].append((campo_sap, valor))
+            valores = [v.strip() for v in valor.split(",") if v.strip()]
+            if len(valores) > 1:
+                filtro = f"{campo_sap} in ({', '.join([f'\'{v}\'' for v in valores])})"
+            else:
+                filtro = f"{campo_sap} eq '{valores[0]}'"
+            mapeo["filters"].append(filtro)
+
+    if not mapeo["sap_fields"]:
+        frappe.throw("El mapeo obtenido no contiene campos válidos.")
+
+    # Construir URL completa solo si hay base y al menos un campo o filtro
+    # if mapeo["url"]:
+    #     query_parts = []
+
+    #     if mapeo["filters"]:
+    #         query_parts.append(f"$filter={' and '.join(mapeo['filters'])}")
+
+    #     if mapeo["sap_fields"]:
+    #         query_parts.append(f"$select={','.join(mapeo['sap_fields'].values())}")
+
+    #     mapeo["url_completa"] = mapeo["url"]
+    #     if query_parts:
+    #         separator = "&" if "?" in mapeo["url"] else "?"
+    #         mapeo["url_completa"] += separator + "&".join(query_parts)
+
+    return mapeo
+
+
+def construir_filtro(lista_filtros):
+    if not lista_filtros:
+        return ""
+
+    grupos = defaultdict(list)
+
+    for filtro in lista_filtros:
+        partes = filtro.split(" eq ")
+        if len(partes) == 2:
+            campo = partes[0].strip()
+            valor = partes[1].strip()
+            grupos[campo].append(f"{campo} eq {valor}")
+
+    condiciones = []
+    for grupo in grupos.values():
+        if len(grupo) == 1:
+            condiciones.append(grupo[0])
+        else:
+            condiciones.append(f"({' or '.join(grupo)})")
+
+    return " and ".join(condiciones)
+
+

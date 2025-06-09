@@ -1,0 +1,49 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2025-06-04 12:41:33.764726",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "mapeo_inventario",
+  "mapeo_inventario_sap"
+ ],
+ "fields": [
+  {
+   "fieldname": "mapeo_inventario",
+   "fieldtype": "Section Break",
+   "label": "Mapeo Inventario SAP"
+  },
+  {
+   "fieldname": "mapeo_inventario_sap",
+   "fieldtype": "Table",
+   "label": "Mapeo Inventario SAP",
+   "options": "Mapeo campos"
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "issingle": 1,
+ "links": [],
+ "modified": "2025-06-04 13:41:45.844701",
+ "modified_by": "Administrator",
+ "module": "Sap Integration",
+ "name": "Mapeo Inventario SAP",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "print": 1,
+   "read": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

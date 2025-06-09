@@ -1,0 +1,51 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2025-06-04 13:38:44.075457",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "tipo",
+  "campo_erpnext",
+  "campo_sap",
+  "valor"
+ ],
+ "fields": [
+  {
+   "fieldname": "tipo",
+   "fieldtype": "Select",
+   "label": "tipo",
+   "options": "map\nurl\nfilter"
+  },
+  {
+   "fieldname": "campo_erpnext",
+   "fieldtype": "Data",
+   "label": "Campo ERPNEXT"
+  },
+  {
+   "fieldname": "campo_sap",
+   "fieldtype": "Data",
+   "label": "Campo SAP"
+  },
+  {
+   "fieldname": "valor",
+   "fieldtype": "Data",
+   "label": "Valor"
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "istable": 1,
+ "links": [],
+ "modified": "2025-06-04 13:41:14.972854",
+ "modified_by": "Administrator",
+ "module": "Sap Integration",
+ "name": "Mapeo campos",
+ "owner": "Administrator",
+ "permissions": [],
+ "row_format": "Dynamic",
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

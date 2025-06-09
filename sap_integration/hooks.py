@@ -25,6 +25,12 @@ fixtures = [
     }
 ]
 
+doc_events = {
+    "Sales Invoice": {
+        "validate": "sap_integration.hooks.pos.validate_stock_before_pos_submit"
+    }
+}
+
 
 
 # app_include_js = [

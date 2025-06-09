@@ -5,8 +5,9 @@ import json
 import traceback  # Importación añadida
 from .mapeos import mapping_blueprint
 from .sap_auth import login_sap 
-from .logs import log_sincronizacion
+from .logs import log_sincronizacion, filter_sap_response_items
 from .lista_precio import sincronizar_lista_precio
+from .sap_articulos_grupo import sincronizar_articulos_grupo
 
 @frappe.whitelist()
 def sincronizar_lista_articulos(docname=None):
@@ -14,7 +15,7 @@ def sincronizar_lista_articulos(docname=None):
     total_procesados = 0
     session = None
     detalles = []
-    doctype_logs = "Sincronizacion Articulos Grupo SAP"
+    doctype_logs = "Sincronizacion Articulos SAP"
     doctype_target = "Item"
 
     try:
@@ -48,6 +49,10 @@ def sincronizar_lista_articulos(docname=None):
             data = response.json()
 
             lista_datos = data.get('value', [])
+
+            datos_json = filter_sap_response_items(lista_datos, exclude_keys=["ItemPrices"])
+            detalles.extend(datos_json)
+            
             if not lista_datos:
                 debug_messages.append("✓ Fin de paginación alcanzado")
                 break
@@ -58,8 +63,8 @@ def sincronizar_lista_articulos(docname=None):
                     total_procesados += 1
                     debug_messages.append(f"✓ Dato: {result} procesado")
                     detalles.append(datos_mapeados)  # aquí guardas el JSON final procesado
-                    print("🔍 JSON detalles que se enviará al log:")
-                    print(json.dumps(detalles, indent=2, ensure_ascii=False))
+                    #print("🔍 JSON detalles que se enviará al log:")
+                    #print(json.dumps(detalles, indent=2, ensure_ascii=False))
 
             frappe.db.commit()
             skip += 20
@@ -127,6 +132,28 @@ def procesar_dato(registro_sap, mapeo_lista, doctype_target):
         datos_mapeados = {}
         for erp_field, sap_field in mapeo_lista["sap_fields"].items():
             datos_mapeados[erp_field] = registro_sap.get(sap_field)
+
+            valor_sap = registro_sap.get(sap_field)
+            # Validación personalizada para campo 'disabled'
+            if erp_field == "disabled" and sap_field == "Valid":
+                if valor_sap == "tYES":
+                    datos_mapeados[erp_field] = 0  # habilitado
+                elif valor_sap == "tNO":
+                    datos_mapeados[erp_field] = 1  # deshabilitado
+                else:
+                    datos_mapeados[erp_field] = 0  # valor por defecto (habilitado)
+
+            elif erp_field == "has_batch_no" and sap_field == "ManageBatchNumbers":
+                if valor_sap == "tYES":
+                    datos_mapeados[erp_field] = 1  # habilitado
+                elif valor_sap == "tNO":
+                    datos_mapeados[erp_field] = 0  # deshabilitado
+                else:
+                    datos_mapeados[erp_field] = 0  # valor por defecto (deshabilitado)
+
+            else:
+                datos_mapeados[erp_field] = valor_sap
+
 
         # Asegurar que el campo clave esté mapeado
         datos_mapeados[erp_key_field] = sap_id
@@ -355,33 +382,37 @@ def insertar_o_actualizar_item_price(data):
         frappe.db.commit()
 
 
-
 def sincronizar_uoms(item_code, registro_sap):
     try:
         item_doc = frappe.get_doc("Item", item_code)
-
-        # Obtener UoMPrices desde el primer bloque de ItemPrices
         item_prices = registro_sap.get("ItemPrices", [])
-        uom_prices = []
-        if item_prices and isinstance(item_prices, list):
-            uom_prices = item_prices[0].get("UoMPrices", [])
 
-        if not uom_prices:
-            frappe.log_error("No se encontró 'UoMPrices'", json.dumps(registro_sap, indent=2))
+        uom_prices_total = []
+
+        # Recolectar todos los UoMPrices de todas las listas de precios
+        for price_entry in item_prices:
+            uom_prices = price_entry.get("UoMPrices", [])
+            if isinstance(uom_prices, list):
+                uom_prices_total.extend(uom_prices)
+        
+        print(uom_prices_total)
+
+        if not uom_prices_total:
+            frappe.log_error("No se encontró 'UoMPrices' en ninguna lista de precios", json.dumps(registro_sap, indent=2))
             return
 
-        # Procesar los UOMs como desees...
-        for uom_price in uom_prices:
+        for uom_price in uom_prices_total:
             uom_entry = uom_price.get("UoMEntry")
             if not uom_entry:
                 continue
 
-            # Buscar el UOM en ERPNext por el campo personalizado `custom_absentry`
+            # Buscar el UOM por su código interno (custom_absentry)
             uom = frappe.db.get_value("UOM", {"custom_absentry": uom_entry}, "name")
             if not uom:
-                continue  # Podrías llamar aquí a sincronizar_lista_uom() si deseas crearlo
+                # Opcional: llamar a sincronizar_lista_uom() si el UOM no existe
+                continue
 
-            # Evitar duplicados
+            # Evitar duplicados en la tabla uoms del artículo
             ya_asignado = any(row.uom == uom for row in item_doc.uoms)
             if not ya_asignado:
                 item_doc.append("uoms", {
@@ -393,6 +424,52 @@ def sincronizar_uoms(item_code, registro_sap):
         frappe.db.commit()
 
     except Exception as e:
-        frappe.log_error(f"Error al sincronizar UOMs para {item_code}: {str(e)}")
+        frappe.log_error(f"Error al sincronizar UOMs para {item_code}: {str(e)}\n{traceback.format_exc()}")
         frappe.db.rollback()
+
+
+
+
+# def sincronizar_uoms(item_code, registro_sap):
+#     try:
+#         item_doc = frappe.get_doc("Item", item_code)
+#         print(item_doc)
+#         # Obtener UoMPrices desde el primer bloque de ItemPrices
+#         item_prices = registro_sap.get("ItemPrices", [])
+        
+#         uom_prices = []
+#         if item_prices and isinstance(item_prices, list):
+#             uom_prices = item_prices[0].get("UoMPrices", [])
+        
+#         if not uom_prices:
+#             frappe.log_error("No se encontró 'UoMPrices'", json.dumps(registro_sap, indent=2))
+#             return
+
+#         # Procesar los UOMs como desees...
+#         for uom_price in uom_prices:
+#             uom_entry = uom_price.get("UoMEntry")
+#             if not uom_entry:
+#                 continue
+
+#             # Buscar el UOM en ERPNext por el campo personalizado `custom_absentry`
+#             uom = frappe.db.get_value("UOM", {"custom_absentry": uom_entry}, "name")
+#             if not uom:
+#                 continue  # Podrías llamar aquí a sincronizar_lista_uom() si deseas crearlo
+
+#             print(uom)
+
+#             # Evitar duplicados
+#             ya_asignado = any(row.uom == uom for row in item_doc.uoms)
+#             if not ya_asignado:
+#                 item_doc.append("uoms", {
+#                     "uom": uom,
+#                     "conversion_factor": float(uom_price.get("Factor", 1.0)) or 1.0
+#                 })
+
+#         item_doc.save()
+#         frappe.db.commit()
+
+#     except Exception as e:
+#         frappe.log_error(f"Error al sincronizar UOMs para {item_code}: {str(e)}")
+#         frappe.db.rollback()
 
