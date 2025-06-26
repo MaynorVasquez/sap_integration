@@ -38,6 +38,8 @@ def obtener_mapeo(doctype_padre, doctype_hijo, campos_mapeo):
             campos_select.append(f"{campos_mapeo['tipo']} AS tipo")
         if "valor" in campos_mapeo:
             campos_select.append(f"{campos_mapeo['valor']} AS valor")
+        if "nivel" in campos_mapeo:
+            campos_select.append(f"{campos_mapeo['nivel']} AS nivel")
 
         # Consulta a la base de datos
         registros = frappe.db.sql(f"""
@@ -88,14 +90,15 @@ def mapping_blueprint(doctype, key_field_sap, key_field_erpnext):
         campo_sap = (item.get("campo_sap") or "").strip()
         valor = (item.get("valor") or "").strip()
 
-        if tipo == "map" and campo_erp and campo_sap:
-            mapeo["sap_fields"][campo_erp] = campo_sap
+        if tipo == "map":
+            if campo_erp and campo_sap:
+                mapeo["sap_fields"][campo_erp] = campo_sap
+            continue
 
         elif tipo == "url" and valor:
             mapeo["url"] = valor
 
         elif tipo == "filter" and campo_sap and valor:
-            #mapeo["filters"].append((campo_sap, valor))
             valores = [v.strip() for v in valor.split(",") if v.strip()]
             if len(valores) > 1:
                 filtro = f"{campo_sap} in ({', '.join([f'\'{v}\'' for v in valores])})"
@@ -103,23 +106,9 @@ def mapping_blueprint(doctype, key_field_sap, key_field_erpnext):
                 filtro = f"{campo_sap} eq '{valores[0]}'"
             mapeo["filters"].append(filtro)
 
-    if not mapeo["sap_fields"]:
-        frappe.throw("El mapeo obtenido no contiene campos válidos.")
-
-    # Construir URL completa solo si hay base y al menos un campo o filtro
-    # if mapeo["url"]:
-    #     query_parts = []
-
-    #     if mapeo["filters"]:
-    #         query_parts.append(f"$filter={' and '.join(mapeo['filters'])}")
-
-    #     if mapeo["sap_fields"]:
-    #         query_parts.append(f"$select={','.join(mapeo['sap_fields'].values())}")
-
-    #     mapeo["url_completa"] = mapeo["url"]
-    #     if query_parts:
-    #         separator = "&" if "?" in mapeo["url"] else "?"
-    #         mapeo["url_completa"] += separator + "&".join(query_parts)
+    # Si no hay campos mapeados pero sí hay URL, se permite continuar
+    if not mapeo["sap_fields"] and not mapeo["url"]:
+        frappe.throw("No se encontraron campos mapeados ni URL para consumir los datos.")
 
     return mapeo
 
@@ -147,3 +136,98 @@ def construir_filtro(lista_filtros):
     return " and ".join(condiciones)
 
 
+def construir_url_sap(mapeo_lista: dict, top: int = 20, skip: int = 0):
+    """
+    Construye la URL final a consumir desde SAP Service Layer usando el mapeo proporcionado.
+    """
+    if not mapeo_lista or "url" not in mapeo_lista:
+        raise ValueError("El mapeo no contiene una URL válida.")
+
+    try:
+        base_url = mapeo_lista["url"]
+        campos = mapeo_lista.get("sap_fields", {})
+        filtros = mapeo_lista.get("filters", [])
+        
+        params = []
+
+        if filtros:
+            filtro_sap = construir_filtro(filtros)
+            params.append(f"$filter={filtro_sap}")
+
+        if campos:
+            select_fields = ",".join(campos.values())
+            params.append(f"$select={select_fields}")
+
+        params.append(f"$top={top}")
+        params.append(f"$skip={skip}")
+
+        url_final = f"{base_url}?" + "&".join(params)
+        return url_final
+
+    except Exception as e:
+        frappe.log_error("Error en construcción de URL SAP", traceback.format_exc())
+        raise Exception(f"Error construyendo la URL SAP: {str(e)}")
+    
+
+def mapping_blueprint1(doctype, key_field_sap, key_field_erpnext):
+    """Obtiene el mapeo de campos desde un Doctype personalizado, organizando por niveles: head, DocumentLines y BatchNumbers."""
+    resultado = obtener_mapeo(
+        doctype_padre=doctype,
+        doctype_hijo="Mapeo campos",
+        campos_mapeo={
+            "campo_erp": "campo_erpnext",
+            "campo_externo": "campo_sap",
+            "tipo": "tipo",          # puede ser 'map', 'url' o 'filter'
+            "valor": "valor",        # usado para filtros y url
+            "nivel": "nivel"         # 'head', 'DocumentLines', 'BatchNumbers'
+        }
+    )
+
+    if not resultado or not resultado.get('success') or not resultado.get('data'):
+        frappe.throw("No se pudo obtener el mapeo de campos o la estructura es inválida.")
+
+    mapeo = {
+        "key_field": key_field_sap,
+        "erp_key_field": key_field_erpnext,
+        "sap_fields": {
+            "head": {},
+            "DocumentLines": {},
+            "BatchNumbers": {}
+        },
+        "defaults": {},
+        "url": None,
+        "filters": []
+    }
+
+    for item in resultado["data"]:
+        tipo = (item.get("tipo") or "").strip().lower()
+        campo_erp = (item.get("campo_erpnext") or "").strip()
+        campo_sap = (item.get("campo_sap") or "").strip()
+        valor = (item.get("valor") or "").strip()
+        nivel = (item.get("nivel") or "").strip()
+        #print(f"línea con valores: {tipo} | {campo_erp} | {campo_sap} | {nivel}")
+        if nivel not in ["head", "DocumentLines", "BatchNumbers"]:
+            nivel = "DocumentLines"
+
+        if tipo == "map":
+            if campo_erp and campo_sap:
+                if nivel not in mapeo["sap_fields"]:
+                    mapeo["sap_fields"][nivel] = {}
+                mapeo["sap_fields"][nivel][campo_erp] = campo_sap
+            continue
+
+        elif tipo == "url" and valor:
+            mapeo["url"] = valor
+
+        elif tipo == "filter" and campo_sap and valor:
+            valores = [v.strip() for v in valor.split(",") if v.strip()]
+            if len(valores) > 1:
+                filtro = f"{campo_sap} in ({', '.join([f'\'{v}\'' for v in valores])})"
+            else:
+                filtro = f"{campo_sap} eq '{valores[0]}'"
+            mapeo["filters"].append(filtro)
+
+    if not any(mapeo["sap_fields"].values()) and not mapeo["url"]:
+        frappe.throw("No se encontraron campos mapeados ni URL para consumir los datos.")
+
+    return mapeo

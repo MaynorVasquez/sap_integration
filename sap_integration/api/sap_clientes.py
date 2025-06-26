@@ -7,10 +7,11 @@ import urllib.parse
 from datetime import datetime
 from frappe.model.document import Document
 from .sap_auth import login_sap  # El punto indica mismo directorio
-from .mapeos import get_mapeo_cliente, get_mapeo_cliente_direcciones
+from .blueprint import mapping_blueprint, construir_url_sap
 from .logs import log_sincronizacion, filter_sap_response_items
 from .last_update import obtener_filtro_ultima_sync, actualizar_last_sync
-from .lista_precio import asignar_lista_precios_por_codigo_sap
+from .sap_lista_precio import asignar_lista_precios_por_codigo_sap
+from .sap_clientes_grupos import sincronizar_lista_clientes_grupos
 
 @frappe.whitelist()
 def sincronizar_clientes_desde_sap(docname=None):
@@ -19,6 +20,8 @@ def sincronizar_clientes_desde_sap(docname=None):
     total_procesados = 0
     session = None
     detalles = []
+    doctype_logs = "Sincronizacion clientes SAP"
+    doctype_target = "Customer"
 
     try:
         # 1. Autenticación
@@ -29,51 +32,74 @@ def sincronizar_clientes_desde_sap(docname=None):
             raise Exception("La sesión SAP no se creó correctamente")
         debug_messages.append("✔ Autenticación exitosa")
 
-        # 2. Obtener mapeo
-        mapeo_cliente = get_mapeo_cliente()
-        if not mapeo_cliente or "sap_fields" not in mapeo_cliente:
+        # 2. Obtener la estructura del mapeo de campos
+        mapeo_lista = mapping_blueprint("Mapeo Cliente", "CardCode", "custom_cardcode")
+        if not mapeo_lista or "sap_fields" not in mapeo_lista:
             raise Exception("No se pudo obtener el mapeo de campos")
-        debug_messages.append("✔ Mapeo de cliente obtenido")
+        debug_messages.append("✔ Mapeo de campos obtenido")
+
 
         syncs = obtener_filtro_ultima_sync("Sync Tracker", "Sync Record", "Clientes")
         sync_records = syncs["data"] if syncs["success"] else {}
 
-        # 3. Configuración
-        base_url = "https://apisap.yaesta.com.gt/b1s/v1/BusinessPartners"
-        select_fields = ",".join(mapeo_cliente["sap_fields"].values())
-        filter_condition = "U_smart_cli eq '1'"
 
         # 4. Paginación
-        page, skip = 1, 0
+        top = 20
+        skip = 0
+        page = 0
+        print("Inicio de paginación URL: ", mapeo_lista["url"])
+
         while True:
-            current_url = f"{base_url}?$select={select_fields}&$filter={filter_condition}&$top=20&$skip={skip}"
-            debug_messages.append(f"\nPágina {page} - URL: {current_url}")
+            url_final = construir_url_sap(mapeo_lista, top=top, skip=skip)
+            debug_messages.append(f"URL: {url_final}")
 
-            response = session.get(current_url, timeout=30)
-            response.raise_for_status()
-            data = response.json()
+            intentos = 0
+            max_reintentos = 3
+            while intentos <= max_reintentos:
+                try:
+                    response = session.get(url_final, timeout=30)
+                    if response.status_code == 401:
+                        debug_messages.append("⚠ Sesión expirada, intentando nueva sesión")
+                        session = login_sap()
+                        intentos += 1
+                        continue
+                    response.raise_for_status()
+                    data = response.json()
+                    lista_datos = data.get("value", [])
+                    detalles.extend(lista_datos)
+                    break
+                except Exception as e:
+                    debug_messages.append(f"✗ Error al obtener datos desde SAP: {e}")
+                    if intentos >= max_reintentos:
+                        return {"status": "error", "message": "Error al obtener datos de SAP", "debug": debug_messages}
+                    intentos += 1
 
-            #debug_messages.append(f"Respuesta SAP (status {response.status_code}):")
-            #debug_messages.append(json.dumps(data, indent=2)[:500] + "...")
+            debug_messages.append(f"📄 Página {page} → Registros recibidos: {len(lista_datos)}")
 
-            clientes = data.get('value', [])
-
-            clientes_sin_direcciones = filter_sap_response_items(clientes, exclude_keys=["BPAddresses"])
-            detalles.extend(clientes_sin_direcciones)
-
-            if not clientes:
-                debug_messages.append("✓ Fin de paginación alcanzado")
+            if not lista_datos:
+                print("Fin de la paginación...")
                 break
 
-            for cliente in clientes:
-                result = procesar_cliente(cliente, mapeo_cliente,sync_records)
-                if result:
-                    total_procesados += 1
-                    debug_messages.append(f"✓ Cliente {result} procesado")
-
-            frappe.db.commit()
-            skip += 20
+            skip += top
             page += 1
+
+        debug_messages.append(f"✅ Total registros acumulados: {len(detalles)}")
+
+        # Procesar todos los registros individualmente
+        if detalles:
+            for detalle in detalles:
+                procesado, resultado = procesar_dato(detalle, mapeo_lista, sync_records, doctype_target)
+                if procesado:
+                    total_procesados += 1
+                    debug_messages.append(f"✅ Procesado: {procesado}")
+                    print(f"✅ Procesado: {procesado}")
+                    # log_sincronizacion(doctype_logs, procesado, resultado)  # ← Descomenta si deseas guardar log por registro
+                else:
+                    debug_messages.append(f"♻️ Cliente no procesa{detalle.get('CardCode', 'Desconocido')} – Motivo: {resultado} ✅")
+                    print(f"✅ Cliente no procesado: {detalle.get('CardCode', 'Desconocido')} – Motivo: {resultado} ✅")
+        
+        print(f"✅ Total de registros procesados: {len(detalles)}")
+        
 
     except Exception as e:
         error_msg = f"Error durante sincronización: {str(e)}\n{traceback.format_exc()}"
@@ -82,7 +108,7 @@ def sincronizar_clientes_desde_sap(docname=None):
 
         if docname:
             log_sincronizacion(
-                doctype="Sincronizacion clientes SAP",
+                doctype=doctype_logs,
                 docname=docname,
                 status="Error",
                 total=total_procesados,
@@ -105,7 +131,7 @@ def sincronizar_clientes_desde_sap(docname=None):
 
         if docname:
             log_sincronizacion(
-                doctype="Sincronizacion clientes SAP",
+                doctype=doctype_logs,
                 docname=docname,
                 status="Exitoso" if total_procesados > 0 else "Sin cambios",
                 total=total_procesados,
@@ -121,35 +147,48 @@ def sincronizar_clientes_desde_sap(docname=None):
     }
 
 
-def procesar_cliente(cliente_sap, mapeo_cliente,sync_records):
+def procesar_dato(cliente_sap, mapeo_cliente, sync_records, doctype_target):
     """Crea o actualiza un cliente en ERPNext a partir de los datos de SAP"""
     try:
         # Obtener campos clave
-        sap_key_field = mapeo_cliente["key_field"]          # Ej: "custom_cardcode"
-        erp_key_field = mapeo_cliente["erp_key_field"]      # Ej: "custom_cardcode"
+        sap_key_field = mapeo_cliente["key_field"]          
+        erp_key_field = mapeo_cliente["erp_key_field"]     
         sap_id = cliente_sap.get(sap_key_field)
 
         if not sap_id:
             frappe.log_error("Cliente SAP sin custom_cardcode", json.dumps(cliente_sap, indent=2))
-            return None  # No se puede continuar sin ID
+            return None, "Falta campo clave SAP ID"
         
-        # Validar si ha cambiado desde la última sincronización
+        # Obtener campos de fecha y hora de actualización o creación
         update_date = cliente_sap.get("UpdateDate")
         update_time = cliente_sap.get("UpdateTime")
-        if not (update_date and update_time):
-            return None  # No procesar si faltan datos clave
-        
-        update_str = f"{update_date} {update_time}"
-        update_datetime = datetime.strptime(update_str, "%Y-%m-%d %H:%M:%S")
 
+        # Si no hay fecha/hora de actualización, usar fecha/hora de creación
+        if not update_date or not update_time:
+            update_date = cliente_sap.get("CreateDate")
+            update_time = cliente_sap.get("CreateTime")
+
+        # Validar que al menos uno de los dos pares exista
+        if not update_date or not update_time:
+            frappe.log_error("Faltan campos UpdateDate/UpdateTime y CreateDate/CreateTime", json.dumps(cliente_sap, indent=2))
+            return None, "Fecha de actualización no valida"
+
+        # Convertir a datetime
+        update_str = f"{update_date} {update_time}"
+        try:
+            update_datetime = datetime.strptime(update_str, "%Y-%m-%d %H:%M:%S")
+        except Exception as e:
+            frappe.log_error("Error al convertir datetime", f"{update_str}\n{traceback.format_exc()}")
+            return None, "Error al convertir la fecha de actualización"
+        
         last_sync = sync_records.get(sap_id)
         if last_sync:
             last_sync_dt = datetime.strptime(last_sync, "%Y-%m-%d %H:%M:%S")
             if update_datetime <= last_sync_dt:
-                return None  # No hay cambios, omitir procesamiento
-        print("SAP datetime:", update_datetime)
+                return None, "Cliente sin cambios"
+
         # Buscar cliente en ERPNext por el campo clave
-        cliente_existente = frappe.get_all("Customer", filters={erp_key_field: sap_id}, limit=1)
+        cliente_existente = frappe.get_all(doctype_target, filters={erp_key_field: sap_id}, limit=1)
 
         # Mapear datos SAP -> ERP
         datos_cliente = {}
@@ -170,40 +209,43 @@ def procesar_cliente(cliente_sap, mapeo_cliente,sync_records):
 
         # Asegurar que el campo clave esté presente
         datos_cliente[erp_key_field] = sap_id
+
         print("procesando código de cliente: ",sap_id)
         if cliente_existente:
             # Actualizar cliente existente
-            cliente_doc = frappe.get_doc("Customer", cliente_existente[0].name)
+            cliente_doc = frappe.get_doc(doctype_target, cliente_existente[0].name)
             try:
                 cliente_doc.update(datos_cliente)
                 asignar_vendedor(cliente_doc, cliente_sap)
+                asignar_cliente_grupo(cliente_doc, cliente_sap)
                 cliente_doc.save()
             except frappe.exceptions.DocumentHasBeenModifiedError:
                 frappe.log_error(f"Error al actualizar cliente o asignar vendedor para {sap_id}: {str(e)}\n{traceback.format_exc()}")
                 frappe.db.rollback()
-                return None
+                return None, "Error DocumentHasBeenModifiedError"
 
             procesar_direcciones(cliente_doc, cliente_sap.get("BPAddresses", []), sap_id)
             # Actualizar registro de sincronización
             actualizar_last_sync("Clientes", sap_id, update_datetime)
-            return f"{sap_id} (actualizado)"
+            return f"{sap_id} (actualizado)", datos_cliente
         else:
             # Crear cliente nuevo
                  
-            cliente_doc = frappe.new_doc("Customer")
+            cliente_doc = frappe.new_doc(doctype_target)
             cliente_doc.update(datos_cliente)                
             cliente_doc.insert()
             procesar_direcciones(cliente_doc, cliente_sap.get("BPAddresses", []), sap_id)
             asignar_vendedor(cliente_doc, cliente_sap)
+            asignar_cliente_grupo(cliente_doc, cliente_sap)
             cliente_doc.save()
             # Actualizar registro de sincronización
             actualizar_last_sync("Clientes", sap_id, update_datetime)
-            return f"{sap_id} (creado)"
+            return f"{sap_id} (creado)", datos_cliente
 
     except Exception as e:
         id_log = sap_id if "sap_id" in locals() else "DESCONOCIDO"
         frappe.log_error(f"Error al procesar cliente {sap_id}: {str(e)}\n{traceback.format_exc()}")
-        return None
+        return None, f"Excepción: {str(e)}"
 
 
 def asignar_vendedor(cliente_doc, cliente_sap):
@@ -228,6 +270,30 @@ def asignar_vendedor(cliente_doc, cliente_sap):
 
 
 
+def asignar_cliente_grupo(cliente_doc, cliente_sap):
+    """
+    Asigna el Customer Group a un cliente según el GroupCode recibido de SAP.
+    Si el grupo no existe, lo sincroniza y vuelve a intentar.
+    """
+    group_code_cliente = cliente_sap.get("GroupCode")
+    grupo = frappe.get_all("Customer Group", filters={"custom_code": group_code_cliente}, limit=1)
+
+    # Si no existe, sincronizar grupos e intentar de nuevo
+    if not grupo:
+        print(f"No se encontró Customer Group con código SAP '{group_code_cliente}', sincronizando...")
+        sincronizar_lista_clientes_grupos()
+        grupo = frappe.get_all("Customer Group", filters={"custom_code": group_code_cliente}, limit=1)
+
+    if grupo:
+        grupo_nombre = grupo[0].name
+        if cliente_doc.customer_group != grupo_nombre:
+            cliente_doc.customer_group = grupo_nombre
+            print(f"Asignado grupo de cliente '{grupo_nombre}' al cliente {cliente_doc.name}")
+        else:
+            print(f"Cliente {cliente_doc.name} ya tiene asignado el grupo '{grupo_nombre}'")
+    else:
+        print(f"No se pudo encontrar ni crear el Customer Group con código SAP '{group_code_cliente}'")
+
 
 def procesar_direcciones(cliente_doc, bp_addresses, card_code):
     """
@@ -238,13 +304,11 @@ def procesar_direcciones(cliente_doc, bp_addresses, card_code):
         frappe.logger().info(f"[{card_code}] Cliente sin direcciones en SAP.")
         return
 
-    try:
-        mapeo_direcciones = get_mapeo_cliente_direcciones()
-        if not mapeo_direcciones or not mapeo_direcciones.get("sap_fields"):
-            frappe.throw("No se pudo obtener el mapeo de direcciones o es inválido.")
-    except Exception as e:
-        frappe.log_error(f"Error obteniendo mapeo de direcciones: {str(e)}")
-        return
+    # 2. Obtener la estructura del mapeo de campos
+    mapeo_direcciones = mapping_blueprint("Mapeo Cliente Direcciones", "BPCode", "custom_cardcode")
+    if not mapeo_direcciones or "sap_fields" not in mapeo_direcciones:
+        raise Exception("No se pudo obtener el mapeo de campos")
+    print("✔ Mapeo de campos obtenido direcciones")
 
     cliente_erp = frappe.get_value("Customer", {"custom_cardcode": card_code}, "name")
     if not cliente_erp:

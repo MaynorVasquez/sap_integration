@@ -5,5 +5,5 @@
 from frappe.tests.utils import FrappeTestCase
 
 
-class TestMapeoListaDePrecios(FrappeTestCase):
+class TestMapeoUOMfactoresconversionSAP(FrappeTestCase):
 	pass

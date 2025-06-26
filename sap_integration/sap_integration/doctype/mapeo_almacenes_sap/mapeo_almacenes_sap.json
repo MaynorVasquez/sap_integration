@@ -13,14 +13,14 @@
    "fieldname": "mapeo_almacenes",
    "fieldtype": "Table",
    "label": "Mapeo Almacenes",
-   "options": "Mapeo Campos SAP"
+   "options": "Mapeo campos"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "issingle": 1,
  "links": [],
- "modified": "2025-05-30 23:17:56.062100",
+ "modified": "2025-06-16 08:48:39.206928",
  "modified_by": "Administrator",
  "module": "Sap Integration",
  "name": "Mapeo Almacenes SAP",

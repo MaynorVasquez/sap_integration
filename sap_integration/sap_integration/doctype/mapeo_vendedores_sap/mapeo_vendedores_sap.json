@@ -1,17 +1,18 @@
 {
  "actions": [],
  "allow_rename": 1,
- "creation": "2025-05-19 12:03:00.318708",
+ "autoname": "format:{YYYY}-{MM}-{DD}-{######}",
+ "creation": "2025-05-28 09:59:01.845322",
  "doctype": "DocType",
  "engine": "InnoDB",
  "field_order": [
-  "mapeo_cliente_direcciones"
+  "mapeo_vendedores"
  ],
  "fields": [
   {
-   "fieldname": "mapeo_cliente_direcciones",
+   "fieldname": "mapeo_vendedores",
    "fieldtype": "Table",
-   "label": "Mapeo capos",
+   "label": "Vendedores",
    "options": "Mapeo campos"
   }
  ],
@@ -19,10 +20,11 @@
  "index_web_pages_for_search": 1,
  "issingle": 1,
  "links": [],
- "modified": "2025-06-18 08:38:46.726540",
+ "modified": "2025-06-16 21:51:19.470228",
  "modified_by": "Administrator",
  "module": "Sap Integration",
- "name": "Mapeo Cliente Direcciones",
+ "name": "Mapeo Vendedores SAP",
+ "naming_rule": "Expression",
  "owner": "Administrator",
  "permissions": [
   {

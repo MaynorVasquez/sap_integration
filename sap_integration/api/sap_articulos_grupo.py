@@ -3,7 +3,7 @@ from frappe import _
 import requests
 import json
 import traceback  # Importación añadida
-from .mapeos import mapping_blueprint
+from .blueprint import mapping_blueprint, construir_url_sap
 from .sap_auth import login_sap 
 from .logs import log_sincronizacion
 
@@ -25,43 +25,63 @@ def sincronizar_articulos_grupo(docname=None):
             raise Exception("La sesión SAP no se creó correctamente")
         debug_messages.append("✔ Autenticación exitosa")
 
-        # 2. Obtener la estructura del mapeo de campos
+        # 2. Obtener mapeo
         mapeo_lista = mapping_blueprint("Mapeo Articulos Grupo SAP", "Number", "custom_number")
         if not mapeo_lista or "sap_fields" not in mapeo_lista:
-            raise Exception("No se pudo obtener el mapeo de campos")
-        debug_messages.append("✔ Mapeo de lista de precio obtenido")
+            raise Exception("No se pudo obtener el mapeo de campos desde el blueprint")
+        debug_messages.append("✔ Mapeo de campos exitoso")
+        print("✔ Mapeo de campos exitoso")
 
-        # 3. Configuración
-        base_url = "https://apisap.yaesta.com.gt/b1s/v1/ItemGroups"
-        select_fields = ",".join(mapeo_lista["sap_fields"].values())
-
-                # 4. Paginación
+        # 4. Paginación
+        print("Inicio de paginación URL: ", mapeo_lista["url"])
+        top = 20
         page, skip = 1, 0
         while True:
-            current_url = f"{base_url}?$select={select_fields}&$top=20&$skip={skip}"
-            debug_messages.append(f"\nPágina {page} - URL: {current_url}")
+            url_final = construir_url_sap(mapeo_lista, top=top, skip=skip)
+            debug_messages.append(f"URL: {url_final}")
 
-            response = session.get(current_url, timeout=30)
-            response.raise_for_status()
-            data = response.json()
+            intentos = 0
+            max_reintentos = 3
+            while intentos <= max_reintentos:
+                try:
+                    response = session.get(url_final, timeout=30)
+                    if response.status_code == 401:
+                        debug_messages.append("⚠ Sesión expirada, intentando nueva sesión")
+                        session = login_sap()
+                        intentos += 1
+                        continue
+                    response.raise_for_status()
+                    data = response.json()
+                    lista_datos = data.get("value", [])
+                    detalles.extend(lista_datos)
+                    break
+                except Exception as e:
+                    debug_messages.append(f"✗ Error al obtener datos desde SAP: {e}")
+                    if intentos >= max_reintentos:
+                        return {"status": "error", "message": "Error al obtener datos de SAP", "debug": debug_messages}
+                    intentos += 1
 
-            lista_datos = data.get('value', [])
+            debug_messages.append(f"📄 Página {page} → Registros recibidos: {len(lista_datos)}")
+
             if not lista_datos:
-                debug_messages.append("✓ Fin de paginación alcanzado")
+                print("Fin de la paginación...")
                 break
 
-            for lista_dato in lista_datos:
-                result, datos_mapeados = procesar_dato(lista_dato, mapeo_lista,doctype_target)
-                if result:
-                    total_procesados += 1
-                    debug_messages.append(f"✓ Dato: {result} procesado")
-                    detalles.append(datos_mapeados)  # aquí guardas el JSON final procesado
-                    print("🔍 JSON detalles que se enviará al log:")
-                    print(json.dumps(detalles, indent=2, ensure_ascii=False)) 
-
-            frappe.db.commit()
-            skip += 20
+            skip += top
             page += 1
+
+        debug_messages.append(f"✅ Total registros acumulados: {len(detalles)}")
+
+        # Procesar todos los registros individualmente
+        if detalles:
+            for detalle in detalles:
+                procesado, resultado = procesar_datos(detalle, mapeo_lista, doctype_target)
+                if procesado:
+                    total_procesados += 1
+                    debug_messages.append(f"✔ Procesado: {procesado}")
+                    # log_sincronizacion(doctype_logs, procesado, resultado)  # ← Descomenta si deseas guardar log por registro
+                else:
+                    debug_messages.append(f"✗ Falló procesar: {detalle}")
 
     except Exception as e:
         error_msg = f"Error durante sincronización: {str(e)}\n{traceback.format_exc()}"
@@ -106,56 +126,58 @@ def sincronizar_articulos_grupo(docname=None):
     }
 
 
-#Funcion para procesar datos paginadas
-def procesar_dato(lista_precio, mapeo_lista,doctype_target):
-    """"Crea o actualiza lista de precios en ERPNEXT"""
+def procesar_datos(lista_mapeo, mapeo_lista, doctype):
+    """Crea o actualiza documentos en ERPNext de forma genérica"""
     try:
         # Obtener campos clave
-        sap_key_field = mapeo_lista["key_field"]          # Ej: "Código SAP key"
-        erp_key_field = mapeo_lista["erp_key_field"]      # Ej: "Código ERPNEXT Key"
-        sap_id = lista_precio.get(sap_key_field)
+        sap_key_field = mapeo_lista["key_field"]          # Ej: "KeySAP"
+        erp_key_field = mapeo_lista["erp_key_field"]      # Ej: "custom_ERPNEXT"
+        sap_id = lista_mapeo.get(sap_key_field)
+
+        print("Código sap: ", sap_id)
 
         if not sap_id:
-            frappe.log_error("Lista de precios sin código", json.dumps(lista_precio, indent=2))
-            return None, None  # No se puede continuar sin ID
+            frappe.log_error("Dato sin código", json.dumps(lista_mapeo, indent=2))
+            return None, None  # No se puede continuar sin ID        
 
-        # Buscar lista de precios ERPNEXT
-        lista_existente = frappe.get_all(doctype_target, filters={erp_key_field: sap_id}, limit=1)
+        # Buscar documento existente en ERPNext
+        dato_existente = frappe.get_all(doctype, filters={erp_key_field: sap_id}, limit=1)
 
-        # Mapear datos SAP -> ERP
-        datos_lista_precio = {}
+        # Mapear datos SAP -> ERPNext
+        dato_lista = {}
         for erp_field, sap_field in mapeo_lista["sap_fields"].items():
-            valor = lista_precio.get(sap_field)
+            valor = lista_mapeo.get(sap_field)
 
-            datos_lista_precio[erp_field] = valor
-        
-        print(datos_lista_precio)
-        
+            if erp_field == "Inactive":
+                valor = 1 if valor == "tYES" else 0
+
+            dato_lista[erp_field] = valor
+
+        print(dato_lista)
         # Asegurar que el campo clave esté presente
-        datos_lista_precio[erp_key_field] = sap_id
-        # Asegurar campos obligatorios en ERPNext
-        print("procesando lista de precio: ",sap_id)
+        dato_lista[erp_key_field] = sap_id
 
-        if lista_existente:
-            # Actualizar lista de precios existente
-            lista_precio_doc = frappe.get_doc(doctype_target, lista_existente[0].name)
-            for campo, valor in datos_lista_precio.items():
-                setattr(lista_precio_doc, campo, valor)
-            
+        if dato_existente:
+            # Actualizar documento existente
+            doc = frappe.get_doc(doctype, dato_existente[0].name)
+            for campo, valor in dato_lista.items():
+                setattr(doc, campo, valor)
             try:
-                lista_precio_doc.save()
+                doc.save()
+                frappe.db.commit()  # ✅ commit después de guardar
             except frappe.exceptions.DocumentHasBeenModifiedError:
                 frappe.db.rollback()
-            return f"{sap_id} (actualizado)", datos_lista_precio
+            return f"{sap_id} (actualizado)", dato_lista
         else:
-            # Crea Lista de precios Nuevo
-            lista_precio_doc = frappe.new_doc(doctype_target)
-            for campo, valor in datos_lista_precio.items():
-                setattr(lista_precio_doc, campo, valor)
-            lista_precio_doc.insert()
-            return f"{sap_id} (creado)", datos_lista_precio
+            # Crear nuevo documento
+            doc = frappe.new_doc(doctype)
+            for campo, valor in dato_lista.items():
+                setattr(doc, campo, valor)
+            doc.insert()
+            frappe.db.commit()  # ✅ commit después de insertar
+            return f"{sap_id} (creado)", dato_lista
 
     except Exception as e:
-        frappe.log_error(f"Error al procesar dato {sap_id}: {str(e)}\n{traceback.format_exc()}")
+        frappe.log_error(f"Error al procesar datos {sap_id}: {str(e)}\n{traceback.format_exc()}")
         return None, None
-    
+

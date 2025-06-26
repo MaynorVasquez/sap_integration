@@ -12,14 +12,14 @@
    "fieldname": "mapeo_uom",
    "fieldtype": "Table",
    "label": "Mapeo UOM",
-   "options": "Mapeo Campos SAP"
+   "options": "Mapeo campos"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "issingle": 1,
  "links": [],
- "modified": "2025-05-30 10:30:07.341761",
+ "modified": "2025-06-16 16:32:13.899866",
  "modified_by": "Administrator",
  "module": "Sap Integration",
  "name": "Mapeo UOM",

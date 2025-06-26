@@ -9,7 +9,8 @@
   "tipo",
   "campo_erpnext",
   "campo_sap",
-  "valor"
+  "valor",
+  "nivel"
  ],
  "fields": [
   {
@@ -32,13 +33,19 @@
    "fieldname": "valor",
    "fieldtype": "Data",
    "label": "Valor"
+  },
+  {
+   "fieldname": "nivel",
+   "fieldtype": "Select",
+   "label": "Nivel",
+   "options": "head\nDocumentLines\nBatchNumbers"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2025-06-04 13:41:14.972854",
+ "modified": "2025-06-24 08:45:22.708572",
  "modified_by": "Administrator",
  "module": "Sap Integration",
  "name": "Mapeo campos",

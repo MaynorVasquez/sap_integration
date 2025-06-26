@@ -15,7 +15,7 @@
    "fieldname": "tipo_entidad",
    "fieldtype": "Select",
    "label": "Tipo Entidad",
-   "options": "Clientes\nProveedores\nAticulos"
+   "options": "Clientes\nProveedores\nArticulos"
   },
   {
    "fieldname": "code",
@@ -32,7 +32,7 @@
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2025-05-23 21:23:01.280376",
+ "modified": "2025-06-18 10:25:58.304598",
  "modified_by": "Administrator",
  "module": "Sap Integration",
  "name": "Sync Record",

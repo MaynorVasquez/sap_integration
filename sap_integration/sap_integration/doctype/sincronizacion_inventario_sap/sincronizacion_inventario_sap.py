@@ -5,5 +5,5 @@
 from frappe.model.document import Document
 
 
-class MapeoVendedores(Document):
+class SincronizacionInventarioSAP(Document):
 	pass

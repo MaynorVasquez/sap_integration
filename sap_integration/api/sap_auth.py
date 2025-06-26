@@ -45,34 +45,6 @@ def login_sap():
     except requests.exceptions.RequestException as e:
         frappe.throw(f"Error al autenticar con SAP: {str(e)}")
 
-# def login_sap():
-#     """
-#     Realiza login al SAP Service Layer y retorna cookies y headers necesarios para futuras peticiones.
-#     """
-#     try:
-#         sap_credentials, sap_url = get_sap_credentials()
-        
-#         response = requests.post(
-#             f"{sap_url}/Login",
-#             json=sap_credentials,
-#             verify=False  # ⚠️ solo para entornos de prueba. En prod, usa un certificado válido.
-#         )
-#         response.raise_for_status()
-
-#         # Extrae cookies y cabeceras
-#         cookies = response.cookies
-#         session_id = cookies.get('B1SESSION')
-#         route_id = cookies.get('ROUTEID') or "ROUTEID=0"  # en algunos casos viene aquí
-
-#         return {
-#             "cookies": cookies,
-#             "session_id": session_id,
-#             "route_id": route_id
-#         }
-
-#     except requests.exceptions.RequestException as e:
-#         frappe.throw(f"Error al autenticar con SAP: {str(e)}") 
-
 
 @frappe.whitelist()
 def test_sap_connection():

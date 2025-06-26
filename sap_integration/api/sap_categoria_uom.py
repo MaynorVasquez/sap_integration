@@ -3,7 +3,7 @@ from frappe import _
 import requests
 import json
 import traceback  # Importación añadida
-from .mapeos import get_mapeo_categoria_uom, get_mapeo_uom
+from .blueprint import mapping_blueprint, construir_url_sap
 from .sap_auth import login_sap 
 from .logs import log_sincronizacion
 
@@ -25,37 +25,50 @@ def sincronizar_lista_categoria_uom(docname=None):
         if not session or not isinstance(session, requests.Session):
             raise Exception("La sesión SAP no se creó correctamente")
         debug_messages.append("✔ Autenticación exitosa")
+        print("✔ Autenticación exitosa")
 
         # 2. Obtener mapeo
-        mapeo_lista = get_mapeo_categoria_uom()
+        mapeo_lista = mapping_blueprint("Mapeo Categoria UOM", "AbsEntry", "custom_absentry")
         if not mapeo_lista or "sap_fields" not in mapeo_lista:
-            raise Exception("No se pudo obtener el mapeo de campos")
-        debug_messages.append("✔ Mapeo de lista de UOM obtenido")
+            raise Exception("No se pudo obtener el mapeo de campos desde el blueprint")
+        debug_messages.append("✔ Mapeo de campos exitoso")
+        print("✔ Mapeo de campos exitoso")
 
         # 3. Obtener datos del endpoint
-        base_url = "https://apisap.yaesta.com.gt/b1s/v1/UnitOfMeasurementGroupsService_GetList"
-        select_fields = ",".join(mapeo_lista["sap_fields"].values())
-        current_url = f"{base_url}?$select={select_fields}"
+        url_final = construir_url_sap(mapeo_lista)
+        debug_messages.append(f"URL: {url_final}")
 
-        debug_messages.append(f"✔ Consultando SAP: {current_url}")
-        response = session.get(current_url, timeout=30)
-        response.raise_for_status()
-        data = response.json()
-
-        lista_datos = data.get('value', [])
-        if not lista_datos:
-            debug_messages.append("✗ No se recibieron datos desde SAP.")
-        else:
-            debug_messages.append(f"✔ {len(lista_datos)} registros obtenidos")
-
-            for lista_dato in lista_datos:
-                result, datos_mapeados = procesar_lista(lista_dato, mapeo_lista, doctype_target)
-                if result:
+        intentos = 0
+        max_reintentos = 3
+        while intentos <= max_reintentos:
+            try:
+                response = session.get(url_final, timeout=30)
+                if response.status_code == 401:
+                    debug_messages.append("⚠ Sesión expirada, intentando nueva sesión")
+                    session = login_sap()
+                    intentos += 1
+                    continue
+                response.raise_for_status()
+                data = response.json()
+                lista_datos = data.get("value", [])
+                detalles.extend(lista_datos)
+                break
+            except Exception as e:
+                debug_messages.append(f"✗ Error al obtener datos desde SAP: {e}")
+                if intentos >= max_reintentos:
+                    return {"status": "error", "message": "Error al obtener datos de SAP", "debug": debug_messages}
+                intentos += 1
+        
+        # Procesar todos los registros individualmente
+        if detalles:
+            for detalle in detalles:
+                procesado, resultado = procesar_datos(detalle, mapeo_lista, doctype_target)
+                if procesado:
                     total_procesados += 1
-                    debug_messages.append(f"✓ Lista {result} procesada")
-                    detalles.append(datos_mapeados)
-
-            frappe.db.commit()
+                    debug_messages.append(f"✔ Procesado: {procesado}")
+                    # log_sincronizacion(doctype_logs, procesado, resultado)  # ← Descomenta si deseas guardar log por registro
+                else:
+                    debug_messages.append(f"✗ Falló procesar: {detalle}")
 
     except Exception as e:
         error_msg = f"Error durante sincronización: {str(e)}\n{traceback.format_exc()}"
@@ -120,36 +133,47 @@ def sincronizar_lista_uom(docname=None):
         debug_messages.append("✔ Autenticación exitosa")
 
         # 2. Obtener mapeo
-        mapeo_lista = get_mapeo_uom()
+        mapeo_lista = mapping_blueprint("Mapeo UOM", "AbsEntry", "custom_absentry")
         if not mapeo_lista or "sap_fields" not in mapeo_lista:
-            raise Exception("No se pudo obtener el mapeo de campos")
-        debug_messages.append("✔ Mapeo de lista de UOM obtenido")
+            raise Exception("No se pudo obtener el mapeo de campos desde el blueprint")
+        debug_messages.append("✔ Mapeo de campos exitoso")
+        print("✔ Mapeo de campos exitoso")
 
         # 3. Obtener datos del endpoint
-        base_url = "https://apisap.yaesta.com.gt/b1s/v1/UnitOfMeasurementsService_GetList"
-        select_fields = ",".join(mapeo_lista["sap_fields"].values())
-        current_url = f"{base_url}?$select={select_fields}"
+        url_final = construir_url_sap(mapeo_lista)
+        debug_messages.append(f"URL: {url_final}")
 
-        debug_messages.append(f"✔ Consultando SAP: {current_url}")
-        response = session.get(current_url, timeout=30)
-        response.raise_for_status()
-        data = response.json()
+        intentos = 0
+        max_reintentos = 3
+        while intentos <= max_reintentos:
+            try:
+                response = session.get(url_final, timeout=30)
+                if response.status_code == 401:
+                    debug_messages.append("⚠ Sesión expirada, intentando nueva sesión")
+                    session = login_sap()
+                    intentos += 1
+                    continue
+                response.raise_for_status()
+                data = response.json()
+                lista_datos = data.get("value", [])
+                detalles.extend(lista_datos)
+                break
+            except Exception as e:
+                debug_messages.append(f"✗ Error al obtener datos desde SAP: {e}")
+                if intentos >= max_reintentos:
+                    return {"status": "error", "message": "Error al obtener datos de SAP", "debug": debug_messages}
+                intentos += 1
 
-        lista_datos = data.get('value', [])
-        if not lista_datos:
-            debug_messages.append("✗ No se recibieron datos desde SAP.")
-        else:
-            debug_messages.append(f"✔ {len(lista_datos)} registros obtenidos")
-
-            for lista_dato in lista_datos:
-                result, datos_mapeados = procesar_lista(lista_dato, mapeo_lista, doctype_target)
-                if result:
+        # Procesar todos los registros individualmente
+        if detalles:
+            for detalle in detalles:
+                procesado, resultado = procesar_datos(detalle, mapeo_lista, doctype_target)
+                if procesado:
                     total_procesados += 1
-                    nombre_uom = datos_mapeados.get("uom_name", "")
-                    debug_messages.append(f"✓ Lista {result} {nombre_uom} procesada")
-                    detalles.append(datos_mapeados)
-
-            frappe.db.commit()
+                    debug_messages.append(f"✔ Procesado: {procesado}")
+                    # log_sincronizacion(doctype_logs, procesado, resultado)  # ← Descomenta si deseas guardar log por registro
+                else:
+                    debug_messages.append(f"✗ Falló procesar: {detalle}")
 
     except Exception as e:
         error_msg = f"Error durante sincronización: {str(e)}\n{traceback.format_exc()}"
@@ -197,14 +221,13 @@ def sincronizar_lista_uom(docname=None):
 
 
 
-def procesar_lista(lista_mapeo, mapeo_lista, doctype):
+def procesar_datos(lista_mapeo, mapeo_lista, doctype):
     """Crea o actualiza documentos en ERPNext de forma genérica"""
     try:
         # Obtener campos clave
         sap_key_field = mapeo_lista["key_field"]          # Ej: "KeySAP"
         erp_key_field = mapeo_lista["erp_key_field"]      # Ej: "custom_ERPNEXT"
         sap_id = lista_mapeo.get(sap_key_field)
-
         if not sap_id:
             frappe.log_error("Dato sin código", json.dumps(lista_mapeo, indent=2))
             return None, None  # No se puede continuar sin ID
@@ -260,9 +283,18 @@ def sincronizar_factores_conversion(docname=None):
             raise Exception("La sesión SAP no se creó correctamente")
         debug_messages.append("✔ Autenticación exitosa")
 
-        base_url = "https://apisap.yaesta.com.gt/b1s/v1/UnitOfMeasurementGroups"
-        debug_messages.append(f"✔ Consultando SAP: {base_url}")
-        response = session.get(base_url, timeout=30)
+        # 2. Obtener mapeo
+        mapeo_lista = mapping_blueprint("Mapeo UOM factores conversion SAP", "AbsEntry", "custom_absentry")
+        if not mapeo_lista or "sap_fields" not in mapeo_lista:
+            raise Exception("No se pudo obtener el mapeo de campos desde el blueprint")
+        debug_messages.append("✔ Mapeo de campos exitoso")
+        print("✔ Mapeo de campos exitoso")
+
+        # 3. Obtener datos del endpoint
+        url_final = construir_url_sap(mapeo_lista)
+        debug_messages.append(f"URL: {url_final}")
+
+        response = session.get(url_final, timeout=30)
         response.raise_for_status()
         data = response.json()
 
@@ -383,4 +415,5 @@ def sincronizar_factores_conversion(docname=None):
         "total": total_procesados,
         "debug": debug_messages
     }
+
 

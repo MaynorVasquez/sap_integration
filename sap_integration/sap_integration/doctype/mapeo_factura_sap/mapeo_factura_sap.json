@@ -1,28 +1,28 @@
 {
  "actions": [],
  "allow_rename": 1,
- "creation": "2025-05-27 11:09:22.798577",
+ "creation": "2025-06-21 15:50:26.436401",
  "doctype": "DocType",
  "engine": "InnoDB",
  "field_order": [
-  "mapeo_lista_precio"
+  "mapeo_factura"
  ],
  "fields": [
   {
-   "fieldname": "mapeo_lista_precio",
+   "fieldname": "mapeo_factura",
    "fieldtype": "Table",
-   "label": "Lista de precios",
-   "options": "Mapeo Campos SAP"
+   "label": "Mapeo factura",
+   "options": "Mapeo campos"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "issingle": 1,
  "links": [],
- "modified": "2025-05-27 11:10:39.984927",
+ "modified": "2025-06-21 15:50:58.763236",
  "modified_by": "Administrator",
  "module": "Sap Integration",
- "name": "Mapeo Lista De Precios",
+ "name": "Mapeo Factura SAP",
  "owner": "Administrator",
  "permissions": [
   {

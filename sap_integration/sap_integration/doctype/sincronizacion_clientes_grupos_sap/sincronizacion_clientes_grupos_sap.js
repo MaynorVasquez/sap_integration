@@ -1,18 +1,18 @@
 // Copyright (c) 2025, maynor and contributors
 // For license information, please see license.txt
 
-// frappe.ui.form.on("Sincronizacion Lista Precios SAP", {
+// frappe.ui.form.on("Sincronizacion Clientes Grupos SAP", {
 // 	refresh(frm) {
 
 // 	},
 // });
-frappe.ui.form.on('Sincronizacion Lista Precios SAP', {
+frappe.ui.form.on('Sincronizacion Clientes Grupos SAP', {
     refresh: function(frm) {
-        frm.add_custom_button('Sincronizar lista de precios SAP', function() {
+        frm.add_custom_button('Sincronizar Clientes Grupos SAP', function() {
 
             // Crear diálogo manual para mantener control total
             let dialog = new frappe.ui.Dialog({
-                title: 'Sincronizando desde SAP',
+                title: 'Sincronizando clientes grupos desde SAP',
                 size: 'small',
                 primary_action_label: 'Cerrar',
                 primary_action: () => {
@@ -38,7 +38,7 @@ frappe.ui.form.on('Sincronizacion Lista Precios SAP', {
 
             // Llamada al backend
             frappe.call({
-                method: "sap_integration.api.sap_lista_precio.sincronizar_lista_precio",
+                method: "sap_integration.api.sap_clientes_grupos.sincronizar_lista_clientes_grupos",
                 args: {
                     docname: frm.doc.name
                 },

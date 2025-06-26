@@ -4,6 +4,7 @@ import requests
 import json
 import traceback  # Importación añadida
 from .mapeos import get_mapeo_vendedores
+from .blueprint import mapping_blueprint, construir_url_sap
 from .sap_auth import login_sap 
 from .logs import log_sincronizacion
 
@@ -13,6 +14,8 @@ def sincronizar_lista_vendedores(docname=None):
     total_procesados = 0
     session = None
     detalles = []
+    doctype_logs = "Sincronizacion person sales SAP"
+    doctype_target = "Sales Person"
 
     try:
         # 1. Autenticación
@@ -24,44 +27,63 @@ def sincronizar_lista_vendedores(docname=None):
         debug_messages.append("✔ Autenticación exitosa")
 
         # 2. Obtener vendedores
-        mapeo_lista = get_mapeo_vendedores()
+        mapeo_lista = mapping_blueprint("Mapeo Vendedores SAP", "SalesEmployeeCode", "custom_salesemployeecode")
         if not mapeo_lista or "sap_fields" not in mapeo_lista:
-            raise Exception("No se pudo obtener el mapeo de campos")
-        debug_messages.append("✔ Mapeo de lista vendedores obtenido")
+            raise Exception("No se pudo obtener el mapeo de campos desde el blueprint")
+        debug_messages.append("✔ Mapeo de campos exitoso")
+        print("✔ Mapeo de campos exitoso")
 
-        # 3. Configuración
-        base_url = "https://apisap.yaesta.com.gt/b1s/v1/SalesPersons"
-        select_fields = ",".join(mapeo_lista["sap_fields"].values())
+        top = 20
+        skip = 0
+        page = 0
+        print("Inicio de paginación URL: ", mapeo_lista["url"])
 
-                # 4. Paginación
-        page, skip = 1, 0
         while True:
-            current_url = f"{base_url}?$select={select_fields}&$top=20&$skip={skip}"
-            debug_messages.append(f"\nPágina {page} - URL: {current_url}")
+            url_final = construir_url_sap(mapeo_lista, top=top, skip=skip)
+            debug_messages.append(f"URL: {url_final}")
 
-            response = session.get(current_url, timeout=30)
-            response.raise_for_status()
-            data = response.json()
+            intentos = 0
+            max_reintentos = 3
+            while intentos <= max_reintentos:
+                try:
+                    response = session.get(url_final, timeout=30)
+                    if response.status_code == 401:
+                        debug_messages.append("⚠ Sesión expirada, intentando nueva sesión")
+                        session = login_sap()
+                        intentos += 1
+                        continue
+                    response.raise_for_status()
+                    data = response.json()
+                    lista_datos = data.get("value", [])
+                    detalles.extend(lista_datos)
+                    break
+                except Exception as e:
+                    debug_messages.append(f"✗ Error al obtener datos desde SAP: {e}")
+                    if intentos >= max_reintentos:
+                        return {"status": "error", "message": "Error al obtener datos de SAP", "debug": debug_messages}
+                    intentos += 1
 
-            lista_vendedores = data.get('value', [])
+            debug_messages.append(f"📄 Página {page} → Registros recibidos: {len(lista_datos)}")
 
-            if not lista_vendedores:
-                debug_messages.append("✓ Fin de paginación alcanzado")
+            if not lista_datos:
+                print("Fin de la paginación...")
                 break
 
-            for lista_vendedor in lista_vendedores:
-                #result = procesar_lista_vendedor(lista_vendedor, mapeo_lista)
-                result, datos_mapeados = procesar_lista_vendedor(lista_vendedor, mapeo_lista)
-                if result:
-                    total_procesados += 1
-                    debug_messages.append(f"✓ Lista de vendedores {result} procesado")
-                    detalles.append(datos_mapeados)
-                    print("🔍 JSON detalles que se enviará al log:")
-                    print(json.dumps(detalles, indent=2, ensure_ascii=False))                  
-
-            frappe.db.commit()
-            skip += 20
+            skip += top
             page += 1
+
+        debug_messages.append(f"✅ Total registros acumulados: {len(detalles)}")
+
+        # Procesar todos los registros individualmente
+        if detalles:
+            for detalle in detalles:
+                procesado, resultado = procesar_datos(detalle, mapeo_lista, doctype_target)
+                if procesado:
+                    total_procesados += 1
+                    debug_messages.append(f"✔ Procesado: {procesado}")
+                    # log_sincronizacion(doctype_logs, procesado, resultado)  # ← Descomenta si deseas guardar log por registro
+                else:
+                    debug_messages.append(f"✗ Falló procesar: {detalle}")        
 
     except Exception as e:
         error_msg = f"Error durante sincronización: {str(e)}\n{traceback.format_exc()}"
@@ -106,7 +128,7 @@ def sincronizar_lista_vendedores(docname=None):
     }
 
 @frappe.whitelist()
-def procesar_lista_vendedor(lista_vendedor, mapeo_lista):
+def procesar_datos(lista_vendedor, mapeo_lista, doctype):
     """"Crea o actualiza lista de precios en ERPNEXT"""
     try:
         # Obtener campos clave
@@ -119,7 +141,7 @@ def procesar_lista_vendedor(lista_vendedor, mapeo_lista):
             return None, None  # No se puede continuar sin ID
 
         # Buscar vendedor ERPNEXT
-        vendedor_existente = frappe.get_all("Sales Person", filters={erp_key_field: sap_id}, limit=1)
+        vendedor_existente = frappe.get_all(doctype, filters={erp_key_field: sap_id}, limit=1)
 
         # Mapear datos SAP -> ERP
         datos_lista_vendedor = {}
@@ -137,7 +159,7 @@ def procesar_lista_vendedor(lista_vendedor, mapeo_lista):
 
         if vendedor_existente:
             # Actualizar lista de precios existente
-            lista_vendedor_doc = frappe.get_doc("Sales Person", vendedor_existente[0].name)
+            lista_vendedor_doc = frappe.get_doc(doctype, vendedor_existente[0].name)
             for campo, valor in datos_lista_vendedor.items():
                 setattr(lista_vendedor_doc, campo, valor)
             
@@ -148,7 +170,7 @@ def procesar_lista_vendedor(lista_vendedor, mapeo_lista):
             return f"{sap_id} (actualizado)", datos_lista_vendedor
         else:
             # Crea Vendedor Nuevo
-            lista_vendedor_doc = frappe.new_doc("Sales Person")
+            lista_vendedor_doc = frappe.new_doc(doctype)
             for campo, valor in datos_lista_vendedor.items():
                 setattr(lista_vendedor_doc, campo, valor)
             lista_vendedor_doc.insert()

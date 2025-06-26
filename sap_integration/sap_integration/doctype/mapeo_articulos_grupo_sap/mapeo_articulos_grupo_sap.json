@@ -12,14 +12,14 @@
    "fieldname": "mapeo_articulo_grupo",
    "fieldtype": "Table",
    "label": "Mapeo articulos grupo",
-   "options": "Mapeo Campos SAP"
+   "options": "Mapeo campos"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "issingle": 1,
  "links": [],
- "modified": "2025-06-02 08:20:40.206067",
+ "modified": "2025-06-16 09:50:32.689737",
  "modified_by": "Administrator",
  "module": "Sap Integration",
  "name": "Mapeo Articulos Grupo SAP",

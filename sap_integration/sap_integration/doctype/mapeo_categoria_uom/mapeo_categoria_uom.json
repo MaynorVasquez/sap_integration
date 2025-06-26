@@ -12,14 +12,14 @@
    "fieldname": "mepao_categoria_oum",
    "fieldtype": "Table",
    "label": "Mapeo Categor\u00eda UOM",
-   "options": "Mapeo Campos SAP"
+   "options": "Mapeo campos"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "issingle": 1,
  "links": [],
- "modified": "2025-05-29 13:44:44.185407",
+ "modified": "2025-06-16 10:08:44.342884",
  "modified_by": "Administrator",
  "module": "Sap Integration",
  "name": "Mapeo Categoria UOM",

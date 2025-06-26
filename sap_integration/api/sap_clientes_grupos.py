@@ -3,39 +3,36 @@ from frappe import _
 import requests
 import json
 import traceback  # Importación añadida
-from .blueprint import mapping_blueprint, construir_url_sap
-from .sap_auth import login_sap 
 from .logs import log_sincronizacion
+from .blueprint import mapping_blueprint, construir_url_sap
+from .sap_auth import login_sap
 
 @frappe.whitelist()
-def sincronizar_lista_alamacenes(docname=None):
+def sincronizar_lista_clientes_grupos(docname=None):
     debug_messages = []
     total_procesados = 0
     session = None
     detalles = []
-    doctype_logs = "Sincronizacion Almacenes SAP"
-    doctype_target = "Warehouse"
+    doctype_logs = "Sincronizacion Clientes Grupos SAP"
+    doctype_target = "Customer Group"
 
     try:
-        # 1. Autenticación
-        debug_messages.append("Iniciando autenticación con SAP...")
         session = login_sap()
-
         if not session or not isinstance(session, requests.Session):
-            raise Exception("La sesión SAP no se creó correctamente")
-        debug_messages.append("✔ Autenticación exitosa")
+            raise Exception("No se pudo establecer la sesión con SAP.")
+        print("Conexión exitosa...")
 
-        # 2. Obtener mapeo
-        mapeo_lista = mapping_blueprint("Mapeo Almacenes SAP", "WarehouseCode", "custom_warehousecode")
+        mapeo_lista = mapping_blueprint("Mapeo Clientes Grupo SAP", "Code", "custom_code")
         if not mapeo_lista or "sap_fields" not in mapeo_lista:
             raise Exception("No se pudo obtener el mapeo de campos desde el blueprint")
         debug_messages.append("✔ Mapeo de campos exitoso")
         print("✔ Mapeo de campos exitoso")
 
-        # 3. Paginación
-        print("Inicio de paginación URL: ", mapeo_lista["url"])
         top = 20
-        page, skip = 1, 0
+        skip = 0
+        page = 0
+        print("Inicio de paginación URL: ", mapeo_lista["url"])
+
         while True:
             url_final = construir_url_sap(mapeo_lista, top=top, skip=skip)
             debug_messages.append(f"URL: {url_final}")
@@ -84,10 +81,8 @@ def sincronizar_lista_alamacenes(docname=None):
                     debug_messages.append(f"✗ Falló procesar: {detalle}")
 
     except Exception as e:
-        error_msg = f"Error durante sincronización: {str(e)}\n{traceback.format_exc()}"
-        debug_messages.append(f"✗ {error_msg}")
-        frappe.log_error(title="Error sincronizando listas de precios desde SAP", message=error_msg)
-
+        error_msg = f"✗ Error general: {str(e)}\n{traceback.format_exc()}"
+        frappe.log_error(error_msg, "Sincronización Clientes Grupo SAP")
         if docname:
             log_sincronizacion(
                 doctype=doctype_logs,
@@ -97,19 +92,14 @@ def sincronizar_lista_alamacenes(docname=None):
                 detalles={},
                 errores=error_msg
             )
+        return {"status": "error", "message": "Fallo en la sincronización", "debug": debug_messages}
 
-        return {
-            "status": "error",
-            "message": "Ocurrió un error durante la sincronización",
-            "debug": debug_messages,
-            "total": total_procesados
-        }
-    
-    finally:        
-        if session and isinstance(session, requests.Session):
+    finally:
+        if session:
+            print("Cerrando Sesión")
             session.close()
             debug_messages.append("✓ Sesión SAP cerrada correctamente")
-
+        
         if docname:
             log_sincronizacion(
                 doctype=doctype_logs,
@@ -119,11 +109,8 @@ def sincronizar_lista_alamacenes(docname=None):
                 detalles=detalles, #Json devuelto
                 errores=""
             )
-    return {
-        "status": "success" if total_procesados > 0 else "warning",
-        "total": total_procesados,
-        "debug": debug_messages
-    }
+
+    return {"status": "success", "total": total_procesados, "debug": debug_messages}
 
 
 
@@ -150,10 +137,6 @@ def procesar_datos(lista_mapeo, mapeo_lista, doctype):
         dato_lista = {}
         for erp_field, sap_field in mapeo_lista["sap_fields"].items():
             valor = lista_mapeo.get(sap_field)
-
-            if erp_field == "Inactive":
-                valor = 1 if valor == "tYES" else 0
-
             dato_lista[erp_field] = valor
 
         print(dato_lista)
@@ -183,5 +166,3 @@ def procesar_datos(lista_mapeo, mapeo_lista, doctype):
     except Exception as e:
         frappe.log_error(f"Error al procesar datos {sap_id}: {str(e)}\n{traceback.format_exc()}")
         return None, None
-
-    

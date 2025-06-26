@@ -3,11 +3,13 @@ from frappe import _
 import requests
 import json
 import traceback  # Importación añadida
-from .mapeos import mapping_blueprint
+from datetime import datetime
 from .sap_auth import login_sap 
+from .blueprint import mapping_blueprint, construir_url_sap
 from .logs import log_sincronizacion, filter_sap_response_items
-from .lista_precio import sincronizar_lista_precio
+from .sap_lista_precio import sincronizar_lista_precio
 from .sap_articulos_grupo import sincronizar_articulos_grupo
+from .last_update import obtener_filtro_ultima_sync, actualizar_last_sync
 
 @frappe.whitelist()
 def sincronizar_lista_articulos(docname=None):
@@ -33,42 +35,63 @@ def sincronizar_lista_articulos(docname=None):
             raise Exception("No se pudo obtener el mapeo de campos")
         debug_messages.append("✔ Mapeo de campos obtenido")
 
-        # 3. Configuración
-        base_url = "https://apisap.yaesta.com.gt/b1s/v1/Items"
-        select_fields = ",".join(mapeo_lista["sap_fields"].values())
-        filter_condition = "U_smart_art eq '1'"
+        #Busca en la tabla de Syncs Traker a los articulos
+        syncs = obtener_filtro_ultima_sync("Sync Tracker", "Sync Record", "Articulos")
+        sync_records = syncs["data"] if syncs["success"] else {}
 
-                # 4. Paginación
-        page, skip = 1, 0
+        top = 20
+        skip = 0
+        page = 0
+        print("Inicio de paginación URL: ", mapeo_lista["url"])
+
         while True:
-            current_url = f"{base_url}?$select={select_fields}&$filter={filter_condition}&$top=20&$skip={skip}"
-            debug_messages.append(f"\nPágina {page} - URL: {current_url}")
+            url_final = construir_url_sap(mapeo_lista, top=top, skip=skip)
+            debug_messages.append(f"URL: {url_final}")
 
-            response = session.get(current_url, timeout=30)
-            response.raise_for_status()
-            data = response.json()
+            intentos = 0
+            max_reintentos = 3
+            while intentos <= max_reintentos:
+                try:
+                    response = session.get(url_final, timeout=30)
+                    if response.status_code == 401:
+                        debug_messages.append("⚠ Sesión expirada, intentando nueva sesión")
+                        session = login_sap()
+                        intentos += 1
+                        continue
+                    response.raise_for_status()
+                    data = response.json()
+                    lista_datos = data.get("value", [])
+                    detalles.extend(lista_datos)
+                    break
+                except Exception as e:
+                    debug_messages.append(f"✗ Error al obtener datos desde SAP: {e}")
+                    if intentos >= max_reintentos:
+                        return {"status": "error", "message": "Error al obtener datos de SAP", "debug": debug_messages}
+                    intentos += 1
 
-            lista_datos = data.get('value', [])
+            debug_messages.append(f"📄 Página {page} → Registros recibidos: {len(lista_datos)}")
 
-            datos_json = filter_sap_response_items(lista_datos, exclude_keys=["ItemPrices"])
-            detalles.extend(datos_json)
-            
             if not lista_datos:
-                debug_messages.append("✓ Fin de paginación alcanzado")
+                print("Fin de la paginación...")
                 break
 
-            for registro_sap in lista_datos:
-                result, datos_mapeados = procesar_dato(registro_sap, mapeo_lista, doctype_target)
-                if result:
-                    total_procesados += 1
-                    debug_messages.append(f"✓ Dato: {result} procesado")
-                    detalles.append(datos_mapeados)  # aquí guardas el JSON final procesado
-                    #print("🔍 JSON detalles que se enviará al log:")
-                    #print(json.dumps(detalles, indent=2, ensure_ascii=False))
-
-            frappe.db.commit()
-            skip += 20
+            skip += top
             page += 1
+
+        debug_messages.append(f"✅ Total registros acumulados: {len(detalles)}")
+
+        # Procesar todos los registros individualmente
+        if detalles:
+            for detalle in detalles:
+                procesado, resultado = procesar_dato(detalle, mapeo_lista, sync_records, doctype_target)
+                if procesado:
+                    total_procesados += 1
+                    debug_messages.append(f"✔ Procesado: {procesado}")
+                    print(f"✅ Procesado: {procesado}")
+                    # log_sincronizacion(doctype_logs, procesado, resultado)  # ← Descomenta si deseas guardar log por registro
+                else:
+                    debug_messages.append(f"✗ Falló procesar: {detalle}")
+                    print(f"✅ Articulo no procesado: {detalle.get('ItemCode', 'Desconocido')} – Motivo: {resultado} ✅")
 
     except Exception as e:
         error_msg = f"Error durante sincronización: {str(e)}\n{traceback.format_exc()}"
@@ -96,7 +119,8 @@ def sincronizar_lista_articulos(docname=None):
         if session and isinstance(session, requests.Session):
             session.close()
             debug_messages.append("✓ Sesión SAP cerrada correctamente")
-
+        
+        
         if docname:
             log_sincronizacion(
                 doctype=doctype_logs,
@@ -112,8 +136,9 @@ def sincronizar_lista_articulos(docname=None):
         "debug": debug_messages
     }
 
+
 #Funcion para procesar datos paginadas
-def procesar_dato(registro_sap, mapeo_lista, doctype_target):
+def procesar_dato(registro_sap, mapeo_lista, sync_records, doctype_target):
     """Crea o actualiza un documento en ERPNext a partir de un registro obtenido de SAP."""
     try:
         # Obtener campos clave
@@ -124,6 +149,34 @@ def procesar_dato(registro_sap, mapeo_lista, doctype_target):
         if not sap_id:
             frappe.log_error("Registro SAP sin campo clave", json.dumps(registro_sap, indent=2))
             return None, None
+        
+        # Obtener campos de fecha y hora de actualización o creación
+        update_date = registro_sap.get("UpdateDate")
+        update_time = registro_sap.get("UpdateTime")
+
+        # Si no hay fecha/hora de actualización, usar fecha/hora de creación
+        if not update_date or not update_time:
+            update_date = registro_sap.get("CreateDate")
+            update_time = registro_sap.get("CreateTime")
+        
+        # Validar que al menos uno de los dos pares exista
+        if not update_date or not update_time:
+            frappe.log_error("Faltan campos UpdateDate/UpdateTime y CreateDate/CreateTime", json.dumps(cliente_sap, indent=2))
+            return None, "Fecha de actualización no valida"
+        
+        # Convertir a datetime
+        update_str = f"{update_date} {update_time}"
+        try:
+            update_datetime = datetime.strptime(update_str, "%Y-%m-%d %H:%M:%S")
+        except Exception as e:
+            frappe.log_error("Error al convertir datetime", f"{update_str}\n{traceback.format_exc()}")
+            return None, "Error al convertir la fecha de actualización"
+
+        last_sync = sync_records.get(sap_id)
+        if last_sync:
+            last_sync_dt = datetime.strptime(last_sync, "%Y-%m-%d %H:%M:%S")
+            if update_datetime <= last_sync_dt:
+                return None, "Articulo sin cambios"
 
         # Buscar si ya existe en ERPNext
         doc_existente = frappe.get_all(doctype_target, filters={erp_key_field: sap_id}, limit=1)
@@ -173,6 +226,7 @@ def procesar_dato(registro_sap, mapeo_lista, doctype_target):
 
                 # 🔁 Sincronizar UOMs después de guardar
                 sincronizar_uoms(sap_id, registro_sap)
+                actualizar_last_sync("Articulos", sap_id, update_datetime)
                 
             except frappe.DocumentModifiedError:
                 frappe.db.rollback()
@@ -198,6 +252,7 @@ def procesar_dato(registro_sap, mapeo_lista, doctype_target):
                 setattr(doc, campo, valor)
 
             asignar_grupo_articulo(doc, registro_sap)
+            actualizar_last_sync("Articulos", sap_id, update_datetime)
 
             try:
                 doc.insert()
@@ -426,50 +481,4 @@ def sincronizar_uoms(item_code, registro_sap):
     except Exception as e:
         frappe.log_error(f"Error al sincronizar UOMs para {item_code}: {str(e)}\n{traceback.format_exc()}")
         frappe.db.rollback()
-
-
-
-
-# def sincronizar_uoms(item_code, registro_sap):
-#     try:
-#         item_doc = frappe.get_doc("Item", item_code)
-#         print(item_doc)
-#         # Obtener UoMPrices desde el primer bloque de ItemPrices
-#         item_prices = registro_sap.get("ItemPrices", [])
-        
-#         uom_prices = []
-#         if item_prices and isinstance(item_prices, list):
-#             uom_prices = item_prices[0].get("UoMPrices", [])
-        
-#         if not uom_prices:
-#             frappe.log_error("No se encontró 'UoMPrices'", json.dumps(registro_sap, indent=2))
-#             return
-
-#         # Procesar los UOMs como desees...
-#         for uom_price in uom_prices:
-#             uom_entry = uom_price.get("UoMEntry")
-#             if not uom_entry:
-#                 continue
-
-#             # Buscar el UOM en ERPNext por el campo personalizado `custom_absentry`
-#             uom = frappe.db.get_value("UOM", {"custom_absentry": uom_entry}, "name")
-#             if not uom:
-#                 continue  # Podrías llamar aquí a sincronizar_lista_uom() si deseas crearlo
-
-#             print(uom)
-
-#             # Evitar duplicados
-#             ya_asignado = any(row.uom == uom for row in item_doc.uoms)
-#             if not ya_asignado:
-#                 item_doc.append("uoms", {
-#                     "uom": uom,
-#                     "conversion_factor": float(uom_price.get("Factor", 1.0)) or 1.0
-#                 })
-
-#         item_doc.save()
-#         frappe.db.commit()
-
-#     except Exception as e:
-#         frappe.log_error(f"Error al sincronizar UOMs para {item_code}: {str(e)}")
-#         frappe.db.rollback()
 
