@@ -1,0 +1,120 @@
+[
+ {
+  "docstatus": 0,
+  "doctype": "Mapeo Cliente",
+  "mapeo_cliente": [
+   {
+    "campo_erpnext": null,
+    "campo_sap": null,
+    "nivel": "head",
+    "parent": "Mapeo Cliente",
+    "parentfield": "mapeo_cliente",
+    "parenttype": "Mapeo Cliente",
+    "tipo": "url",
+    "valor": "https://apisap.yaesta.com.gt/b1s/v2/BusinessPartners"
+   },
+   {
+    "campo_erpnext": "customer_name",
+    "campo_sap": "CardName",
+    "nivel": "head",
+    "parent": "Mapeo Cliente",
+    "parentfield": "mapeo_cliente",
+    "parenttype": "Mapeo Cliente",
+    "tipo": "map",
+    "valor": null
+   },
+   {
+    "campo_erpnext": "custom_cardcode",
+    "campo_sap": "CardCode",
+    "nivel": "head",
+    "parent": "Mapeo Cliente",
+    "parentfield": "mapeo_cliente",
+    "parenttype": "Mapeo Cliente",
+    "tipo": "map",
+    "valor": null
+   },
+   {
+    "campo_erpnext": "UpdateDate",
+    "campo_sap": "UpdateDate",
+    "nivel": "head",
+    "parent": "Mapeo Cliente",
+    "parentfield": "mapeo_cliente",
+    "parenttype": "Mapeo Cliente",
+    "tipo": "map",
+    "valor": null
+   },
+   {
+    "campo_erpnext": "UpdateTime",
+    "campo_sap": "UpdateTime",
+    "nivel": "head",
+    "parent": "Mapeo Cliente",
+    "parentfield": "mapeo_cliente",
+    "parenttype": "Mapeo Cliente",
+    "tipo": "map",
+    "valor": null
+   },
+   {
+    "campo_erpnext": null,
+    "campo_sap": "CardCode",
+    "nivel": "head",
+    "parent": "Mapeo Cliente",
+    "parentfield": "mapeo_cliente",
+    "parenttype": "Mapeo Cliente",
+    "tipo": "filter",
+    "valor": "C00001"
+   },
+   {
+    "campo_erpnext": "custom_nit",
+    "campo_sap": "U_NIT",
+    "nivel": "head",
+    "parent": "Mapeo Cliente",
+    "parentfield": "mapeo_cliente",
+    "parenttype": "Mapeo Cliente",
+    "tipo": "map",
+    "valor": null
+   },
+   {
+    "campo_erpnext": "PriceListNum",
+    "campo_sap": "PriceListNum",
+    "nivel": "head",
+    "parent": "Mapeo Cliente",
+    "parentfield": "mapeo_cliente",
+    "parenttype": "Mapeo Cliente",
+    "tipo": "map",
+    "valor": null
+   },
+   {
+    "campo_erpnext": "SalesPersonCode",
+    "campo_sap": "SalesPersonCode",
+    "nivel": "head",
+    "parent": "Mapeo Cliente",
+    "parentfield": "mapeo_cliente",
+    "parenttype": "Mapeo Cliente",
+    "tipo": "map",
+    "valor": null
+   },
+   {
+    "campo_erpnext": "BPAddresses",
+    "campo_sap": "BPAddresses",
+    "nivel": "head",
+    "parent": "Mapeo Cliente",
+    "parentfield": "mapeo_cliente",
+    "parenttype": "Mapeo Cliente",
+    "tipo": "map",
+    "valor": null
+   },
+   {
+    "campo_erpnext": "GroupCode",
+    "campo_sap": "GroupCode",
+    "nivel": "head",
+    "parent": "Mapeo Cliente",
+    "parentfield": "mapeo_cliente",
+    "parenttype": "Mapeo Cliente",
+    "tipo": "map",
+    "valor": null
+   }
+  ],
+  "modified": "2025-07-28 19:26:23.723700",
+  "name": "Mapeo Cliente"
+ }
+]

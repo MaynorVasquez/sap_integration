@@ -1,0 +1,30 @@
+[
+ {
+  "docstatus": 0,
+  "doctype": "Mapeo Inventario SAP",
+  "mapeo_inventario_sap": [
+   {
+    "campo_erpnext": null,
+    "campo_sap": null,
+    "nivel": "head",
+    "parent": "Mapeo Inventario SAP",
+    "parentfield": "mapeo_inventario_sap",
+    "parenttype": "Mapeo Inventario SAP",
+    "tipo": "url",
+    "valor": "https://apisap.yaesta.com.gt/b1s/v2/view.svc/YAESTA_CurrentStockPerWarehouseB1SLQuery"
+   },
+   {
+    "campo_erpnext": null,
+    "campo_sap": "WhsCode",
+    "nivel": "head",
+    "parent": "Mapeo Inventario SAP",
+    "parentfield": "mapeo_inventario_sap",
+    "parenttype": "Mapeo Inventario SAP",
+    "tipo": "filter",
+    "valor": "29"
+   }
+  ],
+  "modified": "2025-07-29 16:12:00.943227",
+  "name": "Mapeo Inventario SAP"
+ }
+]

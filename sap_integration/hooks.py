@@ -24,6 +24,45 @@ fixtures = [
     {
         "dt": "Workspace",
         "filters": [["module", "in", ["Sap Integration"]]]
+    },
+    {
+        "dt": "Mapeo Almacenes SAP"
+    },
+    {
+        "dt": "Mapeo Articulo SAP"
+    },
+    {
+        "dt": "Mapeo Articulos Grupo SAP"
+    },
+    {
+        "dt": "Mapeo Categoria UOM"
+    },
+    {
+        "dt": "Mapeo Cliente"
+    },
+    {
+        "dt": "Mapeo Cliente Direcciones"
+    },
+    {
+        "dt": "Mapeo Clientes Grupo SAP"
+    },
+    {
+        "dt": "Mapeo Factura SAP"
+    },
+    {
+        "dt": "Mapeo Inventario SAP"
+    },
+    {
+        "dt": "Mapeo Lista De Precios SAP"
+    },
+    {
+        "dt": "Mapeo UOM"
+    },
+    {
+        "dt": "Mapeo UOM factores conversion SAP"
+    },
+    {
+        "dt": "Mapeo Vendedores SAP"
     }
 ]
 

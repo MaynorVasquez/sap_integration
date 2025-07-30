@@ -1,0 +1,40 @@
+[
+ {
+  "docstatus": 0,
+  "doctype": "Mapeo UOM",
+  "mapeo_uom": [
+   {
+    "campo_erpnext": null,
+    "campo_sap": null,
+    "nivel": "head",
+    "parent": "Mapeo UOM",
+    "parentfield": "mapeo_uom",
+    "parenttype": "Mapeo UOM",
+    "tipo": "url",
+    "valor": "https://apisap.yaesta.com.gt/b1s/v2/UnitOfMeasurements"
+   },
+   {
+    "campo_erpnext": "custom_absentry",
+    "campo_sap": "AbsEntry",
+    "nivel": "head",
+    "parent": "Mapeo UOM",
+    "parentfield": "mapeo_uom",
+    "parenttype": "Mapeo UOM",
+    "tipo": "map",
+    "valor": null
+   },
+   {
+    "campo_erpnext": "uom_name",
+    "campo_sap": "Code",
+    "nivel": "head",
+    "parent": "Mapeo UOM",
+    "parentfield": "mapeo_uom",
+    "parenttype": "Mapeo UOM",
+    "tipo": "map",
+    "valor": null
+   }
+  ],
+  "modified": "2025-07-28 21:20:03.092026",
+  "name": "Mapeo UOM"
+ }
+]

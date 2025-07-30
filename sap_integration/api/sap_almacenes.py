@@ -1,5 +1,5 @@
-import frappe
 from frappe import _
+import frappe
 import requests
 import json
 import traceback  # Importación añadida
@@ -24,6 +24,7 @@ def sincronizar_lista_alamacenes(docname=None):
         if not session or not isinstance(session, requests.Session):
             raise Exception("La sesión SAP no se creó correctamente")
         debug_messages.append("✔ Autenticación exitosa")
+        print("Cookies obtenidas:", session.cookies.get_dict())
 
         # 2. Obtener mapeo
         mapeo_lista = mapping_blueprint("Mapeo Almacenes SAP", "WarehouseCode", "custom_warehousecode")
@@ -36,6 +37,7 @@ def sincronizar_lista_alamacenes(docname=None):
         print("Inicio de paginación URL: ", mapeo_lista["url"])
         top = 20
         page, skip = 1, 0
+        lista_datos = []
         while True:
             url_final = construir_url_sap(mapeo_lista, top=top, skip=skip)
             debug_messages.append(f"URL: {url_final}")
@@ -44,7 +46,7 @@ def sincronizar_lista_alamacenes(docname=None):
             max_reintentos = 3
             while intentos <= max_reintentos:
                 try:
-                    response = session.get(url_final, timeout=30)
+                    response = session.get(url_final)
                     if response.status_code == 401:
                         debug_messages.append("⚠ Sesión expirada, intentando nueva sesión")
                         session = login_sap()

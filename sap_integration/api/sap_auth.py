@@ -25,12 +25,13 @@ def login_sap():
     """
     try:
         sap_credentials, sap_url = get_sap_credentials()
+        print(f"URL del login: {sap_url}")
 
         # Crear una sesión persistente
         session = requests.Session()
 
         response = session.post(
-            f"{sap_url}/Login",
+            f"{sap_url}",
             json=sap_credentials,
             verify=False  # ⚠️ solo para pruebas
         )

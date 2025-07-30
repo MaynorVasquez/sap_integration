@@ -1,0 +1,20 @@
+[
+ {
+  "docstatus": 0,
+  "doctype": "Mapeo UOM factores conversion SAP",
+  "mapeo_factores_conversion": [
+   {
+    "campo_erpnext": null,
+    "campo_sap": null,
+    "nivel": "head",
+    "parent": "Mapeo UOM factores conversion SAP",
+    "parentfield": "mapeo_factores_conversion",
+    "parenttype": "Mapeo UOM factores conversion SAP",
+    "tipo": "url",
+    "valor": "https://apisap.yaesta.com.gt/b1s/v2/UnitOfMeasurementGroups"
+   }
+  ],
+  "modified": "2025-07-28 21:27:55.029195",
+  "name": "Mapeo UOM factores conversion SAP"
+ }
+]

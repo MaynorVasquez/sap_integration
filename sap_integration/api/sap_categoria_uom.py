@@ -143,31 +143,51 @@ def sincronizar_lista_uom(docname=None):
         url_final = construir_url_sap(mapeo_lista)
         debug_messages.append(f"URL: {url_final}")
 
-        intentos = 0
-        max_reintentos = 3
-        while intentos <= max_reintentos:
-            try:
-                response = session.get(url_final, timeout=30)
-                if response.status_code == 401:
-                    debug_messages.append("⚠ Sesión expirada, intentando nueva sesión")
-                    session = login_sap()
+        
+        top = 20
+        page, skip = 1, 0
+        while True:
+            url_final = construir_url_sap(mapeo_lista, top=top, skip=skip)
+            debug_messages.append(f"URL: {url_final}")
+
+            intentos = 0
+            max_reintentos = 3
+            while intentos <= max_reintentos:
+                try:
+                    response = session.get(url_final, timeout=30)
+                    if response.status_code == 401:
+                        debug_messages.append("⚠ Sesión expirada, intentando nueva sesión")
+                        session = login_sap()
+                        intentos += 1
+                        continue
+                    response.raise_for_status()
+                    data = response.json()
+                    lista_datos = data.get("value", [])
+                    detalles.extend(lista_datos)
+                    break
+                except Exception as e:
+                    debug_messages.append(f"✗ Error al obtener datos desde SAP: {e}")
+                    if intentos >= max_reintentos:
+                        return {"status": "error", "message": "Error al obtener datos de SAP", "debug": debug_messages}
                     intentos += 1
-                    continue
-                response.raise_for_status()
-                data = response.json()
-                lista_datos = data.get("value", [])
-                detalles.extend(lista_datos)
+            
+            debug_messages.append(f"📄 Página {page} → Registros recibidos: {len(lista_datos)}")
+
+            if not lista_datos:
+                print("Fin de la paginación...")
                 break
-            except Exception as e:
-                debug_messages.append(f"✗ Error al obtener datos desde SAP: {e}")
-                if intentos >= max_reintentos:
-                    return {"status": "error", "message": "Error al obtener datos de SAP", "debug": debug_messages}
-                intentos += 1
+            
+            skip += top
+            page += 1
+        
+        debug_messages.append(f"✅ Total registros acumulados: {len(detalles)}")
+
+        print(detalles)
 
         # Procesar todos los registros individualmente
         if detalles:
             for detalle in detalles:
-                procesado, resultado = procesar_datos(detalle, mapeo_lista, doctype_target)
+                procesado = procesar_datos(detalle, mapeo_lista, doctype_target)
                 if procesado:
                     total_procesados += 1
                     debug_messages.append(f"✔ Procesado: {procesado}")
@@ -307,15 +327,18 @@ def sincronizar_factores_conversion(docname=None):
             for grupo in grupos:
                 categoria_id = grupo.get("AbsEntry")
                 categoria = frappe.get_value("UOM Category", {"custom_absentry": categoria_id}, "name")
+                print(f"Categoria encontrado: {categoria}")
                 if not categoria:
                     debug_messages.append(f"✗ Categoría ID {categoria_id} no encontrada en ERPNext")
                     continue
 
                 base_uom_code = grupo.get("BaseUoM")
+                print(f"Código base UOM encontrado: {base_uom_code}")
                 if base_uom_code == -1:
                     continue
 
                 base_uom = frappe.get_value("UOM", {"custom_absentry": base_uom_code}, "name")
+                print(f"nombre base UOM: {base_uom}")
                 if not base_uom:
                     debug_messages.append(f"✗ Base UOM ID {base_uom_code} no encontrado en ERPNext")
                     continue

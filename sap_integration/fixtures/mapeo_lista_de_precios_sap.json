@@ -1,0 +1,50 @@
+[
+ {
+  "docstatus": 0,
+  "doctype": "Mapeo Lista De Precios SAP",
+  "mapeo_lista_precio": [
+   {
+    "campo_erpnext": null,
+    "campo_sap": null,
+    "nivel": "head",
+    "parent": "Mapeo Lista De Precios SAP",
+    "parentfield": "mapeo_lista_precio",
+    "parenttype": "Mapeo Lista De Precios SAP",
+    "tipo": "url",
+    "valor": "https://apisap.yaesta.com.gt/b1s/v2/PriceLists"
+   },
+   {
+    "campo_erpnext": "price_list_name",
+    "campo_sap": "PriceListName",
+    "nivel": "head",
+    "parent": "Mapeo Lista De Precios SAP",
+    "parentfield": "mapeo_lista_precio",
+    "parenttype": "Mapeo Lista De Precios SAP",
+    "tipo": "map",
+    "valor": null
+   },
+   {
+    "campo_erpnext": "custom_pricelistno",
+    "campo_sap": "PriceListNo",
+    "nivel": "head",
+    "parent": "Mapeo Lista De Precios SAP",
+    "parentfield": "mapeo_lista_precio",
+    "parenttype": "Mapeo Lista De Precios SAP",
+    "tipo": "map",
+    "valor": null
+   },
+   {
+    "campo_erpnext": "enabled",
+    "campo_sap": "Active",
+    "nivel": "head",
+    "parent": "Mapeo Lista De Precios SAP",
+    "parentfield": "mapeo_lista_precio",
+    "parenttype": "Mapeo Lista De Precios SAP",
+    "tipo": "map",
+    "valor": null
+   }
+  ],
+  "modified": "2025-07-26 21:13:03.291097",
+  "name": "Mapeo Lista De Precios SAP"
+ }
+]

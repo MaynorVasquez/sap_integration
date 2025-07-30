@@ -1,0 +1,50 @@
+[
+ {
+  "docstatus": 0,
+  "doctype": "Mapeo Almacenes SAP",
+  "mapeo_almacenes": [
+   {
+    "campo_erpnext": null,
+    "campo_sap": null,
+    "nivel": "head",
+    "parent": "Mapeo Almacenes SAP",
+    "parentfield": "mapeo_almacenes",
+    "parenttype": "Mapeo Almacenes SAP",
+    "tipo": "url",
+    "valor": "https://apisap.yaesta.com.gt/b1s/v2/Warehouses"
+   },
+   {
+    "campo_erpnext": "custom_warehousecode",
+    "campo_sap": "WarehouseCode",
+    "nivel": "head",
+    "parent": "Mapeo Almacenes SAP",
+    "parentfield": "mapeo_almacenes",
+    "parenttype": "Mapeo Almacenes SAP",
+    "tipo": "map",
+    "valor": null
+   },
+   {
+    "campo_erpnext": "warehouse_name",
+    "campo_sap": "WarehouseName",
+    "nivel": "head",
+    "parent": "Mapeo Almacenes SAP",
+    "parentfield": "mapeo_almacenes",
+    "parenttype": "Mapeo Almacenes SAP",
+    "tipo": "map",
+    "valor": null
+   },
+   {
+    "campo_erpnext": "disabled",
+    "campo_sap": "Inactive",
+    "nivel": "head",
+    "parent": "Mapeo Almacenes SAP",
+    "parentfield": "mapeo_almacenes",
+    "parenttype": "Mapeo Almacenes SAP",
+    "tipo": "map",
+    "valor": null
+   }
+  ],
+  "modified": "2025-07-26 21:07:21.824118",
+  "name": "Mapeo Almacenes SAP"
+ }
+]

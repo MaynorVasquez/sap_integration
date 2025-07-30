@@ -1,0 +1,40 @@
+[
+ {
+  "docstatus": 0,
+  "doctype": "Mapeo Categoria UOM",
+  "mepao_categoria_oum": [
+   {
+    "campo_erpnext": null,
+    "campo_sap": null,
+    "nivel": "head",
+    "parent": "Mapeo Categoria UOM",
+    "parentfield": "mepao_categoria_oum",
+    "parenttype": "Mapeo Categoria UOM",
+    "tipo": "url",
+    "valor": "https://apisap.yaesta.com.gt/b1s/v2/UnitOfMeasurementGroupsService_GetList"
+   },
+   {
+    "campo_erpnext": "custom_absentry",
+    "campo_sap": "AbsEntry",
+    "nivel": "head",
+    "parent": "Mapeo Categoria UOM",
+    "parentfield": "mepao_categoria_oum",
+    "parenttype": "Mapeo Categoria UOM",
+    "tipo": "map",
+    "valor": null
+   },
+   {
+    "campo_erpnext": "category_name",
+    "campo_sap": "Code",
+    "nivel": "head",
+    "parent": "Mapeo Categoria UOM",
+    "parentfield": "mepao_categoria_oum",
+    "parenttype": "Mapeo Categoria UOM",
+    "tipo": "map",
+    "valor": null
+   }
+  ],
+  "modified": "2025-07-28 21:17:19.495967",
+  "name": "Mapeo Categoria UOM"
+ }
+]

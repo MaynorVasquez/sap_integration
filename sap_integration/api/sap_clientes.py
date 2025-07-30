@@ -3,7 +3,6 @@ from frappe import _
 import requests
 import json
 import traceback  # Importación añadida
-import urllib.parse
 from datetime import datetime
 from frappe.model.document import Document
 from .sap_auth import login_sap  # El punto indica mismo directorio
@@ -58,6 +57,7 @@ def sincronizar_clientes_desde_sap(docname=None):
             while intentos <= max_reintentos:
                 try:
                     response = session.get(url_final, timeout=30)
+                    print(f"respueta: {response}")
                     if response.status_code == 401:
                         debug_messages.append("⚠ Sesión expirada, intentando nueva sesión")
                         session = login_sap()
@@ -160,12 +160,12 @@ def procesar_dato(cliente_sap, mapeo_cliente, sync_records, doctype_target):
             return None, "Falta campo clave SAP ID"
         
         # Obtener campos de fecha y hora de actualización o creación
-        update_date = cliente_sap.get("UpdateDate")
+        update_date = cliente_sap.get("UpdateDate").split("T")[0]
         update_time = cliente_sap.get("UpdateTime")
 
         # Si no hay fecha/hora de actualización, usar fecha/hora de creación
         if not update_date or not update_time:
-            update_date = cliente_sap.get("CreateDate")
+            update_date = cliente_sap.get("CreateDate").split("T")[0]
             update_time = cliente_sap.get("CreateTime")
 
         # Validar que al menos uno de los dos pares exista
@@ -174,6 +174,8 @@ def procesar_dato(cliente_sap, mapeo_cliente, sync_records, doctype_target):
             return None, "Fecha de actualización no valida"
 
         # Convertir a datetime
+        print(f"fecha de actualizacion: {update_date}")
+        print(f"hora de actualizacion: {update_time}")
         update_str = f"{update_date} {update_time}"
         try:
             update_datetime = datetime.strptime(update_str, "%Y-%m-%d %H:%M:%S")
@@ -232,6 +234,7 @@ def procesar_dato(cliente_sap, mapeo_cliente, sync_records, doctype_target):
             # Crear cliente nuevo
                  
             cliente_doc = frappe.new_doc(doctype_target)
+            print(datos_cliente)
             cliente_doc.update(datos_cliente)                
             cliente_doc.insert()
             procesar_direcciones(cliente_doc, cliente_sap.get("BPAddresses", []), sap_id)

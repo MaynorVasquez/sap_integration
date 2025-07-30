@@ -1,0 +1,130 @@
+[
+ {
+  "docstatus": 0,
+  "doctype": "Mapeo Articulo SAP",
+  "mapeo_articulo_sap": [
+   {
+    "campo_erpnext": null,
+    "campo_sap": null,
+    "nivel": "head",
+    "parent": "Mapeo Articulo SAP",
+    "parentfield": "mapeo_articulo_sap",
+    "parenttype": "Mapeo Articulo SAP",
+    "tipo": "url",
+    "valor": "https://apisap.yaesta.com.gt/b1s/v2/Items"
+   },
+   {
+    "campo_erpnext": "item_code",
+    "campo_sap": "ItemCode",
+    "nivel": "head",
+    "parent": "Mapeo Articulo SAP",
+    "parentfield": "mapeo_articulo_sap",
+    "parenttype": "Mapeo Articulo SAP",
+    "tipo": "map",
+    "valor": null
+   },
+   {
+    "campo_erpnext": "item_name",
+    "campo_sap": "ItemName",
+    "nivel": "head",
+    "parent": "Mapeo Articulo SAP",
+    "parentfield": "mapeo_articulo_sap",
+    "parenttype": "Mapeo Articulo SAP",
+    "tipo": "map",
+    "valor": null
+   },
+   {
+    "campo_erpnext": "disabled",
+    "campo_sap": "Valid",
+    "nivel": "head",
+    "parent": "Mapeo Articulo SAP",
+    "parentfield": "mapeo_articulo_sap",
+    "parenttype": "Mapeo Articulo SAP",
+    "tipo": "map",
+    "valor": null
+   },
+   {
+    "campo_erpnext": null,
+    "campo_sap": "U_smart_art",
+    "nivel": "head",
+    "parent": "Mapeo Articulo SAP",
+    "parentfield": "mapeo_articulo_sap",
+    "parenttype": "Mapeo Articulo SAP",
+    "tipo": "filter",
+    "valor": "1"
+   },
+   {
+    "campo_erpnext": "UpdateDate",
+    "campo_sap": "UpdateDate",
+    "nivel": "head",
+    "parent": "Mapeo Articulo SAP",
+    "parentfield": "mapeo_articulo_sap",
+    "parenttype": "Mapeo Articulo SAP",
+    "tipo": "map",
+    "valor": null
+   },
+   {
+    "campo_erpnext": "UpdateTime",
+    "campo_sap": "UpdateTime",
+    "nivel": "head",
+    "parent": "Mapeo Articulo SAP",
+    "parentfield": "mapeo_articulo_sap",
+    "parenttype": "Mapeo Articulo SAP",
+    "tipo": "map",
+    "valor": null
+   },
+   {
+    "campo_erpnext": "ItemsGroupCode",
+    "campo_sap": "ItemsGroupCode",
+    "nivel": "head",
+    "parent": "Mapeo Articulo SAP",
+    "parentfield": "mapeo_articulo_sap",
+    "parenttype": "Mapeo Articulo SAP",
+    "tipo": "map",
+    "valor": null
+   },
+   {
+    "campo_erpnext": "ItemPrices",
+    "campo_sap": "ItemPrices",
+    "nivel": "head",
+    "parent": "Mapeo Articulo SAP",
+    "parentfield": "mapeo_articulo_sap",
+    "parenttype": "Mapeo Articulo SAP",
+    "tipo": "map",
+    "valor": null
+   },
+   {
+    "campo_erpnext": "InventoryUoMEntry",
+    "campo_sap": "InventoryUoMEntry",
+    "nivel": "head",
+    "parent": "Mapeo Articulo SAP",
+    "parentfield": "mapeo_articulo_sap",
+    "parenttype": "Mapeo Articulo SAP",
+    "tipo": "map",
+    "valor": null
+   },
+   {
+    "campo_erpnext": "has_batch_no",
+    "campo_sap": "ManageBatchNumbers",
+    "nivel": "head",
+    "parent": "Mapeo Articulo SAP",
+    "parentfield": "mapeo_articulo_sap",
+    "parenttype": "Mapeo Articulo SAP",
+    "tipo": "map",
+    "valor": null
+   },
+   {
+    "campo_erpnext": "CreateDate",
+    "campo_sap": "CreateDate",
+    "nivel": "head",
+    "parent": "Mapeo Articulo SAP",
+    "parentfield": "mapeo_articulo_sap",
+    "parenttype": "Mapeo Articulo SAP",
+    "tipo": "map",
+    "valor": null
+   }
+  ],
+  "modified": "2025-07-29 20:46:44.990304",
+  "name": "Mapeo Articulo SAP"
+ }
+]

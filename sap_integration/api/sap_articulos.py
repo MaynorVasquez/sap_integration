@@ -151,17 +151,18 @@ def procesar_dato(registro_sap, mapeo_lista, sync_records, doctype_target):
             return None, None
         
         # Obtener campos de fecha y hora de actualización o creación
-        update_date = registro_sap.get("UpdateDate")
+        update_date = registro_sap.get("UpdateDate").split("T")[0]
         update_time = registro_sap.get("UpdateTime")
+        print(f"Fecha 1 {update_date}")
 
         # Si no hay fecha/hora de actualización, usar fecha/hora de creación
         if not update_date or not update_time:
-            update_date = registro_sap.get("CreateDate")
+            update_date = registro_sap.get("CreateDate").split("T")[0]
             update_time = registro_sap.get("CreateTime")
         
         # Validar que al menos uno de los dos pares exista
         if not update_date or not update_time:
-            frappe.log_error("Faltan campos UpdateDate/UpdateTime y CreateDate/CreateTime", json.dumps(cliente_sap, indent=2))
+            frappe.log_error("Faltan campos UpdateDate/UpdateTime y CreateDate/CreateTime", json.dumps(registro_sap, indent=2))
             return None, "Fecha de actualización no valida"
         
         # Convertir a datetime

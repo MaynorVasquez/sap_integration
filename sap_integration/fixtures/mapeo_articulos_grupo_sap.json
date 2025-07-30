@@ -1,0 +1,40 @@
+[
+ {
+  "docstatus": 0,
+  "doctype": "Mapeo Articulos Grupo SAP",
+  "mapeo_articulo_grupo": [
+   {
+    "campo_erpnext": null,
+    "campo_sap": null,
+    "nivel": "head",
+    "parent": "Mapeo Articulos Grupo SAP",
+    "parentfield": "mapeo_articulo_grupo",
+    "parenttype": "Mapeo Articulos Grupo SAP",
+    "tipo": "url",
+    "valor": "https://apisap.yaesta.com.gt/b1s/v2/ItemGroups"
+   },
+   {
+    "campo_erpnext": "custom_number",
+    "campo_sap": "Number",
+    "nivel": "head",
+    "parent": "Mapeo Articulos Grupo SAP",
+    "parentfield": "mapeo_articulo_grupo",
+    "parenttype": "Mapeo Articulos Grupo SAP",
+    "tipo": "map",
+    "valor": null
+   },
+   {
+    "campo_erpnext": "item_group_name",
+    "campo_sap": "GroupName",
+    "nivel": "head",
+    "parent": "Mapeo Articulos Grupo SAP",
+    "parentfield": "mapeo_articulo_grupo",
+    "parenttype": "Mapeo Articulos Grupo SAP",
+    "tipo": "map",
+    "valor": null
+   }
+  ],
+  "modified": "2025-07-28 19:40:18.464171",
+  "name": "Mapeo Articulos Grupo SAP"
+ }
+]
