@@ -92,7 +92,7 @@ def sincronizar_lista_vendedores(docname=None):
 
         if docname:
             log_sincronizacion(
-                doctype="Sincronizacion person sales SAP",
+                doctype=doctype_logs,
                 docname=docname,
                 status="Error",
                 total=total_procesados,
@@ -114,7 +114,7 @@ def sincronizar_lista_vendedores(docname=None):
 
         if docname:
             log_sincronizacion(
-                doctype="Sincronizacion person sales SAP",
+                doctype=doctype_logs,
                 docname=docname,
                 status="Exitoso" if total_procesados > 0 else "Sin cambios",
                 total=total_procesados,
@@ -147,10 +147,8 @@ def procesar_datos(lista_vendedor, mapeo_lista, doctype):
         datos_lista_vendedor = {}
         for erp_field, sap_field in mapeo_lista["sap_fields"].items():
             valor = lista_vendedor.get(sap_field)
-
-            if erp_field == "Enabled":
-                valor = 1 if valor == "tYES" else 0
-
+            if erp_field == "enabled":
+                valor = 1 if valor == "tNO" else 0
             datos_lista_vendedor[erp_field] = valor
         
         # Asegurar que el campo clave esté presente
@@ -158,12 +156,13 @@ def procesar_datos(lista_vendedor, mapeo_lista, doctype):
         print("procesando vendedor ",sap_id)
 
         if vendedor_existente:
-            # Actualizar lista de precios existente
             lista_vendedor_doc = frappe.get_doc(doctype, vendedor_existente[0].name)
             for campo, valor in datos_lista_vendedor.items():
-                setattr(lista_vendedor_doc, campo, valor)
-            
+                lista_vendedor_doc.set(campo, valor)
+                #setattr(lista_vendedor_doc, campo, valor)            
             try:
+                print(f"datos: {datos_lista_vendedor}")
+                lista_vendedor_doc.update(datos_lista_vendedor)
                 lista_vendedor_doc.save()
             except frappe.exceptions.DocumentHasBeenModifiedError:
                 frappe.db.rollback()

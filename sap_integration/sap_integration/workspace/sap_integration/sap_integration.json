@@ -1,0 +1,343 @@
+{
+ "charts": [],
+ "content": "[{\"id\":\"0eEPkxeRf9\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\">SAP Integration</span>\",\"col\":12}},{\"id\":\"10tE37o8kY\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"UNzOXoj4D1\",\"type\":\"card\",\"data\":{\"card_name\":\"Configuraci\u00f3n\",\"col\":4}},{\"id\":\"aQLhGKJQ05\",\"type\":\"card\",\"data\":{\"card_name\":\"Sincronizacion de datos\",\"col\":4}},{\"id\":\"TnKYAo1z4m\",\"type\":\"card\",\"data\":{\"card_name\":\"Sincronizar datos maestros\",\"col\":4}},{\"id\":\"_kdfA6VaV3\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\"><b>                          Mapeo de datos para el funcionamiento del consumo de la API</b></span>\",\"col\":12}},{\"id\":\"ZJC_5u2EfM\",\"type\":\"card\",\"data\":{\"card_name\":\"Mapeo de datos iniciales\",\"col\":4}},{\"id\":\"Bn0A-g2C5s\",\"type\":\"card\",\"data\":{\"card_name\":\"Mapeo de datos maestros\",\"col\":4}},{\"id\":\"eKVZqezt5a\",\"type\":\"card\",\"data\":{\"card_name\":\"Mapeo datos transaccionales\",\"col\":4}},{\"id\":\"l1dnW91ReA\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\"><b>Historial de datos sincronizados desde SAP</b></span>\",\"col\":12}},{\"id\":\"Dz9dHk1pad\",\"type\":\"card\",\"data\":{\"card_name\":\"Datos maestros sincronizados\",\"col\":4}}]",
+ "creation": "2025-08-13 22:03:00.019430",
+ "custom_blocks": [],
+ "docstatus": 0,
+ "doctype": "Workspace",
+ "for_user": "",
+ "hide_custom": 0,
+ "icon": "customization",
+ "idx": 0,
+ "indicator_color": "green",
+ "is_hidden": 0,
+ "label": "SAP Integration",
+ "links": [
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Mapeo de datos maestros",
+   "link_count": 3,
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Card Break"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Mapeo Articulo SAP",
+   "link_count": 0,
+   "link_to": "Mapeo Articulo SAP",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Mapeo Cliente",
+   "link_count": 0,
+   "link_to": "Mapeo Cliente",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Mapeo Cliente Direcciones",
+   "link_count": 0,
+   "link_to": "Mapeo Cliente Direcciones",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Mapeo de datos iniciales",
+   "link_count": 9,
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Card Break"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Mapeo Almacenes SAP",
+   "link_count": 0,
+   "link_to": "Mapeo Almacenes SAP",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Mapeo Articulos Grupo SAP",
+   "link_count": 0,
+   "link_to": "Mapeo Articulos Grupo SAP",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Mapeo Categoria UOM",
+   "link_count": 0,
+   "link_to": "Mapeo Categoria UOM",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Mapeo Clientes Grupo SAP",
+   "link_count": 0,
+   "link_to": "Mapeo Clientes Grupo SAP",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Mapeo Inventario SAP",
+   "link_count": 0,
+   "link_to": "Mapeo Inventario SAP",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Mapeo Lista De Precios SAP",
+   "link_count": 0,
+   "link_to": "Mapeo Lista De Precios SAP",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Mapeo UOM",
+   "link_count": 0,
+   "link_to": "Mapeo UOM",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Mapeo UOM factores conversion SAP",
+   "link_count": 0,
+   "link_to": "Mapeo UOM factores conversion SAP",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Mapeo Vendedores SAP",
+   "link_count": 0,
+   "link_to": "Mapeo Vendedores SAP",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Datos maestros sincronizados",
+   "link_count": 1,
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Card Break"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Sync Tracker",
+   "link_count": 0,
+   "link_to": "Sync Tracker",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Sincronizacion de datos",
+   "link_count": 6,
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Card Break"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Sincronizacion Almacenes SAP",
+   "link_count": 0,
+   "link_to": "Sincronizacion Almacenes SAP",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Sincronizacion Articulos Grupo SAP",
+   "link_count": 0,
+   "link_to": "Sincronizacion Articulos Grupo SAP",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Sincronizacion UOM",
+   "link_count": 0,
+   "link_to": "Sincronizacion UOM",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Sincronizacion Clientes Grupos SAP",
+   "link_count": 0,
+   "link_to": "Sincronizacion Clientes Grupos SAP",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Sincronizacion Lista Precios SAP",
+   "link_count": 0,
+   "link_to": "Sincronizacion Lista Precios SAP",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Sincronizacion Vendedores SAP",
+   "link_count": 0,
+   "link_to": "Sincronizacion person sales SAP",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Sincronizar datos maestros",
+   "link_count": 3,
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Card Break"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Sincronizacion clientes SAP",
+   "link_count": 0,
+   "link_to": "Sincronizacion clientes SAP",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Sincronizacion Articulos SAP",
+   "link_count": 0,
+   "link_to": "Sincronizacion Articulos SAP",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Sincronizacion Inventario SAP",
+   "link_count": 0,
+   "link_to": "Sincronizacion Inventario SAP",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Configuraci\u00f3n",
+   "link_count": 1,
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Card Break"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "SAP Credentials",
+   "link_count": 0,
+   "link_to": "SAP Credentials",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Mapeo datos transaccionales",
+   "link_count": 2,
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Card Break"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Mapeo Factura SAP",
+   "link_count": 0,
+   "link_to": "Mapeo Factura SAP",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Mapeo Orden De Venta SAP",
+   "link_count": 0,
+   "link_to": "Mapeo Orden De Venta SAP",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  }
+ ],
+ "modified": "2025-08-14 13:22:16.359524",
+ "modified_by": "Administrator",
+ "module": "Sap Integration",
+ "name": "SAP Integration",
+ "number_cards": [],
+ "owner": "Administrator",
+ "parent_page": "",
+ "public": 1,
+ "quick_lists": [],
+ "roles": [],
+ "sequence_id": 24.0,
+ "shortcuts": [],
+ "title": "SAP Integration"
+}

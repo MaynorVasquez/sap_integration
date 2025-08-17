@@ -101,7 +101,9 @@ def mapping_blueprint(doctype, key_field_sap, key_field_erpnext):
         elif tipo == "filter" and campo_sap and valor:
             valores = [v.strip() for v in valor.split(",") if v.strip()]
             if len(valores) > 1:
-                filtro = f"{campo_sap} in ({', '.join([f'\'{v}\'' for v in valores])})"
+                #filtro = f"{campo_sap} in ({', '.join([f'\'{v}\'' for v in valores])})"
+                valores_con_comillas = [f"'{v}'" for v in valores]
+                filtro = f"{campo_sap} in ({', '.join(valores_con_comillas)})"
             else:
                 filtro = f"{campo_sap} eq '{valores[0]}'"
             mapeo["filters"].append(filtro)
@@ -222,7 +224,9 @@ def mapping_blueprint1(doctype, key_field_sap, key_field_erpnext):
         elif tipo == "filter" and campo_sap and valor:
             valores = [v.strip() for v in valor.split(",") if v.strip()]
             if len(valores) > 1:
-                filtro = f"{campo_sap} in ({', '.join([f'\'{v}\'' for v in valores])})"
+                #filtro = f"{campo_sap} in ({', '.join([f'\'{v}\'' for v in valores])})"
+                valores_con_comillas = [f"'{v}'" for v in valores]
+                filtro = f"{campo_sap} in ({', '.join(valores_con_comillas)})"
             else:
                 filtro = f"{campo_sap} eq '{valores[0]}'"
             mapeo["filters"].append(filtro)

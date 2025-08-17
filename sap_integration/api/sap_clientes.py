@@ -88,7 +88,7 @@ def sincronizar_clientes_desde_sap(docname=None):
         # Procesar todos los registros individualmente
         if detalles:
             for detalle in detalles:
-                procesado, resultado = procesar_dato(detalle, mapeo_lista, sync_records, doctype_target)
+                procesado, resultado = procesar_dato(detalle, mapeo_lista, sync_records, doctype_target, debug_messages)
                 if procesado:
                     total_procesados += 1
                     debug_messages.append(f"✅ Procesado: {procesado}")
@@ -147,7 +147,7 @@ def sincronizar_clientes_desde_sap(docname=None):
     }
 
 
-def procesar_dato(cliente_sap, mapeo_cliente, sync_records, doctype_target):
+def procesar_dato(cliente_sap, mapeo_cliente, sync_records, doctype_target, debug_messages):
     """Crea o actualiza un cliente en ERPNext a partir de los datos de SAP"""
     try:
         # Obtener campos clave
@@ -223,10 +223,13 @@ def procesar_dato(cliente_sap, mapeo_cliente, sync_records, doctype_target):
                 cliente_doc.save()
             except frappe.exceptions.DocumentHasBeenModifiedError:
                 frappe.log_error(f"Error al actualizar cliente o asignar vendedor para {sap_id}: {str(e)}\n{traceback.format_exc()}")
-                frappe.db.rollback()
                 return None, "Error DocumentHasBeenModifiedError"
-
-            procesar_direcciones(cliente_doc, cliente_sap.get("BPAddresses", []), sap_id)
+            try:                
+                procesar_direcciones(cliente_doc, cliente_sap.get("BPAddresses", []), sap_id, debug_messages)
+            except frappe.exceptions.DocumentHasBeenModifiedError:
+                frappe.log_error(f"error al procesar direccion {sap_id}: {str(e)}\n{traceback.format_exc()}")
+                return None, "Error DocumentHasBeenModifiedError"
+            
             # Actualizar registro de sincronización
             actualizar_last_sync("Clientes", sap_id, update_datetime)
             return f"{sap_id} (actualizado)", datos_cliente
@@ -237,7 +240,7 @@ def procesar_dato(cliente_sap, mapeo_cliente, sync_records, doctype_target):
             print(datos_cliente)
             cliente_doc.update(datos_cliente)                
             cliente_doc.insert()
-            procesar_direcciones(cliente_doc, cliente_sap.get("BPAddresses", []), sap_id)
+            procesar_direcciones(cliente_doc, cliente_sap.get("BPAddresses", []), sap_id, debug_messages)
             asignar_vendedor(cliente_doc, cliente_sap)
             asignar_cliente_grupo(cliente_doc, cliente_sap)
             cliente_doc.save()
@@ -298,7 +301,7 @@ def asignar_cliente_grupo(cliente_doc, cliente_sap):
         print(f"No se pudo encontrar ni crear el Customer Group con código SAP '{group_code_cliente}'")
 
 
-def procesar_direcciones(cliente_doc, bp_addresses, card_code):
+def procesar_direcciones(cliente_doc, bp_addresses, card_code, debug_messages):
     """
     Procesa las direcciones del cliente desde SAP y las sincroniza con ERPNext.
     Maneja la creación y actualización de registros tipo Address, incluyendo links como child table.
@@ -390,10 +393,16 @@ def procesar_direcciones(cliente_doc, bp_addresses, card_code):
                 for link in direccion_data["links"]:
                     direccion_doc.append("links", link)
 
-                direccion_doc.save()
-                #frappe.db.commit()
-                frappe.logger().info(f"✓ Dirección actualizada: {direccion_doc.name}")
-                print(f"Dirección actualizada con título: {address_title}")
+                try:
+                    direccion_doc.save(ignore_version=True)  # <-- evita el error por modificación concurrente
+                    frappe.logger().info(f"✓ Dirección actualizada: {direccion_doc.name}")
+                    print(f"Dirección actualizada con título: {address_title}")
+                except Exception as e:
+                    debug_messages.append(
+                        f"[{card_code}] Error actualizando dirección '{address_title}': {str(e)}\nDatos: {direccion_data}"
+                    )
+                    print(f"⚠️ Error actualizando dirección '{address_title}': {e}")
+                    continue
 
             else:
                 print(f"Insertando nueva dirección con título: {address_title}")
@@ -408,6 +417,9 @@ def procesar_direcciones(cliente_doc, bp_addresses, card_code):
                 frappe.logger().info(f"✓ Dirección creada: {direccion_doc.name}")
 
         except Exception as e:
-            frappe.log_error(f"Error procesando dirección '{direccion.get(address_title_field)}' de {card_code}: {str(e)}")
-            print(f"Error en dirección: {e}")
-            print(direccion_doc.as_dict())
+            frappe.log_error(
+            f"Error procesando dirección '{direccion.get(address_title_field)}' "
+            f"de {card_code}: {str(e)}\nDatos: {direccion}"
+            )
+            print(f"Error en dirección '{direccion.get(address_title_field)}': {e}")
+            continue  # <-- evita que el error detenga el resto

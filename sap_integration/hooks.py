@@ -13,17 +13,30 @@ app_license = "mit"
 #         ]
 #     }
 # }
+doc_events = {
+    "Sales Order": {
+        "on_submit": "sap_integration.api.sap_orden_de_venta.enviar_ov"
+    }
+}
 
 fixtures = [
-    "Custom Field",
     "Property Setter",
-    "Client Script",
-    "Server Script",
-    "Print Format",
-    "Report",
     {
-        "dt": "Workspace",
-        "filters": [["module", "in", ["Sap Integration"]]]
+        "dt": "Custom Field",
+        "filters": [
+            ["name", "in", [
+                "Customer-custom_cardcode",
+                "Customer-custom_nit",
+                "Address-custom_cardcode",
+                "Sales Order-custom_docnum",
+                "Item-custom_ean",
+                "Sales Person-custom_salesemployeecode",
+                "Warehouse-custom_warehousecode",
+                "Item Group-custom_number",
+                "UOM Category-custom_absentry",
+                "Customer Group-custom_code"
+            ]]
+        ]
     },
     {
         "dt": "Mapeo Almacenes SAP"
@@ -63,6 +76,15 @@ fixtures = [
     },
     {
         "dt": "Mapeo Vendedores SAP"
+    },
+    {
+        "dt": "Mapeo Orden De Venta SAP"
+    },
+    {
+        "dt": "Workspace",
+        "filters": [
+            ["name", "in", ["SAP Integration"]]
+        ]
     }
 ]
 
