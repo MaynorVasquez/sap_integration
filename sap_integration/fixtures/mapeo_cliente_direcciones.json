@@ -52,9 +52,19 @@
     "parenttype": "Mapeo Cliente Direcciones",
     "tipo": "map",
     "valor": null
+   },
+   {
+    "campo_erpnext": "address_type",
+    "campo_sap": "AddressType",
+    "nivel": "head",
+    "parent": "Mapeo Cliente Direcciones",
+    "parentfield": "mapeo_cliente_direcciones",
+    "parenttype": "Mapeo Cliente Direcciones",
+    "tipo": "map",
+    "valor": null
    }
   ],
-  "modified": "2025-07-28 11:01:52.524111",
+  "modified": "2025-08-15 13:49:01.019918",
   "name": "Mapeo Cliente Direcciones"
  }
 ]

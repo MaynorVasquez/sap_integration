@@ -34,7 +34,10 @@ fixtures = [
                 "Warehouse-custom_warehousecode",
                 "Item Group-custom_number",
                 "UOM Category-custom_absentry",
-                "Customer Group-custom_code"
+                "Customer Group-custom_code",
+                "Price List-custom_pricelistno",
+                "UOM-custom_absentry",
+                "Sales Person-custom_salesemployeecode"
             ]]
         ]
     },

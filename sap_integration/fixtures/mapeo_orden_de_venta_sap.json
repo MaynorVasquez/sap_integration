@@ -1,0 +1,210 @@
+[
+ {
+  "datos": [
+   {
+    "campo_erpnext": null,
+    "campo_sap": null,
+    "nivel": "head",
+    "parent": "Mapeo Orden De Venta SAP",
+    "parentfield": "datos",
+    "parenttype": "Mapeo Orden De Venta SAP",
+    "tipo": "url",
+    "valor": "https://apisap.yaesta.com.gt/b1s/v2/Orders"
+   },
+   {
+    "campo_erpnext": "customer_name",
+    "campo_sap": "CardName",
+    "nivel": "head",
+    "parent": "Mapeo Orden De Venta SAP",
+    "parentfield": "datos",
+    "parenttype": "Mapeo Orden De Venta SAP",
+    "tipo": "map",
+    "valor": null
+   },
+   {
+    "campo_erpnext": "customer",
+    "campo_sap": "CardCode",
+    "nivel": "head",
+    "parent": "Mapeo Orden De Venta SAP",
+    "parentfield": "datos",
+    "parenttype": "Mapeo Orden De Venta SAP",
+    "tipo": "map",
+    "valor": null
+   },
+   {
+    "campo_erpnext": "po_date",
+    "campo_sap": "DocDate",
+    "nivel": "head",
+    "parent": "Mapeo Orden De Venta SAP",
+    "parentfield": "datos",
+    "parenttype": "Mapeo Orden De Venta SAP",
+    "tipo": "map",
+    "valor": null
+   },
+   {
+    "campo_erpnext": "delivery_date",
+    "campo_sap": "DocDueDate",
+    "nivel": "head",
+    "parent": "Mapeo Orden De Venta SAP",
+    "parentfield": "datos",
+    "parenttype": "Mapeo Orden De Venta SAP",
+    "tipo": "map",
+    "valor": null
+   },
+   {
+    "campo_erpnext": "name",
+    "campo_sap": "NumAtCard",
+    "nivel": "head",
+    "parent": "Mapeo Orden De Venta SAP",
+    "parentfield": "datos",
+    "parenttype": "Mapeo Orden De Venta SAP",
+    "tipo": "map",
+    "valor": null
+   },
+   {
+    "campo_erpnext": "currency",
+    "campo_sap": "DocCurrency",
+    "nivel": "head",
+    "parent": "Mapeo Orden De Venta SAP",
+    "parentfield": "datos",
+    "parenttype": "Mapeo Orden De Venta SAP",
+    "tipo": "map",
+    "valor": null
+   },
+   {
+    "campo_erpnext": "SalesPersonCode",
+    "campo_sap": "SalesPersonCode",
+    "nivel": "head",
+    "parent": "Mapeo Orden De Venta SAP",
+    "parentfield": "datos",
+    "parenttype": "Mapeo Orden De Venta SAP",
+    "tipo": "map",
+    "valor": null
+   },
+   {
+    "campo_erpnext": "U_Vendedor",
+    "campo_sap": "U_Vendedor",
+    "nivel": "head",
+    "parent": "Mapeo Orden De Venta SAP",
+    "parentfield": "datos",
+    "parenttype": "Mapeo Orden De Venta SAP",
+    "tipo": "map",
+    "valor": null
+   },
+   {
+    "campo_erpnext": "shipping_address_name",
+    "campo_sap": "ShipToCode",
+    "nivel": "head",
+    "parent": "Mapeo Orden De Venta SAP",
+    "parentfield": "datos",
+    "parenttype": "Mapeo Orden De Venta SAP",
+    "tipo": "map",
+    "valor": null
+   },
+   {
+    "campo_erpnext": "custom_nit",
+    "campo_sap": "U_FacNit",
+    "nivel": "head",
+    "parent": "Mapeo Orden De Venta SAP",
+    "parentfield": "datos",
+    "parenttype": "Mapeo Orden De Venta SAP",
+    "tipo": "map",
+    "valor": null
+   },
+   {
+    "campo_erpnext": "po_no",
+    "campo_sap": "U_OrdenDeCompra",
+    "nivel": "head",
+    "parent": "Mapeo Orden De Venta SAP",
+    "parentfield": "datos",
+    "parenttype": "Mapeo Orden De Venta SAP",
+    "tipo": "map",
+    "valor": null
+   },
+   {
+    "campo_erpnext": "item_code",
+    "campo_sap": "ItemCode",
+    "nivel": "DocumentLines",
+    "parent": "Mapeo Orden De Venta SAP",
+    "parentfield": "datos",
+    "parenttype": "Mapeo Orden De Venta SAP",
+    "tipo": "map",
+    "valor": null
+   },
+   {
+    "campo_erpnext": "item_name",
+    "campo_sap": "ItemName",
+    "nivel": "DocumentLines",
+    "parent": "Mapeo Orden De Venta SAP",
+    "parentfield": "datos",
+    "parenttype": "Mapeo Orden De Venta SAP",
+    "tipo": "map",
+    "valor": null
+   },
+   {
+    "campo_erpnext": "qty",
+    "campo_sap": "Quantity",
+    "nivel": "DocumentLines",
+    "parent": "Mapeo Orden De Venta SAP",
+    "parentfield": "datos",
+    "parenttype": "Mapeo Orden De Venta SAP",
+    "tipo": "map",
+    "valor": null
+   },
+   {
+    "campo_erpnext": "account_head",
+    "campo_sap": "TaxCode",
+    "nivel": "DocumentLines",
+    "parent": "Mapeo Orden De Venta SAP",
+    "parentfield": "datos",
+    "parenttype": "Mapeo Orden De Venta SAP",
+    "tipo": "map",
+    "valor": null
+   },
+   {
+    "campo_erpnext": "discount_percentage",
+    "campo_sap": "DiscountPercent",
+    "nivel": "DocumentLines",
+    "parent": "Mapeo Orden De Venta SAP",
+    "parentfield": "datos",
+    "parenttype": "Mapeo Orden De Venta SAP",
+    "tipo": "map",
+    "valor": null
+   },
+   {
+    "campo_erpnext": "uom",
+    "campo_sap": "UoMEntry",
+    "nivel": "DocumentLines",
+    "parent": "Mapeo Orden De Venta SAP",
+    "parentfield": "datos",
+    "parenttype": "Mapeo Orden De Venta SAP",
+    "tipo": "map",
+    "valor": null
+   },
+   {
+    "campo_erpnext": "net_rate",
+    "campo_sap": "UnitPrice",
+    "nivel": "DocumentLines",
+    "parent": "Mapeo Orden De Venta SAP",
+    "parentfield": "datos",
+    "parenttype": "Mapeo Orden De Venta SAP",
+    "tipo": "map",
+    "valor": null
+   },
+   {
+    "campo_erpnext": "warehouse",
+    "campo_sap": "WarehouseCode",
+    "nivel": "DocumentLines",
+    "parent": "Mapeo Orden De Venta SAP",
+    "parentfield": "datos",
+    "parenttype": "Mapeo Orden De Venta SAP",
+    "tipo": "map",
+    "valor": null
+   }
+  ],
+  "docstatus": 0,
+  "doctype": "Mapeo Orden De Venta SAP",
+  "modified": "2025-08-14 17:17:45.748401",
+  "name": "Mapeo Orden De Venta SAP"
+ }
+]
