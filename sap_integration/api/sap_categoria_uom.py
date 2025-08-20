@@ -271,6 +271,7 @@ def procesar_datos(lista_mapeo, mapeo_lista, doctype):
                 setattr(doc, campo, valor)
             try:
                 doc.save()
+                frappe.db.commit()  # ✅ commit después de guardar
             except frappe.exceptions.DocumentHasBeenModifiedError:
                 frappe.db.rollback()
             return f"{sap_id} (actualizado)", dato_lista
@@ -280,6 +281,7 @@ def procesar_datos(lista_mapeo, mapeo_lista, doctype):
             for campo, valor in dato_lista.items():
                 setattr(doc, campo, valor)
             doc.insert()
+            frappe.db.commit()  # ✅ commit después de guardar
             return f"{sap_id} (creado)", dato_lista
 
     except Exception as e:

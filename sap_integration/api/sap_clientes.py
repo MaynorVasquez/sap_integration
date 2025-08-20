@@ -221,6 +221,7 @@ def procesar_dato(cliente_sap, mapeo_cliente, sync_records, doctype_target, debu
                 asignar_vendedor(cliente_doc, cliente_sap)
                 asignar_cliente_grupo(cliente_doc, cliente_sap)
                 cliente_doc.save()
+                frappe.db.commit()  # ✅ commit después de guardar
             except frappe.exceptions.DocumentHasBeenModifiedError:
                 frappe.log_error(f"Error al actualizar cliente o asignar vendedor para {sap_id}: {str(e)}\n{traceback.format_exc()}")
                 return None, "Error DocumentHasBeenModifiedError"
@@ -244,6 +245,7 @@ def procesar_dato(cliente_sap, mapeo_cliente, sync_records, doctype_target, debu
             asignar_vendedor(cliente_doc, cliente_sap)
             asignar_cliente_grupo(cliente_doc, cliente_sap)
             cliente_doc.save()
+            frappe.db.commit()  # ✅ commit después de guardar
             # Actualizar registro de sincronización
             actualizar_last_sync("Clientes", sap_id, update_datetime)
             return f"{sap_id} (creado)", datos_cliente

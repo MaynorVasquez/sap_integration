@@ -3,7 +3,6 @@ from frappe import _
 import requests
 import json
 import traceback  # Importación añadida
-from .mapeos import get_mapeo_vendedores
 from .blueprint import mapping_blueprint, construir_url_sap
 from .sap_auth import login_sap 
 from .logs import log_sincronizacion
@@ -141,6 +140,7 @@ def procesar_datos(lista_vendedor, mapeo_lista, doctype):
             return None, None  # No se puede continuar sin ID
 
         # Buscar vendedor ERPNEXT
+        #vendedor_existente = frappe.get_all(doctype, filters={erp_key_field: sap_id}, limit=1)
         vendedor_existente = frappe.get_all(doctype, filters={erp_key_field: sap_id}, limit=1)
 
         # Mapear datos SAP -> ERP
@@ -148,22 +148,23 @@ def procesar_datos(lista_vendedor, mapeo_lista, doctype):
         for erp_field, sap_field in mapeo_lista["sap_fields"].items():
             valor = lista_vendedor.get(sap_field)
             if erp_field == "enabled":
-                valor = 1 if valor == "tNO" else 0
+                valor = 1 if valor == "tYES" else 0
             datos_lista_vendedor[erp_field] = valor
         
         # Asegurar que el campo clave esté presente
         datos_lista_vendedor[erp_key_field] = sap_id
-        print("procesando vendedor ",sap_id)
+        # 🔹 Imprimir JSON completo a enviar
+        print("📤 Enviando a ERPNext:\n", json.dumps(datos_lista_vendedor, indent=2, ensure_ascii=False))
 
         if vendedor_existente:
-            lista_vendedor_doc = frappe.get_doc(doctype, vendedor_existente[0].name)
+            lista_vendedor_doc = frappe.get_doc(doctype, vendedor_existente)
+            print(f"lista vendedor doc: {lista_vendedor_doc}")
             for campo, valor in datos_lista_vendedor.items():
-                lista_vendedor_doc.set(campo, valor)
-                #setattr(lista_vendedor_doc, campo, valor)            
+                #lista_vendedor_doc.set(campo, valor)
+                setattr(lista_vendedor_doc, campo, valor)         
             try:
-                print(f"datos: {datos_lista_vendedor}")
-                lista_vendedor_doc.update(datos_lista_vendedor)
                 lista_vendedor_doc.save()
+                frappe.db.commit()  # ✅ commit después de guardar
             except frappe.exceptions.DocumentHasBeenModifiedError:
                 frappe.db.rollback()
             return f"{sap_id} (actualizado)", datos_lista_vendedor
@@ -173,6 +174,7 @@ def procesar_datos(lista_vendedor, mapeo_lista, doctype):
             for campo, valor in datos_lista_vendedor.items():
                 setattr(lista_vendedor_doc, campo, valor)
             lista_vendedor_doc.insert()
+            frappe.db.commit()  # ✅ commit después de insertar
             return f"{sap_id} (creado)", datos_lista_vendedor
 
     except Exception as e:

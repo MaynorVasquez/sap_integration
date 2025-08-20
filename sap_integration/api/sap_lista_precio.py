@@ -178,6 +178,7 @@ def procesar_datos(lista_precio, mapeo_lista, doctype):
             
             try:
                 lista_precio_doc.save()
+                frappe.db.commit()
             except frappe.exceptions.DocumentHasBeenModifiedError:
                 frappe.db.rollback()
             return f"{sap_id} (actualizado)", datos_lista_precio

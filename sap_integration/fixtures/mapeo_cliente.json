@@ -61,7 +61,7 @@
     "parentfield": "mapeo_cliente",
     "parenttype": "Mapeo Cliente",
     "tipo": "filter",
-    "valor": "C00002"
+    "valor": "C00004"
    },
    {
     "campo_erpnext": "custom_nit",
@@ -112,9 +112,19 @@
     "parenttype": "Mapeo Cliente",
     "tipo": "map",
     "valor": null
+   },
+   {
+    "campo_erpnext": "disabled",
+    "campo_sap": "Valid",
+    "nivel": "head",
+    "parent": "Mapeo Cliente",
+    "parentfield": "mapeo_cliente",
+    "parenttype": "Mapeo Cliente",
+    "tipo": "map",
+    "valor": null
    }
   ],
-  "modified": "2025-08-17 13:48:46.726328",
+  "modified": "2025-08-19 21:50:08.833210",
   "name": "Mapeo Cliente"
  }
 ]

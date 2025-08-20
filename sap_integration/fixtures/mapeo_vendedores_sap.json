@@ -35,7 +35,7 @@
    },
    {
     "campo_erpnext": "enabled",
-    "campo_sap": "Locked",
+    "campo_sap": "Active",
     "nivel": "head",
     "parent": "Mapeo Vendedores SAP",
     "parentfield": "mapeo_vendedores",
@@ -44,7 +44,7 @@
     "valor": null
    }
   ],
-  "modified": "2025-08-16 23:57:50.463032",
+  "modified": "2025-08-19 16:34:03.760425",
   "name": "Mapeo Vendedores SAP"
  }
 ]
