@@ -55,13 +55,13 @@
    },
    {
     "campo_erpnext": null,
-    "campo_sap": "CardCode",
+    "campo_sap": "U_smart_cli",
     "nivel": "head",
     "parent": "Mapeo Cliente",
     "parentfield": "mapeo_cliente",
     "parenttype": "Mapeo Cliente",
     "tipo": "filter",
-    "valor": "C00004"
+    "valor": "1"
    },
    {
     "campo_erpnext": "custom_nit",
@@ -124,7 +124,7 @@
     "valor": null
    }
   ],
-  "modified": "2025-08-19 21:50:08.833210",
+  "modified": "2025-08-20 13:22:52.234288",
   "name": "Mapeo Cliente"
  }
 ]
