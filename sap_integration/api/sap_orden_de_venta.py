@@ -4,6 +4,7 @@ from datetime import date
 from collections import defaultdict
 from .sap_auth import login_sap 
 from .blueprint import mapping_blueprint1
+from .usuarios_autorizados import verificar_autorizacion
 import requests
 
 def enviar_ov(doc, method):
@@ -13,6 +14,15 @@ def enviar_ov(doc, method):
     """
     debug_messages = []
     try:
+
+        usuario_actual = frappe.session.user
+        doctype_actual = doc.doctype  # Ej: "Sales Order"
+
+        # Verificar autorización
+        if not verificar_autorizacion(usuario_actual, doctype_actual):
+            print(f"El usuario {usuario_actual} no enviara el documento a sap tipo  {doctype_actual}")
+            #frappe.msgprint(f"⚠ El usuario {usuario_actual} no está autorizado para sincronizar {doctype_actual} con SAP")
+            return
         # 1. Login a SAP
         session = login_sap()
         if not session or not isinstance(session, requests.Session):

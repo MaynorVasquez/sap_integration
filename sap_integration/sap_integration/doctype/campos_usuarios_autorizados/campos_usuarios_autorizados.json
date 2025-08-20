@@ -1,34 +1,36 @@
 {
  "actions": [],
  "allow_rename": 1,
- "creation": "2025-05-16 13:33:38.249253",
+ "creation": "2025-08-20 15:15:11.319243",
  "doctype": "DocType",
  "editable_grid": 1,
  "engine": "InnoDB",
  "field_order": [
-  "campo_erpnext",
-  "campo_sap"
+  "usuario",
+  "doc_type"
  ],
  "fields": [
   {
-   "fieldname": "campo_erpnext",
-   "fieldtype": "Data",
-   "label": "Campo ERPNEXT"
+   "fieldname": "usuario",
+   "fieldtype": "Link",
+   "label": "Usuario",
+   "options": "User"
   },
   {
-   "fieldname": "campo_sap",
-   "fieldtype": "Data",
-   "label": "Campo SAP"
+   "fieldname": "doc_type",
+   "fieldtype": "Link",
+   "label": "Tipo de documento",
+   "options": "DocType"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2025-05-16 13:35:15.079052",
+ "modified": "2025-08-20 15:35:27.543952",
  "modified_by": "Administrator",
  "module": "Sap Integration",
- "name": "Mapeo Campos SAP",
+ "name": "Campos usuarios autorizados",
  "owner": "Administrator",
  "permissions": [],
  "row_format": "Dynamic",

@@ -1,0 +1,43 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2025-08-20 15:13:21.981833",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "usuarios_autorizados"
+ ],
+ "fields": [
+  {
+   "fieldname": "usuarios_autorizados",
+   "fieldtype": "Table",
+   "label": "Usuarios Autorizados",
+   "options": "Campos usuarios autorizados"
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "issingle": 1,
+ "links": [],
+ "modified": "2025-08-20 16:37:29.289769",
+ "modified_by": "Administrator",
+ "module": "Sap Integration",
+ "name": "Usuarios autorizados",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "print": 1,
+   "read": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

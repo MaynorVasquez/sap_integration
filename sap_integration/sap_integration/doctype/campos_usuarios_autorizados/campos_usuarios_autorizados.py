@@ -5,5 +5,5 @@
 from frappe.model.document import Document
 
 
-class MapeoCamposSAP(Document):
+class Camposusuariosautorizados(Document):
 	pass
