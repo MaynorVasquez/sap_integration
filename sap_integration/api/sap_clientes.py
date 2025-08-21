@@ -220,6 +220,8 @@ def procesar_dato(cliente_sap, mapeo_cliente, sync_records, doctype_target, debu
                 cliente_doc.update(datos_cliente)
                 asignar_vendedor(cliente_doc, cliente_sap)
                 asignar_cliente_grupo(cliente_doc, cliente_sap)
+                # 👇 Esto ignora los permisos del usuario actual
+                cliente_doc.flags.ignore_permissions = True 
                 cliente_doc.save()
                 frappe.db.commit()  # ✅ commit después de guardar
             except frappe.exceptions.DocumentHasBeenModifiedError:
@@ -244,6 +246,8 @@ def procesar_dato(cliente_sap, mapeo_cliente, sync_records, doctype_target, debu
             procesar_direcciones(cliente_doc, cliente_sap.get("BPAddresses", []), sap_id, debug_messages)
             asignar_vendedor(cliente_doc, cliente_sap)
             asignar_cliente_grupo(cliente_doc, cliente_sap)
+            # 👇 Esto ignora los permisos del usuario actual
+            cliente_doc.flags.ignore_permissions = True 
             cliente_doc.save()
             frappe.db.commit()  # ✅ commit después de guardar
             # Actualizar registro de sincronización

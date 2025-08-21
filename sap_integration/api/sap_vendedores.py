@@ -163,6 +163,8 @@ def procesar_datos(lista_vendedor, mapeo_lista, doctype):
                 #lista_vendedor_doc.set(campo, valor)
                 setattr(lista_vendedor_doc, campo, valor)         
             try:
+                # 👇 Esto ignora los permisos del usuario actual
+                lista_vendedor_doc.flags.ignore_permissions = True 
                 lista_vendedor_doc.save()
                 frappe.db.commit()  # ✅ commit después de guardar
             except frappe.exceptions.DocumentHasBeenModifiedError:
@@ -173,6 +175,8 @@ def procesar_datos(lista_vendedor, mapeo_lista, doctype):
             lista_vendedor_doc = frappe.new_doc(doctype)
             for campo, valor in datos_lista_vendedor.items():
                 setattr(lista_vendedor_doc, campo, valor)
+            # 👇 Esto ignora los permisos del usuario actual
+            lista_vendedor_doc.flags.ignore_permissions = True 
             lista_vendedor_doc.insert()
             frappe.db.commit()  # ✅ commit después de insertar
             return f"{sap_id} (creado)", datos_lista_vendedor

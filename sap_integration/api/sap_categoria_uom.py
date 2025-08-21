@@ -270,6 +270,8 @@ def procesar_datos(lista_mapeo, mapeo_lista, doctype):
             for campo, valor in dato_lista.items():
                 setattr(doc, campo, valor)
             try:
+                # 👇 Esto ignora los permisos del usuario actual
+                doc.flags.ignore_permissions = True 
                 doc.save()
                 frappe.db.commit()  # ✅ commit después de guardar
             except frappe.exceptions.DocumentHasBeenModifiedError:
@@ -280,6 +282,9 @@ def procesar_datos(lista_mapeo, mapeo_lista, doctype):
             doc = frappe.new_doc(doctype)
             for campo, valor in dato_lista.items():
                 setattr(doc, campo, valor)
+            
+            # 👇 Esto ignora los permisos del usuario actual
+            doc.flags.ignore_permissions = True 
             doc.insert()
             frappe.db.commit()  # ✅ commit después de guardar
             return f"{sap_id} (creado)", dato_lista
@@ -395,7 +400,8 @@ def sincronizar_factores_conversion(docname=None):
                     except Exception as ex:
                         frappe.log_error(f"Error al insertar factor:\n{frappe.as_json(doc)}", "Error en UOM Conversion Factor")
                         debug_messages.append(f"✗ Error al crear factor: {alt_uom} ➜ {base_uom}: {str(ex)}")
-
+            # 👇 Esto ignora los permisos del usuario actual
+            doc.flags.ignore_permissions = True 
             frappe.db.commit()
 
     except Exception as e:

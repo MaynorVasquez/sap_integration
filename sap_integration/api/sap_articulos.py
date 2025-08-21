@@ -222,6 +222,8 @@ def procesar_dato(registro_sap, mapeo_lista, sync_records, doctype_target):
             asignar_grupo_articulo(doc, registro_sap)
 
             try:
+                # 👇 Esto ignora los permisos del usuario actual
+                doc.flags.ignore_permissions = True 
                 doc.save()
                 frappe.db.commit()
 
@@ -256,6 +258,8 @@ def procesar_dato(registro_sap, mapeo_lista, sync_records, doctype_target):
             actualizar_last_sync("Articulos", sap_id, update_datetime)
 
             try:
+                # 👇 Esto ignora los permisos del usuario actual
+                doc.flags.ignore_permissions = True 
                 doc.insert()
                 frappe.db.commit()
                 # 🔁 Sincronizar UOMs después de guardar
@@ -350,6 +354,8 @@ def sincronizar_articulo_precio(item_code, item_prices, registro_sap):
                         cambios = True
 
                 if cambios:
+                    # 👇 Esto ignora los permisos del usuario actual
+                    item_doc.flags.ignore_permissions = True 
                     item_doc.save()
                     frappe.db.commit()
                     print(f"✅ UOM actualizado en campos: stock, weight, purchase, sales para {item_code}: {uom_por_defecto}")
@@ -429,10 +435,14 @@ def insertar_o_actualizar_item_price(data):
         doc = frappe.get_doc("Item Price", item_price[0].name)
         doc.price_list_rate = data["price_list_rate"]
         doc.currency = data["currency"]
+        # 👇 Esto ignora los permisos del usuario actual
+        doc.flags.ignore_permissions = True 
         doc.save()
         frappe.db.commit()
     else:
         doc = frappe.new_doc("Item Price")
+        # 👇 Esto ignora los permisos del usuario actual
+        doc.flags.ignore_permissions = True 
         doc.update(data)
         doc.insert()
         frappe.db.commit()
@@ -476,6 +486,8 @@ def sincronizar_uoms(item_code, registro_sap):
                     "conversion_factor": float(uom_price.get("Factor", 1.0)) or 1.0
                 })
 
+        # 👇 Esto ignora los permisos del usuario actual
+        item_doc.flags.ignore_permissions = True 
         item_doc.save()
         frappe.db.commit()
 

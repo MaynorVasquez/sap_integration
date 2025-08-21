@@ -149,6 +149,8 @@ def procesar_datos(lista_mapeo, mapeo_lista, doctype):
             for campo, valor in dato_lista.items():
                 setattr(doc, campo, valor)
             try:
+                # 👇 Esto ignora los permisos del usuario actual
+                doc.flags.ignore_permissions = True 
                 doc.save()
                 frappe.db.commit()  # ✅ commit después de guardar
             except frappe.exceptions.DocumentHasBeenModifiedError:
@@ -159,6 +161,8 @@ def procesar_datos(lista_mapeo, mapeo_lista, doctype):
             doc = frappe.new_doc(doctype)
             for campo, valor in dato_lista.items():
                 setattr(doc, campo, valor)
+            # 👇 Esto ignora los permisos del usuario actual
+            doc.flags.ignore_permissions = True 
             doc.insert()
             frappe.db.commit()  # ✅ commit después de insertar
             return f"{sap_id} (creado)", dato_lista
