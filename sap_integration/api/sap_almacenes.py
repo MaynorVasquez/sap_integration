@@ -153,7 +153,7 @@ def procesar_datos(lista_mapeo, mapeo_lista, doctype):
         for erp_field, sap_field in mapeo_lista["sap_fields"].items():
             valor = lista_mapeo.get(sap_field)
 
-            if erp_field == "Inactive":
+            if erp_field == "disabled":
                 valor = 1 if valor == "tYES" else 0
 
             dato_lista[erp_field] = valor
