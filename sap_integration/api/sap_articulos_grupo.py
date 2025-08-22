@@ -182,6 +182,6 @@ def procesar_datos(lista_mapeo, mapeo_lista, doctype):
             return f"{sap_id} (creado)", dato_lista
 
     except Exception as e:
-        frappe.log_error(f"Error al procesar datos {sap_id}: {str(e)}\n{traceback.format_exc()}")
+        frappe.log_error(f"Error al procesar datos {sap_id}: ")
         return None, None
 

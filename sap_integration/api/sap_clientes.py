@@ -102,7 +102,7 @@ def sincronizar_clientes_desde_sap(docname=None):
         
 
     except Exception as e:
-        error_msg = f"Error durante sincronización: {str(e)}\n{traceback.format_exc()}"
+        error_msg = f"Error durante sincronización: {str(e)}"
         debug_messages.append(f"✗ {error_msg}")
         frappe.log_error(title="Error sincronizando clientes desde SAP", message=error_msg)
 
@@ -228,7 +228,7 @@ def procesar_dato(cliente_sap, mapeo_cliente, sync_records, doctype_target, debu
                 frappe.log_error(f"Error al actualizar cliente o asignar vendedor para {sap_id}: {str(e)}\n{traceback.format_exc()}")
                 return None, "Error DocumentHasBeenModifiedError"
             try:                
-                procesar_direcciones(cliente_doc, cliente_sap.get("BPAddresses", []), sap_id, debug_messages)
+                procesar_direcciones(cliente_sap, cliente_sap.get("BPAddresses", []), sap_id, debug_messages)
             except frappe.exceptions.DocumentHasBeenModifiedError:
                 frappe.log_error(f"error al procesar direccion {sap_id}: {str(e)}\n{traceback.format_exc()}")
                 return None, "Error DocumentHasBeenModifiedError"
@@ -243,7 +243,7 @@ def procesar_dato(cliente_sap, mapeo_cliente, sync_records, doctype_target, debu
             print(datos_cliente)
             cliente_doc.update(datos_cliente)                
             cliente_doc.insert()
-            procesar_direcciones(cliente_doc, cliente_sap.get("BPAddresses", []), sap_id, debug_messages)
+            procesar_direcciones(cliente_sap, cliente_sap.get("BPAddresses", []), sap_id, debug_messages)
             asignar_vendedor(cliente_doc, cliente_sap)
             asignar_cliente_grupo(cliente_doc, cliente_sap)
             # 👇 Esto ignora los permisos del usuario actual
@@ -307,11 +307,16 @@ def asignar_cliente_grupo(cliente_doc, cliente_sap):
         print(f"No se pudo encontrar ni crear el Customer Group con código SAP '{group_code_cliente}'")
 
 
-def procesar_direcciones(cliente_doc, bp_addresses, card_code, debug_messages):
+
+def procesar_direcciones(cliente_sap, bp_addresses, card_code, debug_messages):
     """
     Procesa las direcciones del cliente desde SAP y las sincroniza con ERPNext.
     Maneja la creación y actualización de registros tipo Address, incluyendo links como child table.
     """
+
+    billto_default = cliente_sap.get("BilltoDefault")
+    shipto_default = cliente_sap.get("ShipToDefault")
+
     if not bp_addresses:
         frappe.logger().info(f"[{card_code}] Cliente sin direcciones en SAP.")
         return
@@ -343,15 +348,6 @@ def procesar_direcciones(cliente_doc, bp_addresses, card_code, debug_messages):
 
             frappe.logger().info(f"Procesando dirección: {address_title}")
 
-            direcciones_existentes = frappe.get_all(
-                "Address",
-                filters={
-                    "address_title": address_title,
-                    mapeo_direcciones["erp_key_field"]: card_code
-                },
-                fields=["name"]
-            )
-
             direccion_data = {
                 "doctype": "Address",
                 "address_title": address_title,
@@ -362,8 +358,23 @@ def procesar_direcciones(cliente_doc, bp_addresses, card_code, debug_messages):
                 }]
             }
 
+            # 🔹 Normalizar tipo de dirección desde SAP
+            tipo_sap = direccion.get("AddressType")  # <-- campo que viene de SAP
+            print(f"el tipo de direccion es: {tipo_sap}")
+            if tipo_sap == "bo_BillTo":
+                direccion_data["address_type"] = "Billing"
+                direccion_data["is_primary_address"] = 1 if address_title == billto_default else 0
+                #direccion_data["address_title"] = f"{address_title} -facturación"
+                #print(f"[DEBUG] Título asignado (Billing): {direccion_data['address_title']}")
+            elif tipo_sap == "bo_ShipTo":
+                direccion_data["address_type"] = "Shipping"
+                direccion_data["is_shipping_address"] = 1 if address_title == shipto_default else 0
+                #direccion_data["address_title"] = f"{address_title} -envío"
+                #print(f"[DEBUG] Título asignado (Shipping): {direccion_data['address_title']}")
+
+            # 🔹 Mapear los demás campos
             for campo_erp, campo_sap in mapeo_direcciones["sap_fields"].items():
-                if campo_erp in ["custom_cardcode", "address_title"]:
+                if campo_erp in ["custom_cardcode", "address_title","address_type","is_primary_address","is_shipping_address"]:
                     continue
 
                 valor = direccion.get(campo_sap)
@@ -371,19 +382,25 @@ def procesar_direcciones(cliente_doc, bp_addresses, card_code, debug_messages):
                     # Si el campo es address_line1 o city, poner por defecto "Ciudad"
                     if campo_erp in ["address_line1", "city"]:
                         valor = "Ciudad"
-                        frappe.logger().warning(f"⚠️ {campo_erp} estaba vacío para '{address_title}', se asignó valor por defecto: Ciudad")
+                        frappe.logger().warning(
+                            f"⚠️ {campo_erp} estaba vacío para '{address_title}', se asignó valor por defecto: Ciudad"
+                        )
 
                 if campo_erp == "country":
                     valor = country_map.get(valor, valor or "Desconocido")
 
                 direccion_data[campo_erp] = valor
 
-            # Normalizar tipo de dirección
-            tipo = direccion_data.get("address_type")
-            if tipo == "bo_BillTo":
-                direccion_data["address_type"] = "Billing"
-            elif tipo == "bo_ShipTo":
-                direccion_data["address_type"] = "Shipping"
+            # 🔹 Buscar si la dirección ya existe en ERPNext
+            direcciones_existentes = frappe.get_all(
+                "Address",
+                filters={
+                    "address_title": direccion_data["address_title"],   # 👈 ya con sufijo facturación/envío
+                    mapeo_direcciones["erp_key_field"]: card_code,
+                    "address_type": direccion_data.get("address_type")
+                },
+                fields=["name"]
+            )
 
             if direcciones_existentes:
                 direccion_name = direcciones_existentes[0]["name"]
@@ -400,32 +417,32 @@ def procesar_direcciones(cliente_doc, bp_addresses, card_code, debug_messages):
                     direccion_doc.append("links", link)
 
                 try:
-                    direccion_doc.save(ignore_version=True)  # <-- evita el error por modificación concurrente
+                    direccion_doc.save(ignore_version=True)  # <-- evita error por modificación concurrente
                     frappe.logger().info(f"✓ Dirección actualizada: {direccion_doc.name}")
-                    print(f"Dirección actualizada con título: {address_title}")
+                    print(f"Dirección actualizada con título: {direccion_data['address_title']}")
                 except Exception as e:
                     debug_messages.append(
-                        f"[{card_code}] Error actualizando dirección '{address_title}': {str(e)}\nDatos: {direccion_data}"
+                        f"[{card_code}] Error actualizando dirección '{direccion_data['address_title']}': {str(e)}\nDatos: {direccion_data}"
                     )
-                    print(f"⚠️ Error actualizando dirección '{address_title}': {e}")
+                    print(f"⚠️ Error actualizando dirección '{direccion_data['address_title']}': {e}")
                     continue
 
             else:
-                print(f"Insertando nueva dirección con título: {address_title}")
-                # Truncar address_line1 si es necesario
-                if len(direccion_data["address_line1"]) > 140:
+                print(f"Insertando nueva dirección con título: {direccion_data['address_title']}")
+                if len(direccion_data.get("address_line1", "")) > 140:
                     direccion_data["address_line1"] = direccion_data["address_line1"][:139]
-                    frappe.logger().warning(f"⚠️ address_line1 truncado a 139 caracteres para '{address_title}'")
+                    frappe.logger().warning(
+                        f"⚠️ address_line1 truncado a 139 caracteres para '{direccion_data['address_title']}'"
+                    )
 
                 direccion_doc = frappe.get_doc(direccion_data)
-                #print(direccion_doc.as_dict())
                 direccion_doc.insert()
                 frappe.logger().info(f"✓ Dirección creada: {direccion_doc.name}")
 
         except Exception as e:
             frappe.log_error(
-            f"Error procesando dirección '{direccion.get(address_title_field)}' "
-            f"de {card_code}: {str(e)}\nDatos: {direccion}"
+                f"Error procesando dirección '{direccion.get(address_title_field)}' "
+                f"de {card_code}: {str(e)}\nDatos: {direccion}"
             )
-            print(f"Error en dirección '{direccion.get(address_title_field)}': {e}")
+            print(f"Error en dirección '{direccion.get(address_title_field)}' ")
             continue  # <-- evita que el error detenga el resto
