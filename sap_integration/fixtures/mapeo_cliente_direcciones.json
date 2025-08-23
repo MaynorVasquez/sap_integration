@@ -62,9 +62,29 @@
     "parenttype": "Mapeo Cliente Direcciones",
     "tipo": "map",
     "valor": null
+   },
+   {
+    "campo_erpnext": "is_shipping_address",
+    "campo_sap": "is_shipping_address",
+    "nivel": "head",
+    "parent": "Mapeo Cliente Direcciones",
+    "parentfield": "mapeo_cliente_direcciones",
+    "parenttype": "Mapeo Cliente Direcciones",
+    "tipo": "map",
+    "valor": null
+   },
+   {
+    "campo_erpnext": "is_primary_address",
+    "campo_sap": "is_primary_address",
+    "nivel": "head",
+    "parent": "Mapeo Cliente Direcciones",
+    "parentfield": "mapeo_cliente_direcciones",
+    "parenttype": "Mapeo Cliente Direcciones",
+    "tipo": "map",
+    "valor": null
    }
   ],
-  "modified": "2025-08-15 13:49:01.019918",
+  "modified": "2025-08-21 16:21:11.256466",
   "name": "Mapeo Cliente Direcciones"
  }
 ]
