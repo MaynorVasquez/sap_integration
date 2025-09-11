@@ -13,12 +13,11 @@ from frappe.utils import flt
 import time
 
 @frappe.whitelist()
-def sincronizar_lista_stock(docname=None):
+def sincronizar_lista_stock(docname=None, doctype_logs = None, almacen = None):
     debug_messages = []
     total_procesados = 0
     session = None
     detalles = []
-    doctype_logs = "Sincronizacion Inventario SAP"
 
     try:
         debug_messages.append("Iniciando autenticación con SAP...")
@@ -42,7 +41,13 @@ def sincronizar_lista_stock(docname=None):
         print("Inicio de paginación URL: ", mapeo_lista["url"])
 
         while True:
-            url_final = construir_url_sap(mapeo_lista, top=top, skip=skip)
+            # 🚩 si hay almacén → ignorar filtros del mapeo
+            if almacen:
+                sap_whscode = frappe.db.get_value("Warehouse", almacen, "custom_whscode")
+                url_final = f"{mapeo_lista['base_url']}?$filter=WhsCode eq '{sap_whscode}'"
+            else:
+                url_final = construir_url_sap(mapeo_lista, top=top, skip=skip)
+
             debug_messages.append(f"🌐 URL: {url_final}")
 
             intentos = 0

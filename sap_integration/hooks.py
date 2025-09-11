@@ -6,13 +6,21 @@ app_email = "informatica@yaesta.com.gt"
 app_license = "mit"
 
 
+scheduler_events = {
+    "cron": {
+        "0 2 * * *": [
+            "sap_integration.job.job_master.job_secuenciales"
+        ]
+    }
+}
+
+
 # scheduler_events = {
-#     "cron": {
-#         "*/5 * * * *": [
-#             "sap_integration.api.sap_clientes.sincronizar_clientes_desde_sap"
-#         ]
-#     }
+#     "all": [
+#         "sap_integration.api.scheduler.run_sap_schedulers"
+#     ]
 # }
+
 doc_events = {
     "Sales Order": {
         "on_submit": "sap_integration.api.sap_orden_de_venta.enviar_ov"

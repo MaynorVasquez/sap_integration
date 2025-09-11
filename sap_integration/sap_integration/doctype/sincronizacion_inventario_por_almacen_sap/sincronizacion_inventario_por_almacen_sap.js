@@ -1,12 +1,13 @@
 // Copyright (c) 2025, maynor and contributors
 // For license information, please see license.txt
 
-// frappe.ui.form.on("Sincronizacion Inventario SAP", {
+// frappe.ui.form.on("Sincronizacion inventario por almacen SAP", {
 // 	refresh(frm) {
 
 // 	},
 // });
-frappe.ui.form.on('Sincronizacion Inventario SAP', {
+
+frappe.ui.form.on('Sincronizacion inventario por almacen SAP', {
     refresh: function(frm) {
         frm.add_custom_button('Sincronizar inventario SAP', function() {
 
@@ -36,12 +37,22 @@ frappe.ui.form.on('Sincronizacion Inventario SAP', {
 
             dialog.show();
 
+            // 🚩 Validar si el campo almacen está vacío
+            if (!frm.doc.almacen) {
+                frappe.msgprint({
+                    title: __('Campo requerido'),
+                    indicator: 'red',
+                    message: __('Debes seleccionar un almacén antes de sincronizar.')
+                });
+                return;
+            }
             // Llamada al backend
             frappe.call({
                 method: "sap_integration.api.sap_stock.sincronizar_lista_stock",
                 args: {
                     docname: frm.doc.name,
-                    doctype_logs: "Sincronizacion Inventario SAP"
+                    doctype_logs: "Sincronizacion inventario por almacen SAP",
+                    almacen: frm.doc.almacen
                 },
                 callback: function(r) {
                     if (r.message) {

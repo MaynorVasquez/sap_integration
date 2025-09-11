@@ -15,6 +15,8 @@ def sincronizar_lista_alamacenes(docname=None):
     detalles = []
     doctype_logs = "Sincronizacion Almacenes SAP"
     doctype_target = "Warehouse"
+    frappe.logger().info("🚀 Scheduler ejecutó sincronizar_lista_alamacenes")
+    print("🚀 Print: sincronizar_lista_alamacenes corrió")
 
     try:
         # 1. Autenticación
