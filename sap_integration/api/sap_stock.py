@@ -39,12 +39,19 @@ def sincronizar_lista_stock(docname=None, doctype_logs = None, almacen = None):
         wait_times = [1, 3, 5, 8, 13]
 
         print("Inicio de paginación URL: ", mapeo_lista["url"])
+        
 
         while True:
             # 🚩 si hay almacén → ignorar filtros del mapeo
+            
             if almacen:
-                sap_whscode = frappe.db.get_value("Warehouse", almacen, "custom_whscode")
-                url_final = f"{mapeo_lista['base_url']}?$filter=WhsCode eq '{sap_whscode}'"
+                sap_whscode = frappe.db.get_value("Warehouse", almacen, "custom_warehousecode")
+                url_final = f"{mapeo_lista['url']}?$filter=WhsCode eq '{sap_whscode}'"
+                 # si vienen top y skip, los agregamos
+                if top is not None:
+                    url_final += f"&$top={top}"
+                if skip is not None:
+                    url_final += f"&$skip={skip}"
             else:
                 url_final = construir_url_sap(mapeo_lista, top=top, skip=skip)
 

@@ -2,10 +2,8 @@ import frappe
 from sap_integration.api import (
     sap_almacenes,
     sap_articulos_grupo,
-    sap_articulos,
     sap_categoria_uom,
     sap_clientes_grupos,
-    sap_clientes,
     sap_lista_precio,
     sap_vendedores
 

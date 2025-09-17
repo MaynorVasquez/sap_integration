@@ -10,6 +10,10 @@ scheduler_events = {
     "cron": {
         "0 2 * * *": [
             "sap_integration.job.job_master.job_secuenciales"
+        ],
+        # Job que corre de lunes a sábado de 07:00 a 19:00, cada hora exacta
+        "0 7-19 * * 1-6": [
+            "sap_integration.job.sap_procesar_facturas_pendientes.procesar_facturas_pendientes"
         ]
     }
 }
@@ -45,7 +49,10 @@ fixtures = [
                 "Customer Group-custom_code",
                 "Price List-custom_pricelistno",
                 "UOM-custom_absentry",
-                "Sales Person-custom_salesemployeecode"
+                "Sales Person-custom_salesemployeecode",
+                "POS Profile-custom_establecimiento_fel",
+                "POS Profile-custom_serie_sap",
+                "Sales Invoice-custom_docnum"
             ]]
         ]
     },

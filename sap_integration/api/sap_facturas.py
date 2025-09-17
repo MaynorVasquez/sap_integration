@@ -4,12 +4,13 @@ from datetime import date
 from .sap_auth import login_sap 
 from .blueprint import mapping_blueprint1, construir_url_sap
 
-def crear_factura_deudores(docname):
+def factura_deudores(docname):
     """
     Envía una factura de ERPNext hacia SAP
     construyendo el payload dinámico.
     """
     try:
+        response = None
         # 1. Login a SAP
         session = login_sap()
 
@@ -21,9 +22,21 @@ def crear_factura_deudores(docname):
         url = mapeo.get("url")
         if not url:
             frappe.throw(_("No se encontró la URL destino en el mapeo"))
+        
+        # 2b. Verificar si la orden ya existe en SAP (U_OrdenDeCompra = po_no y Cancelled = 'tNO')
+        filter_url = f"{url}?$filter=NumAtCard eq '{docname}' and Cancelled eq 'tNO'"
+        check_resp = session.get(filter_url, timeout=30)
+        if check_resp.status_code == 200:
+            existing = check_resp.json().get("value", [])
+            if existing:
+                sap_docnum = existing[0].get("DocNum")
+                frappe.msgprint(f"Factura ya exite en SAP B1 con folio No. {sap_docnum}")
+                frappe.db.set_value("Sales Invoice", docname, "custom_docnum", sap_docnum)
+                frappe.db.commit()
+                return existing[0]  # No se envía POST nuevamente
+
 
         # 3. Obtener el documento de ERPNext
-        print(docname)
         doc = frappe.get_doc("Sales Invoice", docname)
         
 
@@ -40,15 +53,19 @@ def crear_factura_deudores(docname):
 
         # 6. Validar respuesta
         if response.status_code in (200, 201):
-            frappe.msgprint(_("Factura enviada exitosamente a SAP"))
-            return response.json()
+            data = response.json()
+            sap_docnum = data.get("DocNum")
+            print(f"Factura SAP: {sap_docnum}")
+            frappe.msgprint(_(f"Factura enviada exitosamente a SAP {sap_docnum}"))
+            if sap_docnum:
+                frappe.db.set_value("Sales Invoice", docname, "custom_docnum", sap_docnum)
+                frappe.db.commit()
+            return data
         else:
-            frappe.log_error(response.text, "Error al enviar la factura a SAP")
-            frappe.throw(_("Error al enviar la factura a SAP: {0}").format(response.text))
+            frappe.log_error(response.text, f"Factura de deudores: {docname}")
 
     except Exception as e:
-        frappe.log_error(frappe.get_traceback(), "Excepción enviando SAP")
-        frappe.throw(_("Error inesperado enviando la factura a SAP: {0}").format(str(e)))
+        frappe.log_error(response.text, f"Factura de deudores: {docname}")
 
 
 
@@ -93,10 +110,9 @@ def construir_payload_sap(doc, mapeo):
             valor = fecha.strftime("%d-%m-%Y %H:%M:%S") if fecha else None
         elif campo_erp == "custom_series":
             pos_profile_name = doc.get("pos_profile")
-            valor = None
             if pos_profile_name:
                 pos_doc = frappe.get_doc("POS Profile", pos_profile_name)
-                valor = pos_doc.get("custom_series")
+                valor = pos_doc.get("custom_serie_sap")
         elif campo_erp == "shipping_address_name":
             shiptocode = doc.get("shipping_address_name") or ""   # Si es None → ""
             if shiptocode and shiptocode.lower().endswith(("-envío", "-facturación", "-shipping", "-billing")):
@@ -106,6 +122,10 @@ def construir_payload_sap(doc, mapeo):
             valor = doc.get(campo_erp)
         if valor is not None:
             payload[campo_sap] = valor
+    
+    # Obtener impuestos de la factura
+    impuestos = doc.get("taxes", [])[0] if doc.get("taxes") else {}
+
 
     # DETALLE
     for idx, item in enumerate(doc.get("items", [])):
@@ -128,7 +148,13 @@ def construir_payload_sap(doc, mapeo):
                 valor = uom_code
             elif campo_erp == "price_list_rate":
                 price_list = item.get("price_list_rate")
-                valor = "%.6f" % (price_list / 1.12) if price_list else None
+                tax_rate = impuestos.get("rate", 0)  # si no existe, 0
+                factor = (100 + tax_rate) / 100 if tax_rate else 1
+                valor = "%.6f" % (price_list / factor) if price_list else None
+            elif campo_erp == "taxcode":  
+                # Mapeo directo de la descripción del impuesto (ej: IVA -> mapeo en SAP)
+                tax_desc = impuestos.get("description")
+                valor = tax_desc 
             else:
                 valor = item.get(campo_erp)
 
@@ -163,7 +189,7 @@ def construir_payload_sap(doc, mapeo):
                     })
             except frappe.DoesNotExistError:
                 frappe.log_error("No existe el bundle", "Error reconstruyendo batch_no desde serial_and_batch_bundle")
-        print(batch_list)
+
         # recorrer los lotes finales
         for lote in batch_list:
             lote_payload = {}
@@ -178,10 +204,10 @@ def construir_payload_sap(doc, mapeo):
                     batchnum_sap = batch_number_erp
 
             for campo_erp, campo_sap in mapeo["sap_fields"]["BatchNumbers"].items():
-                if campo_erp == "BatchNumber":
+                if campo_erp == "batch_no":
                     valor = batchnum_sap
-                elif campo_erp == "qty":
-                    valor = lote.get("Quantity") or item.get("qty")
+                elif campo_erp == "stock_qty":
+                    valor = lote.get("Quantity") or item.get("stock_qty")
                 elif campo_erp == "item_code":
                     valor = item.get("item_code")
                 elif campo_erp == "BaseLineNumber":

@@ -114,6 +114,16 @@
     "valor": null
    },
    {
+    "campo_erpnext": "disabled",
+    "campo_sap": "Valid",
+    "nivel": "head",
+    "parent": "Mapeo Articulo SAP",
+    "parentfield": "mapeo_articulo_sap",
+    "parenttype": "Mapeo Articulo SAP",
+    "tipo": "map",
+    "valor": null
+   },
+   {
     "campo_erpnext": "CreateDate",
     "campo_sap": "CreateDate",
     "nivel": "head",
@@ -124,8 +134,28 @@
     "valor": null
    },
    {
-    "campo_erpnext": "disabled",
-    "campo_sap": "Valid",
+    "campo_erpnext": "CreateTime",
+    "campo_sap": "CreateTime",
+    "nivel": "head",
+    "parent": "Mapeo Articulo SAP",
+    "parentfield": "mapeo_articulo_sap",
+    "parenttype": "Mapeo Articulo SAP",
+    "tipo": "map",
+    "valor": null
+   },
+   {
+    "campo_erpnext": "UpdateDate",
+    "campo_sap": "UpdateDate",
+    "nivel": "head",
+    "parent": "Mapeo Articulo SAP",
+    "parentfield": "mapeo_articulo_sap",
+    "parenttype": "Mapeo Articulo SAP",
+    "tipo": "map",
+    "valor": null
+   },
+   {
+    "campo_erpnext": "UpdateTime",
+    "campo_sap": "UpdateTime",
     "nivel": "head",
     "parent": "Mapeo Articulo SAP",
     "parentfield": "mapeo_articulo_sap",
@@ -134,7 +164,7 @@
     "valor": null
    }
   ],
-  "modified": "2025-08-20 11:43:35.351058",
+  "modified": "2025-09-12 08:31:44.779172",
   "name": "Mapeo Articulo SAP"
  }
 ]
