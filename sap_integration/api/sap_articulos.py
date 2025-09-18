@@ -464,7 +464,7 @@ def sincronizar_uoms(item_code, registro_sap):
         print(uom_prices_total)
 
         if not uom_prices_total:
-            frappe.log_error("No se encontró 'UoMPrices' en ninguna lista de precios", json.dumps(registro_sap, indent=2))
+            #frappe.log_error("No se encontró 'UoMPrices' en ninguna lista de precios", json.dumps(registro_sap, indent=2))
             return
 
         for uom_price in uom_prices_total:

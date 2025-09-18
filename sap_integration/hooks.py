@@ -41,6 +41,7 @@ fixtures = [
                 "Customer-custom_nit",
                 "Address-custom_cardcode",
                 "Sales Order-custom_docnum",
+                "Sales Order-custom_comentarios",
                 "Item-custom_ean",
                 "Sales Person-custom_salesemployeecode",
                 "Warehouse-custom_warehousecode",
