@@ -89,6 +89,7 @@ def construir_payload_sap(doc, mapeo):
             customer_code = doc.get("customer")
             if customer_code:
                 customer_doc = frappe.get_doc("Customer", customer_code)
+                custom_cardcode = customer_doc.get("custom_cardcode")
                 valor = customer_doc.get("custom_cardcode") or customer_code
             else:
                 valor = None
@@ -117,6 +118,11 @@ def construir_payload_sap(doc, mapeo):
             shiptocode = doc.get("shipping_address_name") or ""   # Si es None → ""
             if shiptocode and shiptocode.lower().endswith(("-envío", "-facturación", "-shipping", "-billing")):
                 shiptocode = shiptocode.rsplit("-", 1)[0].strip()
+            
+            # Validación adicional para custom_cardcode específico
+            if custom_cardcode == "C02683":
+                shiptocode = "Tienda B2"
+
             valor = shiptocode
         else:
             valor = doc.get(campo_erp)

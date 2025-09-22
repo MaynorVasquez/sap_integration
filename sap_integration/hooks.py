@@ -53,7 +53,8 @@ fixtures = [
                 "Sales Person-custom_salesemployeecode",
                 "POS Profile-custom_establecimiento_fel",
                 "POS Profile-custom_serie_sap",
-                "Sales Invoice-custom_docnum"
+                "Sales Invoice-custom_docnum",
+                "Batch-custom_batchnum"
             ]]
         ]
     },
