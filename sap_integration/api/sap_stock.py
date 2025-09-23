@@ -144,13 +144,11 @@ def sincronizar_lista_stock(docname=None, doctype_logs = None, almacen = None):
         "debug": debug_messages
     }
 
-
-
-
 def procesar_registros_lotes_multiple(registros_sap, debug_messages, warehouse_default=None):
     """
     Procesa múltiples registros SAP, calcula diferencias reales con ERP
     y acumula movimientos para un único Stock Entry por tipo ("In" o "Out").
+    También elimina lotes que ya no vienen de SAP.
     """
     items_in = []
     items_out = []
@@ -173,7 +171,6 @@ def procesar_registros_lotes_multiple(registros_sap, debug_messages, warehouse_d
             if fecha_exp and getdate(fecha_exp) < getdate(today()):
                 fecha_exp = today()
 
-
             if not item_code or not warehouse or not batch:
                 debug_messages.append(f"✗ Registro incompleto: {registro_sap}")
                 continue
@@ -189,18 +186,16 @@ def procesar_registros_lotes_multiple(registros_sap, debug_messages, warehouse_d
 
             # Si no hay diferencia, se omite
             if abs(diferencia) < 0.000001:
-                #debug_messages.append(f"✔ Sin cambios: {item_code}, lote {batch}, almacén {whs_code}")
                 continue
 
-
             clave_unica = f"{item_code}|{batch}|{warehouse}|{diferencia}"
-
             if clave_unica in registros_unicos:
                 debug_messages.append(f"🔁 Registro duplicado ignorado: {clave_unica}")
                 continue
 
             registros_unicos.add(clave_unica)
 
+            # Crear lote si no existe
             if batch:
                 lote = frappe.get_value("Batch", {"batch_id": batch, "item": item_code}, "name")
                 if not lote:
@@ -238,17 +233,174 @@ def procesar_registros_lotes_multiple(registros_sap, debug_messages, warehouse_d
             else:
                 items_out.append(movimiento)
                 debug_messages.append(f"✔ Preparado para salida: -{abs(diferencia)} del lote {batch or 'SIN LOTE'}")
-    
 
         except Exception as e:
             frappe.log_error(frappe.get_traceback(), "Error en procesar_registro_con_lote")
             debug_messages.append(f"✗ Error procesando registro SAP: {e} | Registro: {registro_sap}")
+
+    # --- Detectar lotes en ERP que ya no vienen en SAP ---
+    try:
+        # set con los lotes que llegaron de SAP
+        lotes_sap = {
+            (registro.get("ItemCode"),
+             f"{registro.get('ItemCode')}-{(registro.get('BatchNum') or '').strip()}",
+             obtener_nombre_almacen(registro.get("WhsCode") or warehouse_default))
+            for registro in registros_sap
+            if registro.get("ItemCode")
+        }
+
+        # traer lotes con saldo > 0 en ERP para los almacenes involucrados
+        warehouses_sap = {
+            obtener_nombre_almacen(registro.get("WhsCode") or warehouse_default)
+            for registro in registros_sap
+            if registro.get("ItemCode")
+        }
+        warehouses_sap = tuple(warehouses_sap) if warehouses_sap else ("",)
+
+        lotes_erp = frappe.db.sql(f"""
+            SELECT 
+                T0.item_code,
+                T1.batch_no,
+                T3.batch_qty,
+                T0.warehouse
+            FROM `tabSerial and Batch Bundle` T0
+            JOIN `tabSerial and Batch Entry` T1 ON T1.parent = T0.name
+            JOIN `tabBatch` T3 ON T3.item = T0.item_code AND T3.batch_id = T1.batch_no
+            WHERE T0.docstatus = 1
+              AND T3.batch_qty > 0
+              AND T0.warehouse IN {warehouses_sap if len(warehouses_sap) > 1 else f"('{warehouses_sap[0]}')"}
+            GROUP BY T0.item_code, T0.warehouse, T1.batch_no
+        """, as_dict=True)
+
+        for row in lotes_erp:
+            clave = (row.item_code, row.batch_no, row.warehouse)
+            if clave not in lotes_sap:
+                # Este lote no vino en SAP → salida completa
+                movimiento = {
+                    "item_code": row.item_code,
+                    "qty": row.batch_qty,
+                    "warehouse": row.warehouse,
+                    "valuation_rate": 0,   # puedes ajustar si quieres cuadrar valor
+                    "batch_no": row.batch_no
+                }
+                items_out.append(movimiento)
+                debug_messages.append(
+                    f"🗑 Lote {row.batch_no} del item {row.item_code} en {row.warehouse} "
+                    f"no vino en SAP, salida total {row.batch_qty}"
+                )
+    except Exception as e:
+        debug_messages.append(f"⚠ Error detectando lotes faltantes: {e}")
 
     # Crear los Stock Entry si hay datos
     if items_in:
         crear_stock_entry_multiple(items_in, tipo="In", debug_messages=debug_messages)
     if items_out:
         crear_stock_entry_multiple(items_out, tipo="Out", debug_messages=debug_messages)
+
+
+
+# def procesar_registros_lotes_multiple(registros_sap, debug_messages, warehouse_default=None):
+#     """
+#     Procesa múltiples registros SAP, calcula diferencias reales con ERP
+#     y acumula movimientos para un único Stock Entry por tipo ("In" o "Out").
+#     """
+#     items_in = []
+#     items_out = []
+
+#     registros_unicos = set()
+
+#     for registro_sap in registros_sap:
+#         try:
+#             item_code = registro_sap.get("ItemCode")
+#             whs_code = registro_sap.get("WhsCode") or warehouse_default
+#             warehouse = obtener_nombre_almacen(whs_code)
+#             raw_batch = (registro_sap.get("BatchNum") or "").strip()
+#             custom_batchnum = (registro_sap.get("BatchNum") or "").strip()
+#             batch = f"{item_code}-{raw_batch}"
+#             cantidad_sap = flt(registro_sap.get("Quantity") or 0)
+#             fecha_exp = registro_sap.get("ExpDate")
+#             valuation_rate = flt(registro_sap.get("AvgPrice") or 0)
+
+#             # Verifica lote vencido y ajusta la fecha si es necesario
+#             if fecha_exp and getdate(fecha_exp) < getdate(today()):
+#                 fecha_exp = today()
+
+
+#             if not item_code or not warehouse or not batch:
+#                 debug_messages.append(f"✗ Registro incompleto: {registro_sap}")
+#                 continue
+
+#             cantidad_erp = flt(get_stock_qty(item_code, warehouse, batch))
+#             cantidad_erp_corregida = max(cantidad_erp, 0)  # evita negativos
+#             diferencia = round(cantidad_sap - cantidad_erp_corregida, 6)
+
+#             debug_messages.append(
+#                 f"📦 {item_code} | Lote: {batch or 'SIN LOTE'} | Almacén: {warehouse} | SAP: {cantidad_sap} | ERP: {cantidad_erp} (corr: {cantidad_erp_corregida}) | Dif: {diferencia}"
+#             )
+#             print(f"📦 {item_code} | Lote: {batch or 'SIN LOTE'} | Almacén: {warehouse} | SAP: {cantidad_sap} | ERP: {cantidad_erp} (corr: {cantidad_erp_corregida}) | Dif: {diferencia}")
+
+#             # Si no hay diferencia, se omite
+#             if abs(diferencia) < 0.000001:
+#                 #debug_messages.append(f"✔ Sin cambios: {item_code}, lote {batch}, almacén {whs_code}")
+#                 continue
+
+
+#             clave_unica = f"{item_code}|{batch}|{warehouse}|{diferencia}"
+
+#             if clave_unica in registros_unicos:
+#                 debug_messages.append(f"🔁 Registro duplicado ignorado: {clave_unica}")
+#                 continue
+
+#             registros_unicos.add(clave_unica)
+
+#             if batch:
+#                 lote = frappe.get_value("Batch", {"batch_id": batch, "item": item_code}, "name")
+#                 if not lote:
+#                     lote_doc = frappe.new_doc("Batch")
+#                     lote_doc.batch_id = batch
+#                     lote_doc.item = item_code
+#                     lote_doc.expiry_date = fecha_exp
+#                     lote_doc.custom_batchnum = custom_batchnum
+#                     lote_doc.flags.ignore_validate = True
+#                     lote_doc.flags.ignore_mandatory = True
+#                     lote_doc.insert(ignore_permissions=True)
+#                     debug_messages.append(f"✔ Lote creado: {batch}")
+#                 else:
+#                     try:
+#                         frappe.db.set_value("Batch", lote, {
+#                             "expiry_date": fecha_exp,
+#                             "custom_batchnum": custom_batchnum
+#                         })
+#                     except Exception as e:
+#                         debug_messages.append(f"⚠ No se pudo actualizar fecha de lote {batch}: {e}")
+
+#             movimiento = {
+#                 "item_code": item_code,
+#                 "qty": abs(diferencia),
+#                 "warehouse": warehouse,
+#                 "valuation_rate": valuation_rate
+#             }
+
+#             if batch:
+#                 movimiento["batch_no"] = batch
+
+#             if diferencia > 0:
+#                 items_in.append(movimiento)
+#                 debug_messages.append(f"✔ Preparado para entrada: +{diferencia} del lote {batch or 'SIN LOTE'}")
+#             else:
+#                 items_out.append(movimiento)
+#                 debug_messages.append(f"✔ Preparado para salida: -{abs(diferencia)} del lote {batch or 'SIN LOTE'}")
+    
+
+#         except Exception as e:
+#             frappe.log_error(frappe.get_traceback(), "Error en procesar_registro_con_lote")
+#             debug_messages.append(f"✗ Error procesando registro SAP: {e} | Registro: {registro_sap}")
+
+#     # Crear los Stock Entry si hay datos
+#     if items_in:
+#         crear_stock_entry_multiple(items_in, tipo="In", debug_messages=debug_messages)
+#     if items_out:
+#         crear_stock_entry_multiple(items_out, tipo="Out", debug_messages=debug_messages)
 
 
 
@@ -399,4 +551,3 @@ def obtener_nombre_almacen(codigo_sap):
     except Exception as e:
         frappe.log_error(f"Error buscando almacén por código SAP {codigo_sap}: {e}", "Stock Sync")
         return None
-
