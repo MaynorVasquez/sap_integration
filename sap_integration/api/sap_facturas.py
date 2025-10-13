@@ -76,56 +76,77 @@ def construir_payload_sap(doc, mapeo):
     y resolviendo campos especiales (CardCode, WarehouseCode, BatchNumber)
     dinámicamente desde el backend.
     """
-
+    
     payload = {
         "DocEntry": "0",
         "DocType": "dDocument_Items",
         "DocumentLines": []
     }
 
-    # HEAD
+    # ========================================
+    # 🔹 Obtener datos del cliente una sola vez
+    # ========================================
+    customer_code = doc.get("customer")
+    custom_cardcode = None
+    custom_nit = None
+
+    if customer_code:
+        try:
+            customer_doc = frappe.get_doc("Customer", customer_code)
+            custom_cardcode = customer_doc.get("custom_cardcode")
+            custom_nit = customer_doc.get("custom_nit")
+            print(f"Cliente: {customer_code}, CardCode SAP: {custom_cardcode}")
+        except frappe.DoesNotExistError:
+            frappe.log_error(f"Cliente no encontrado: {customer_code}", "Error al obtener datos del cliente")
+    else:
+        frappe.log_error("Documento sin cliente asociado", "Error en construir_payload_sap")
+
+    # ========================================
+    # 🔹 HEAD
+    # ========================================
     for campo_erp, campo_sap in mapeo["sap_fields"].get("head", {}).items():
+
         if campo_erp == "customer":
-            customer_code = doc.get("customer")
-            if customer_code:
-                customer_doc = frappe.get_doc("Customer", customer_code)
-                custom_cardcode = customer_doc.get("custom_cardcode")
-                valor = customer_doc.get("custom_cardcode") or customer_code
-            else:
-                valor = None
+            valor = custom_cardcode or customer_code
+
         elif campo_erp == "custom_nit":
-            customer_code = doc.get("customer")
-            if customer_code:
-                customer_doc = frappe.get_doc("Customer", customer_code)
-                valor = customer_doc.get("custom_nit")
-            else:
-                valor = None
+            valor = custom_nit
+
         elif campo_erp == "currency":
             moneda_erp = doc.get("currency")
             valor = "QTZ" if moneda_erp == "GTQ" else moneda_erp
-        elif campo_erp in ["creation", "DocDueDate","posting_date","due_date"]:
+
+        elif campo_erp in ["creation", "DocDueDate", "posting_date", "due_date"]:
             fecha = doc.get(campo_erp)
             valor = fecha.strftime("%Y-%m-%d") if fecha else None
-        elif campo_erp in ["custom_fecha"]:
+
+        elif campo_erp == "custom_fecha":
             fecha = doc.get(campo_erp)
             valor = fecha.strftime("%d-%m-%Y %H:%M:%S") if fecha else None
+
         elif campo_erp == "custom_series":
             pos_profile_name = doc.get("pos_profile")
             if pos_profile_name:
                 pos_doc = frappe.get_doc("POS Profile", pos_profile_name)
                 valor = pos_doc.get("custom_serie_sap")
+            else:
+                valor = None
+
         elif campo_erp == "shipping_address_name":
-            shiptocode = doc.get("shipping_address_name") or ""   # Si es None → ""
-            if shiptocode and shiptocode.lower().endswith(("-envío", "-facturación", "-shipping", "-billing")):
+            shiptocode = doc.get("shipping_address_name") or ""
+            if shiptocode.lower().endswith(("-envío", "-facturación", "-shipping", "-billing", "-Shipping")):
                 shiptocode = shiptocode.rsplit("-", 1)[0].strip()
-            
-            # Validación adicional para custom_cardcode específico
+
+            # Validación adicional para un cliente específico
+            print(f"Verificando CardCode: {custom_cardcode}")
             if custom_cardcode == "C02683":
                 shiptocode = "Tienda B2"
 
             valor = shiptocode
+
         else:
             valor = doc.get(campo_erp)
+
         if valor is not None:
             payload[campo_sap] = valor
     
