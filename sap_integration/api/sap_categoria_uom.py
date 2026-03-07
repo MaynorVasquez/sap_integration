@@ -133,7 +133,7 @@ def sincronizar_lista_uom(docname=None):
         debug_messages.append("✔ Autenticación exitosa")
 
         # 2. Obtener mapeo
-        mapeo_lista = mapping_blueprint("Mapeo UOM", "AbsEntry", "custom_absentry")
+        mapeo_lista = mapping_blueprint("Mapeo UOM", "Code", "uom_name")
         if not mapeo_lista or "sap_fields" not in mapeo_lista:
             raise Exception("No se pudo obtener el mapeo de campos desde el blueprint")
         debug_messages.append("✔ Mapeo de campos exitoso")
@@ -254,7 +254,7 @@ def procesar_datos(lista_mapeo, mapeo_lista, doctype):
 
         # Buscar documento existente en ERPNext
         dato_existente = frappe.get_all(doctype, filters={erp_key_field: sap_id}, limit=1)
-
+        print(f"Buscando {doctype} con {erp_key_field}={sap_id} → Encontrado: {len(dato_existente)}")
         # Mapear datos SAP -> ERPNext
         dato_lista = {}
         for erp_field, sap_field in mapeo_lista["sap_fields"].items():
@@ -282,7 +282,8 @@ def procesar_datos(lista_mapeo, mapeo_lista, doctype):
             doc = frappe.new_doc(doctype)
             for campo, valor in dato_lista.items():
                 setattr(doc, campo, valor)
-            
+                print(f"Creando nuevo {doctype} con campo: {campo} valor: {doc}")
+            print(f"Creando nuevo {doctype} con datos: {dato_lista} doctype: {doc}")
             # 👇 Esto ignora los permisos del usuario actual
             doc.flags.ignore_permissions = True 
             doc.insert()

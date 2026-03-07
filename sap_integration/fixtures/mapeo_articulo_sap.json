@@ -162,9 +162,19 @@
     "parenttype": "Mapeo Articulo SAP",
     "tipo": "map",
     "valor": null
+   },
+   {
+    "campo_erpnext": "custom_ean",
+    "campo_sap": "U_EAN",
+    "nivel": "head",
+    "parent": "Mapeo Articulo SAP",
+    "parentfield": "mapeo_articulo_sap",
+    "parenttype": "Mapeo Articulo SAP",
+    "tipo": "map",
+    "valor": null
    }
   ],
-  "modified": "2025-09-12 08:31:44.779172",
+  "modified": "2026-03-06 13:07:18.649051",
   "name": "Mapeo Articulo SAP"
  }
 ]

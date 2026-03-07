@@ -332,6 +332,7 @@ def sincronizar_articulo_precio(item_code, item_prices, registro_sap):
     uom_por_defecto = None
     if inv_uom_entry:
         uom_doc = frappe.get_all("UOM", filters={"custom_absentry": inv_uom_entry}, fields=["name"], limit=1)
+        print(f"🔍 Buscando UOM con custom_absentry={inv_uom_entry} para artículo {item_code}")
         if uom_doc:
             uom_por_defecto = uom_doc[0].name
             print(f"✅ InventoryUoMEntry por defecto nombre: {uom_por_defecto}")

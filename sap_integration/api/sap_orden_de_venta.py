@@ -42,7 +42,7 @@ def enviar_ov(doc, method):
         
 
         # 2b. Verificar si la orden ya existe en SAP (U_OrdenDeCompra = po_no y Cancelled = 'tNO')
-        filter_url = f"{url}?$filter=U_OrdenDeCompra eq '{doc.po_no}' and Cancelled eq 'tNO'"
+        filter_url = f"{url}?$filter=U_OrdenDeCompra eq '{doc.po_no}' and U_GLN eq '{doc.custom_gln}' and Cancelled eq 'tNO'"
         check_resp = session.get(filter_url, timeout=30)
         if check_resp.status_code == 200:
             existing = check_resp.json().get("value", [])

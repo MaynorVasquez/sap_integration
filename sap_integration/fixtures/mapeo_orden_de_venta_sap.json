@@ -132,6 +132,16 @@
     "valor": null
    },
    {
+    "campo_erpnext": "custom_gln",
+    "campo_sap": "U_GLN",
+    "nivel": "head",
+    "parent": "Mapeo Orden De Venta SAP",
+    "parentfield": "datos",
+    "parenttype": "Mapeo Orden De Venta SAP",
+    "tipo": "map",
+    "valor": null
+   },
+   {
     "campo_erpnext": "item_code",
     "campo_sap": "ItemCode",
     "nivel": "DocumentLines",
@@ -214,7 +224,7 @@
   ],
   "docstatus": 0,
   "doctype": "Mapeo Orden De Venta SAP",
-  "modified": "2025-12-22 10:18:35.151744",
+  "modified": "2026-03-06 17:00:58.487703",
   "name": "Mapeo Orden De Venta SAP"
  }
 ]
