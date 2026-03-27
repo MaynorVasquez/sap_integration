@@ -7,9 +7,6 @@
     "campo_erpnext": null,
     "campo_sap": null,
     "nivel": "head",
-    "parent": "Mapeo UOM factores conversion SAP",
-    "parentfield": "mapeo_factores_conversion",
-    "parenttype": "Mapeo UOM factores conversion SAP",
     "tipo": "url",
     "valor": "https://apisap.yaesta.com.gt/b1s/v2/UnitOfMeasurementGroups"
    }

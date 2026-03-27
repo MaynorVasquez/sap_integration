@@ -1,16 +1,20 @@
 [
  {
+  "app": "sap_integration",
   "charts": [],
   "content": "[{\"id\":\"0eEPkxeRf9\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\">SAP Integration</span>\",\"col\":12}},{\"id\":\"10tE37o8kY\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"UNzOXoj4D1\",\"type\":\"card\",\"data\":{\"card_name\":\"Configuración\",\"col\":4}},{\"id\":\"aQLhGKJQ05\",\"type\":\"card\",\"data\":{\"card_name\":\"Sincronizacion de datos\",\"col\":4}},{\"id\":\"TnKYAo1z4m\",\"type\":\"card\",\"data\":{\"card_name\":\"Sincronizar datos maestros\",\"col\":4}},{\"id\":\"_kdfA6VaV3\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\"><b>                          Mapeo de datos para el funcionamiento del consumo de la API</b></span>\",\"col\":12}},{\"id\":\"ZJC_5u2EfM\",\"type\":\"card\",\"data\":{\"card_name\":\"Mapeo de datos iniciales\",\"col\":4}},{\"id\":\"Bn0A-g2C5s\",\"type\":\"card\",\"data\":{\"card_name\":\"Mapeo de datos maestros\",\"col\":4}},{\"id\":\"eKVZqezt5a\",\"type\":\"card\",\"data\":{\"card_name\":\"Mapeo datos transaccionales\",\"col\":4}},{\"id\":\"l1dnW91ReA\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\"><b>Historial de datos sincronizados desde SAP</b></span>\",\"col\":12}},{\"id\":\"Dz9dHk1pad\",\"type\":\"card\",\"data\":{\"card_name\":\"Datos maestros sincronizados\",\"col\":4}}]",
   "custom_blocks": [],
   "docstatus": 0,
   "doctype": "Workspace",
+  "external_link": null,
   "for_user": "",
   "hide_custom": 0,
   "icon": "customization",
   "indicator_color": "green",
   "is_hidden": 0,
   "label": "SAP Integration",
+  "link_to": null,
+  "link_type": null,
   "links": [
    {
     "dependencies": null,
@@ -24,9 +28,6 @@
     "link_type": "DocType",
     "onboard": 0,
     "only_for": null,
-    "parent": "SAP Integration",
-    "parentfield": "links",
-    "parenttype": "Workspace",
     "report_ref_doctype": null,
     "type": "Card Break"
    },
@@ -42,9 +43,6 @@
     "link_type": "DocType",
     "onboard": 0,
     "only_for": null,
-    "parent": "SAP Integration",
-    "parentfield": "links",
-    "parenttype": "Workspace",
     "report_ref_doctype": null,
     "type": "Link"
    },
@@ -60,9 +58,6 @@
     "link_type": "DocType",
     "onboard": 0,
     "only_for": null,
-    "parent": "SAP Integration",
-    "parentfield": "links",
-    "parenttype": "Workspace",
     "report_ref_doctype": null,
     "type": "Link"
    },
@@ -78,9 +73,6 @@
     "link_type": "DocType",
     "onboard": 0,
     "only_for": null,
-    "parent": "SAP Integration",
-    "parentfield": "links",
-    "parenttype": "Workspace",
     "report_ref_doctype": null,
     "type": "Link"
    },
@@ -96,9 +88,6 @@
     "link_type": "DocType",
     "onboard": 0,
     "only_for": null,
-    "parent": "SAP Integration",
-    "parentfield": "links",
-    "parenttype": "Workspace",
     "report_ref_doctype": null,
     "type": "Card Break"
    },
@@ -114,9 +103,6 @@
     "link_type": "DocType",
     "onboard": 0,
     "only_for": null,
-    "parent": "SAP Integration",
-    "parentfield": "links",
-    "parenttype": "Workspace",
     "report_ref_doctype": null,
     "type": "Link"
    },
@@ -132,9 +118,6 @@
     "link_type": "DocType",
     "onboard": 0,
     "only_for": null,
-    "parent": "SAP Integration",
-    "parentfield": "links",
-    "parenttype": "Workspace",
     "report_ref_doctype": null,
     "type": "Link"
    },
@@ -150,9 +133,6 @@
     "link_type": "DocType",
     "onboard": 0,
     "only_for": null,
-    "parent": "SAP Integration",
-    "parentfield": "links",
-    "parenttype": "Workspace",
     "report_ref_doctype": null,
     "type": "Link"
    },
@@ -168,9 +148,6 @@
     "link_type": "DocType",
     "onboard": 0,
     "only_for": null,
-    "parent": "SAP Integration",
-    "parentfield": "links",
-    "parenttype": "Workspace",
     "report_ref_doctype": null,
     "type": "Link"
    },
@@ -186,9 +163,6 @@
     "link_type": "DocType",
     "onboard": 0,
     "only_for": null,
-    "parent": "SAP Integration",
-    "parentfield": "links",
-    "parenttype": "Workspace",
     "report_ref_doctype": null,
     "type": "Link"
    },
@@ -204,9 +178,6 @@
     "link_type": "DocType",
     "onboard": 0,
     "only_for": null,
-    "parent": "SAP Integration",
-    "parentfield": "links",
-    "parenttype": "Workspace",
     "report_ref_doctype": null,
     "type": "Link"
    },
@@ -222,9 +193,6 @@
     "link_type": "DocType",
     "onboard": 0,
     "only_for": null,
-    "parent": "SAP Integration",
-    "parentfield": "links",
-    "parenttype": "Workspace",
     "report_ref_doctype": null,
     "type": "Link"
    },
@@ -240,9 +208,6 @@
     "link_type": "DocType",
     "onboard": 0,
     "only_for": null,
-    "parent": "SAP Integration",
-    "parentfield": "links",
-    "parenttype": "Workspace",
     "report_ref_doctype": null,
     "type": "Link"
    },
@@ -258,9 +223,6 @@
     "link_type": "DocType",
     "onboard": 0,
     "only_for": null,
-    "parent": "SAP Integration",
-    "parentfield": "links",
-    "parenttype": "Workspace",
     "report_ref_doctype": null,
     "type": "Link"
    },
@@ -276,9 +238,6 @@
     "link_type": "DocType",
     "onboard": 0,
     "only_for": null,
-    "parent": "SAP Integration",
-    "parentfield": "links",
-    "parenttype": "Workspace",
     "report_ref_doctype": null,
     "type": "Card Break"
    },
@@ -294,9 +253,6 @@
     "link_type": "DocType",
     "onboard": 0,
     "only_for": null,
-    "parent": "SAP Integration",
-    "parentfield": "links",
-    "parenttype": "Workspace",
     "report_ref_doctype": null,
     "type": "Link"
    },
@@ -312,9 +268,6 @@
     "link_type": "DocType",
     "onboard": 0,
     "only_for": null,
-    "parent": "SAP Integration",
-    "parentfield": "links",
-    "parenttype": "Workspace",
     "report_ref_doctype": null,
     "type": "Card Break"
    },
@@ -330,9 +283,6 @@
     "link_type": "DocType",
     "onboard": 0,
     "only_for": null,
-    "parent": "SAP Integration",
-    "parentfield": "links",
-    "parenttype": "Workspace",
     "report_ref_doctype": null,
     "type": "Link"
    },
@@ -348,9 +298,6 @@
     "link_type": "DocType",
     "onboard": 0,
     "only_for": null,
-    "parent": "SAP Integration",
-    "parentfield": "links",
-    "parenttype": "Workspace",
     "report_ref_doctype": null,
     "type": "Link"
    },
@@ -366,9 +313,6 @@
     "link_type": "DocType",
     "onboard": 0,
     "only_for": null,
-    "parent": "SAP Integration",
-    "parentfield": "links",
-    "parenttype": "Workspace",
     "report_ref_doctype": null,
     "type": "Link"
    },
@@ -384,9 +328,6 @@
     "link_type": "DocType",
     "onboard": 0,
     "only_for": null,
-    "parent": "SAP Integration",
-    "parentfield": "links",
-    "parenttype": "Workspace",
     "report_ref_doctype": null,
     "type": "Link"
    },
@@ -402,9 +343,6 @@
     "link_type": "DocType",
     "onboard": 0,
     "only_for": null,
-    "parent": "SAP Integration",
-    "parentfield": "links",
-    "parenttype": "Workspace",
     "report_ref_doctype": null,
     "type": "Link"
    },
@@ -420,9 +358,6 @@
     "link_type": "DocType",
     "onboard": 0,
     "only_for": null,
-    "parent": "SAP Integration",
-    "parentfield": "links",
-    "parenttype": "Workspace",
     "report_ref_doctype": null,
     "type": "Link"
    },
@@ -438,9 +373,6 @@
     "link_type": "DocType",
     "onboard": 0,
     "only_for": null,
-    "parent": "SAP Integration",
-    "parentfield": "links",
-    "parenttype": "Workspace",
     "report_ref_doctype": null,
     "type": "Card Break"
    },
@@ -456,9 +388,6 @@
     "link_type": "DocType",
     "onboard": 0,
     "only_for": null,
-    "parent": "SAP Integration",
-    "parentfield": "links",
-    "parenttype": "Workspace",
     "report_ref_doctype": null,
     "type": "Link"
    },
@@ -474,9 +403,6 @@
     "link_type": "DocType",
     "onboard": 0,
     "only_for": null,
-    "parent": "SAP Integration",
-    "parentfield": "links",
-    "parenttype": "Workspace",
     "report_ref_doctype": null,
     "type": "Link"
    },
@@ -492,9 +418,6 @@
     "link_type": "DocType",
     "onboard": 0,
     "only_for": null,
-    "parent": "SAP Integration",
-    "parentfield": "links",
-    "parenttype": "Workspace",
     "report_ref_doctype": null,
     "type": "Card Break"
    },
@@ -510,9 +433,6 @@
     "link_type": "DocType",
     "onboard": 0,
     "only_for": null,
-    "parent": "SAP Integration",
-    "parentfield": "links",
-    "parenttype": "Workspace",
     "report_ref_doctype": null,
     "type": "Link"
    },
@@ -528,9 +448,6 @@
     "link_type": "DocType",
     "onboard": 0,
     "only_for": null,
-    "parent": "SAP Integration",
-    "parentfield": "links",
-    "parenttype": "Workspace",
     "report_ref_doctype": null,
     "type": "Link"
    },
@@ -546,9 +463,6 @@
     "link_type": "DocType",
     "onboard": 0,
     "only_for": null,
-    "parent": "SAP Integration",
-    "parentfield": "links",
-    "parenttype": "Workspace",
     "report_ref_doctype": null,
     "type": "Card Break"
    },
@@ -564,9 +478,6 @@
     "link_type": "DocType",
     "onboard": 0,
     "only_for": null,
-    "parent": "SAP Integration",
-    "parentfield": "links",
-    "parenttype": "Workspace",
     "report_ref_doctype": null,
     "type": "Link"
    },
@@ -582,9 +493,6 @@
     "link_type": "DocType",
     "onboard": 0,
     "only_for": null,
-    "parent": "SAP Integration",
-    "parentfield": "links",
-    "parenttype": "Workspace",
     "report_ref_doctype": null,
     "type": "Link"
    },
@@ -600,9 +508,6 @@
     "link_type": "DocType",
     "onboard": 0,
     "only_for": null,
-    "parent": "SAP Integration",
-    "parentfield": "links",
-    "parenttype": "Workspace",
     "report_ref_doctype": null,
     "type": "Link"
    },
@@ -618,14 +523,11 @@
     "link_type": "DocType",
     "onboard": 0,
     "only_for": null,
-    "parent": "SAP Integration",
-    "parentfield": "links",
-    "parenttype": "Workspace",
     "report_ref_doctype": null,
     "type": "Link"
    }
   ],
-  "modified": "2025-09-19 08:44:27.123354",
+  "modified": "2026-03-25 12:04:08.903649",
   "module": "Sap Integration",
   "name": "SAP Integration",
   "number_cards": [],
@@ -636,6 +538,7 @@
   "roles": [],
   "sequence_id": 24.0,
   "shortcuts": [],
-  "title": "SAP Integration"
+  "title": "SAP Integration",
+  "type": "Workspace"
  }
 ]

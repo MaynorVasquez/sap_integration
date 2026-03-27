@@ -7,9 +7,6 @@
     "campo_erpnext": null,
     "campo_sap": null,
     "nivel": "head",
-    "parent": "Mapeo Factura SAP",
-    "parentfield": "mapeo_factura",
-    "parenttype": "Mapeo Factura SAP",
     "tipo": "url",
     "valor": "https://apisap.yaesta.com.gt/b1s/v2/Invoices"
    },
@@ -17,9 +14,6 @@
     "campo_erpnext": "customer",
     "campo_sap": "CardCode",
     "nivel": "head",
-    "parent": "Mapeo Factura SAP",
-    "parentfield": "mapeo_factura",
-    "parenttype": "Mapeo Factura SAP",
     "tipo": "map",
     "valor": null
    },
@@ -27,9 +21,6 @@
     "campo_erpnext": "customer_name",
     "campo_sap": "CardName",
     "nivel": "head",
-    "parent": "Mapeo Factura SAP",
-    "parentfield": "mapeo_factura",
-    "parenttype": "Mapeo Factura SAP",
     "tipo": "map",
     "valor": null
    },
@@ -37,9 +28,6 @@
     "campo_erpnext": "posting_date",
     "campo_sap": "DocDate",
     "nivel": "head",
-    "parent": "Mapeo Factura SAP",
-    "parentfield": "mapeo_factura",
-    "parenttype": "Mapeo Factura SAP",
     "tipo": "map",
     "valor": null
    },
@@ -47,9 +35,6 @@
     "campo_erpnext": "due_date",
     "campo_sap": "DocDueDate",
     "nivel": "head",
-    "parent": "Mapeo Factura SAP",
-    "parentfield": "mapeo_factura",
-    "parenttype": "Mapeo Factura SAP",
     "tipo": "map",
     "valor": null
    },
@@ -57,9 +42,6 @@
     "campo_erpnext": "custom_nit",
     "campo_sap": "U_FacNit",
     "nivel": "head",
-    "parent": "Mapeo Factura SAP",
-    "parentfield": "mapeo_factura",
-    "parenttype": "Mapeo Factura SAP",
     "tipo": "map",
     "valor": null
    },
@@ -67,9 +49,6 @@
     "campo_erpnext": "name",
     "campo_sap": "NumAtCard",
     "nivel": "head",
-    "parent": "Mapeo Factura SAP",
-    "parentfield": "mapeo_factura",
-    "parenttype": "Mapeo Factura SAP",
     "tipo": "map",
     "valor": null
    },
@@ -77,9 +56,6 @@
     "campo_erpnext": "currency",
     "campo_sap": "DocCurrency",
     "nivel": "head",
-    "parent": "Mapeo Factura SAP",
-    "parentfield": "mapeo_factura",
-    "parenttype": "Mapeo Factura SAP",
     "tipo": "map",
     "valor": null
    },
@@ -87,9 +63,6 @@
     "campo_erpnext": "custom_series",
     "campo_sap": "Series",
     "nivel": "head",
-    "parent": "Mapeo Factura SAP",
-    "parentfield": "mapeo_factura",
-    "parenttype": "Mapeo Factura SAP",
     "tipo": "map",
     "valor": null
    },
@@ -97,9 +70,6 @@
     "campo_erpnext": "shipping_address_name",
     "campo_sap": "ShipToCode",
     "nivel": "head",
-    "parent": "Mapeo Factura SAP",
-    "parentfield": "mapeo_factura",
-    "parenttype": "Mapeo Factura SAP",
     "tipo": "map",
     "valor": null
    },
@@ -107,9 +77,6 @@
     "campo_erpnext": "title",
     "campo_sap": "U_FacNom",
     "nivel": "head",
-    "parent": "Mapeo Factura SAP",
-    "parentfield": "mapeo_factura",
-    "parenttype": "Mapeo Factura SAP",
     "tipo": "map",
     "valor": null
    },
@@ -117,9 +84,6 @@
     "campo_erpnext": "custom_uuid",
     "campo_sap": "U_CAE",
     "nivel": "head",
-    "parent": "Mapeo Factura SAP",
-    "parentfield": "mapeo_factura",
-    "parenttype": "Mapeo Factura SAP",
     "tipo": "map",
     "valor": null
    },
@@ -127,9 +91,6 @@
     "campo_erpnext": "custom_numero",
     "campo_sap": "U_DocNum",
     "nivel": "head",
-    "parent": "Mapeo Factura SAP",
-    "parentfield": "mapeo_factura",
-    "parenttype": "Mapeo Factura SAP",
     "tipo": "map",
     "valor": null
    },
@@ -137,9 +98,6 @@
     "campo_erpnext": "custom_serie",
     "campo_sap": "U_DocSerie",
     "nivel": "head",
-    "parent": "Mapeo Factura SAP",
-    "parentfield": "mapeo_factura",
-    "parenttype": "Mapeo Factura SAP",
     "tipo": "map",
     "valor": null
    },
@@ -147,9 +105,6 @@
     "campo_erpnext": "custom_fecha",
     "campo_sap": "U_Fac_FechaC",
     "nivel": "head",
-    "parent": "Mapeo Factura SAP",
-    "parentfield": "mapeo_factura",
-    "parenttype": "Mapeo Factura SAP",
     "tipo": "map",
     "valor": null
    },
@@ -157,9 +112,6 @@
     "campo_erpnext": "item_code",
     "campo_sap": "ItemCode",
     "nivel": "DocumentLines",
-    "parent": "Mapeo Factura SAP",
-    "parentfield": "mapeo_factura",
-    "parenttype": "Mapeo Factura SAP",
     "tipo": "map",
     "valor": null
    },
@@ -167,9 +119,6 @@
     "campo_erpnext": "item_name",
     "campo_sap": "ItemName",
     "nivel": "DocumentLines",
-    "parent": "Mapeo Factura SAP",
-    "parentfield": "mapeo_factura",
-    "parenttype": "Mapeo Factura SAP",
     "tipo": "map",
     "valor": null
    },
@@ -177,9 +126,6 @@
     "campo_erpnext": "qty",
     "campo_sap": "Quantity",
     "nivel": "DocumentLines",
-    "parent": "Mapeo Factura SAP",
-    "parentfield": "mapeo_factura",
-    "parenttype": "Mapeo Factura SAP",
     "tipo": "map",
     "valor": null
    },
@@ -187,9 +133,6 @@
     "campo_erpnext": "discount_percentage",
     "campo_sap": "DiscountPercent",
     "nivel": "DocumentLines",
-    "parent": "Mapeo Factura SAP",
-    "parentfield": "mapeo_factura",
-    "parenttype": "Mapeo Factura SAP",
     "tipo": "map",
     "valor": null
    },
@@ -197,9 +140,6 @@
     "campo_erpnext": "taxcode",
     "campo_sap": "TaxCode",
     "nivel": "DocumentLines",
-    "parent": "Mapeo Factura SAP",
-    "parentfield": "mapeo_factura",
-    "parenttype": "Mapeo Factura SAP",
     "tipo": "map",
     "valor": null
    },
@@ -207,9 +147,6 @@
     "campo_erpnext": "uom",
     "campo_sap": "UoMEntry",
     "nivel": "DocumentLines",
-    "parent": "Mapeo Factura SAP",
-    "parentfield": "mapeo_factura",
-    "parenttype": "Mapeo Factura SAP",
     "tipo": "map",
     "valor": null
    },
@@ -217,9 +154,6 @@
     "campo_erpnext": "price_list_rate",
     "campo_sap": "UnitPrice",
     "nivel": "DocumentLines",
-    "parent": "Mapeo Factura SAP",
-    "parentfield": "mapeo_factura",
-    "parenttype": "Mapeo Factura SAP",
     "tipo": "map",
     "valor": null
    },
@@ -227,9 +161,6 @@
     "campo_erpnext": "warehouse",
     "campo_sap": "WarehouseCode",
     "nivel": "DocumentLines",
-    "parent": "Mapeo Factura SAP",
-    "parentfield": "mapeo_factura",
-    "parenttype": "Mapeo Factura SAP",
     "tipo": "map",
     "valor": null
    },
@@ -237,9 +168,6 @@
     "campo_erpnext": "BaseLineNumber",
     "campo_sap": "BaseLineNumber",
     "nivel": "BatchNumbers",
-    "parent": "Mapeo Factura SAP",
-    "parentfield": "mapeo_factura",
-    "parenttype": "Mapeo Factura SAP",
     "tipo": "map",
     "valor": null
    },
@@ -247,9 +175,6 @@
     "campo_erpnext": "batch_no",
     "campo_sap": "BatchNumber",
     "nivel": "BatchNumbers",
-    "parent": "Mapeo Factura SAP",
-    "parentfield": "mapeo_factura",
-    "parenttype": "Mapeo Factura SAP",
     "tipo": "map",
     "valor": null
    },
@@ -257,9 +182,6 @@
     "campo_erpnext": "stock_qty",
     "campo_sap": "Quantity",
     "nivel": "BatchNumbers",
-    "parent": "Mapeo Factura SAP",
-    "parentfield": "mapeo_factura",
-    "parenttype": "Mapeo Factura SAP",
     "tipo": "map",
     "valor": null
    },
@@ -267,9 +189,6 @@
     "campo_erpnext": "item_code",
     "campo_sap": "ItemCode",
     "nivel": "BatchNumbers",
-    "parent": "Mapeo Factura SAP",
-    "parentfield": "mapeo_factura",
-    "parenttype": "Mapeo Factura SAP",
     "tipo": "map",
     "valor": null
    }

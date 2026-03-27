@@ -7,9 +7,6 @@
     "campo_erpnext": null,
     "campo_sap": null,
     "nivel": "head",
-    "parent": "Mapeo Vendedores SAP",
-    "parentfield": "mapeo_vendedores",
-    "parenttype": "Mapeo Vendedores SAP",
     "tipo": "url",
     "valor": "https://apisap.yaesta.com.gt/b1s/v2/SalesPersons"
    },
@@ -17,9 +14,6 @@
     "campo_erpnext": "custom_salesemployeecode",
     "campo_sap": "SalesEmployeeCode",
     "nivel": "head",
-    "parent": "Mapeo Vendedores SAP",
-    "parentfield": "mapeo_vendedores",
-    "parenttype": "Mapeo Vendedores SAP",
     "tipo": "map",
     "valor": null
    },
@@ -27,9 +21,6 @@
     "campo_erpnext": "sales_person_name",
     "campo_sap": "SalesEmployeeName",
     "nivel": "head",
-    "parent": "Mapeo Vendedores SAP",
-    "parentfield": "mapeo_vendedores",
-    "parenttype": "Mapeo Vendedores SAP",
     "tipo": "map",
     "valor": null
    },
@@ -37,9 +28,6 @@
     "campo_erpnext": "enabled",
     "campo_sap": "Active",
     "nivel": "head",
-    "parent": "Mapeo Vendedores SAP",
-    "parentfield": "mapeo_vendedores",
-    "parenttype": "Mapeo Vendedores SAP",
     "tipo": "map",
     "valor": null
    }

@@ -7,9 +7,6 @@
     "campo_erpnext": null,
     "campo_sap": null,
     "nivel": "head",
-    "parent": "Mapeo Clientes Grupo SAP",
-    "parentfield": "mapeo_clientes_grupo",
-    "parenttype": "Mapeo Clientes Grupo SAP",
     "tipo": "url",
     "valor": "https://apisap.yaesta.com.gt/b1s/v2/BusinessPartnerGroups"
    },
@@ -17,9 +14,6 @@
     "campo_erpnext": "custom_code",
     "campo_sap": "Code",
     "nivel": "head",
-    "parent": "Mapeo Clientes Grupo SAP",
-    "parentfield": "mapeo_clientes_grupo",
-    "parenttype": "Mapeo Clientes Grupo SAP",
     "tipo": "map",
     "valor": null
    },
@@ -27,9 +21,6 @@
     "campo_erpnext": "customer_group_name",
     "campo_sap": "Name",
     "nivel": "head",
-    "parent": "Mapeo Clientes Grupo SAP",
-    "parentfield": "mapeo_clientes_grupo",
-    "parenttype": "Mapeo Clientes Grupo SAP",
     "tipo": "map",
     "valor": null
    }
