@@ -1,9 +1,8 @@
 import frappe
 from frappe import _
-import requests
-import json
 import traceback  # Importación añadida
 from collections import defaultdict
+from .sap_auth import get_credentials
 
 def obtener_mapeo(doctype_padre, doctype_hijo, campos_mapeo):
     """
@@ -138,7 +137,7 @@ def construir_filtro(lista_filtros):
     return " and ".join(condiciones)
 
 
-def construir_url_sap(mapeo_lista: dict, top: int = 20, skip: int = 0):
+def construir_url_sap(mapeo_lista: dict, empresa,endpoint, top: int = 20, skip: int = 0):
     """
     Construye la URL final a consumir desde SAP Service Layer usando el mapeo proporcionado.
     """
@@ -146,8 +145,9 @@ def construir_url_sap(mapeo_lista: dict, top: int = 20, skip: int = 0):
         raise ValueError("El mapeo no contiene una URL válida.")
 
     try:
-        base_url = mapeo_lista["url"]
-        campos = mapeo_lista.get("sap_fields", {})
+        creds, url, endpoint_login = get_credentials(empresa)
+        base_url = f"{url.rstrip('/')}/{endpoint.lstrip('/')}"
+        campos = mapeo_lista.get("sap_fields", {}).get("head", {})
         filtros = mapeo_lista.get("filters", [])
         
         params = []

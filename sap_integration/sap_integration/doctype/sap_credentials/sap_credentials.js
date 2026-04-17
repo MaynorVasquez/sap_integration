@@ -22,5 +22,45 @@ frappe.ui.form.on('SAP Credentials', {
                 }
             });
         }).addClass("btn-primary");
+
+         frm.add_custom_button(__('Conexión SAP'), function() {
+
+            if (!frm.doc.company) {
+                frappe.msgprint({
+                    title: __('Campo requerido'),
+                    indicator: 'red',
+                    message: __('Debes de seleccionar una empresa para probar la conexión')
+                });
+                return;
+            }
+
+            frappe.call({
+                method: "sap_integration.api.sap_auth.test_sap_connection",
+                args: {
+                    company: frm.doc.company
+                },
+                freeze: true,
+                freeze_message: __('Probando conexión con SAP...'),
+                callback: function(r) {
+                    if (r.message) {
+                        frappe.msgprint({
+                            title: __('Resultado'),
+                            indicator: 'green',
+                            message: r.message
+                        });
+                    }
+                },
+                error: function(err) {
+                    frappe.msgprint({
+                        title: __('Error'),
+                        indicator: 'red',
+                        message: __('Error al conectar con SAP')
+                    });
+                    console.error(err);
+                }
+            });
+
+        });
+
     }
 });

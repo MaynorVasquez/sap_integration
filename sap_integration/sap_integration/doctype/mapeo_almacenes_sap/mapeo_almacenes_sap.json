@@ -6,7 +6,9 @@
  "doctype": "DocType",
  "engine": "InnoDB",
  "field_order": [
-  "mapeo_almacenes"
+  "endpoint",
+  "mapeo_almacenes",
+  "company_detalle"
  ],
  "fields": [
   {
@@ -14,17 +16,28 @@
    "fieldtype": "Table",
    "label": "Mapeo Almacenes",
    "options": "Mapeo campos"
+  },
+  {
+   "fieldname": "endpoint",
+   "fieldtype": "Data",
+   "label": "EndPoint"
+  },
+  {
+   "fieldname": "company_detalle",
+   "fieldtype": "Table",
+   "label": "Comap\u00f1ias Autorizadas",
+   "options": "Campos empresas autorizadas"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "issingle": 1,
  "links": [],
- "modified": "2025-06-16 08:48:39.206928",
+ "modified": "2026-04-15 14:03:08.580933",
  "modified_by": "Administrator",
  "module": "Sap Integration",
  "name": "Mapeo Almacenes SAP",
- "naming_rule": "Expression",
+ "naming_rule": "Expression (old style)",
  "owner": "Administrator",
  "permissions": [
   {
