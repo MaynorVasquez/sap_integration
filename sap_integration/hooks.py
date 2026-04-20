@@ -44,7 +44,6 @@ fixtures = [
                 "Sales Order-custom_comentarios",
                 "Item-custom_ean",
                 "Sales Order-custom_doc_due_date",  # <- nuevo
-                "Sales Person-custom_salesemployeecode",
                 "Warehouse-custom_warehousecode",
                 "Item Group-custom_number",
                 "UOM Category-custom_absentry",
@@ -52,10 +51,12 @@ fixtures = [
                 "Price List-custom_pricelistno",
                 "UOM-custom_absentry",
                 "Sales Person-custom_salesemployeecode",
+                "Sales Person-custom_company",
                 "POS Profile-custom_establecimiento_fel",
                 "POS Profile-custom_serie_sap",
                 "Sales Invoice-custom_docnum",
-                "Batch-custom_batchnum"
+                "Batch-custom_batchnum",
+                "Price List-custom_company"
             ]]
         ]
     },

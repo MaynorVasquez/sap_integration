@@ -5,7 +5,8 @@
  "doctype": "DocType",
  "engine": "InnoDB",
  "field_order": [
-  "mepao_categoria_oum"
+  "mepao_categoria_oum",
+  "company_detalle"
  ],
  "fields": [
   {
@@ -13,13 +14,19 @@
    "fieldtype": "Table",
    "label": "Mapeo Categor\u00eda UOM",
    "options": "Mapeo campos"
+  },
+  {
+   "fieldname": "company_detalle",
+   "fieldtype": "Table",
+   "label": "Comap\u00f1ias Autorizadas",
+   "options": "Campos empresas autorizadas"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "issingle": 1,
  "links": [],
- "modified": "2025-06-16 10:08:44.342884",
+ "modified": "2026-04-18 19:47:27.563012",
  "modified_by": "Administrator",
  "module": "Sap Integration",
  "name": "Mapeo Categoria UOM",

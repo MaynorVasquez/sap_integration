@@ -7,6 +7,7 @@
  "engine": "InnoDB",
  "field_order": [
   "sincronizacion",
+  "company",
   "status",
   "total_records",
   "details",
@@ -38,16 +39,22 @@
    "fieldname": "error_log",
    "fieldtype": "Long Text",
    "label": "Error"
+  },
+  {
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "label": "Compa\u00f1ia",
+   "options": "Company"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-05-27 16:51:37.418232",
+ "modified": "2026-04-19 10:13:36.414794",
  "modified_by": "Administrator",
  "module": "Sap Integration",
  "name": "Sincronizacion Lista Precios SAP",
- "naming_rule": "Expression",
+ "naming_rule": "Expression (old style)",
  "owner": "Administrator",
  "permissions": [
   {

@@ -5,7 +5,8 @@
  "doctype": "DocType",
  "engine": "InnoDB",
  "field_order": [
-  "mapeo_lista_precio"
+  "mapeo_lista_precio",
+  "company_detalle"
  ],
  "fields": [
   {
@@ -13,13 +14,19 @@
    "fieldtype": "Table",
    "label": "Lista de precios",
    "options": "Mapeo campos"
+  },
+  {
+   "fieldname": "company_detalle",
+   "fieldtype": "Table",
+   "label": "Compa\u00f1ias Autorizadas",
+   "options": "Campos empresas autorizadas"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "issingle": 1,
  "links": [],
- "modified": "2025-06-17 08:32:40.746388",
+ "modified": "2026-04-19 10:12:33.198212",
  "modified_by": "Administrator",
  "module": "Sap Integration",
  "name": "Mapeo Lista De Precios SAP",

@@ -5,7 +5,8 @@
  "doctype": "DocType",
  "engine": "InnoDB",
  "field_order": [
-  "mapeo_clientes_grupo"
+  "mapeo_clientes_grupo",
+  "company_detalle"
  ],
  "fields": [
   {
@@ -13,13 +14,19 @@
    "fieldtype": "Table",
    "label": "Mapeo Grupo de clientes",
    "options": "Mapeo campos"
+  },
+  {
+   "fieldname": "company_detalle",
+   "fieldtype": "Table",
+   "label": "Compa\u00f1ias Autorizadas",
+   "options": "Campos empresas autorizadas"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "issingle": 1,
  "links": [],
- "modified": "2025-06-13 09:06:19.473969",
+ "modified": "2026-04-18 20:02:24.370579",
  "modified_by": "Administrator",
  "module": "Sap Integration",
  "name": "Mapeo Clientes Grupo SAP",

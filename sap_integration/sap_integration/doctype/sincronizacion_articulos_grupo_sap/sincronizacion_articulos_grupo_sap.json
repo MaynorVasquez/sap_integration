@@ -7,6 +7,7 @@
  "engine": "InnoDB",
  "field_order": [
   "sincronizacion",
+  "company",
   "status",
   "total_records",
   "details",
@@ -38,16 +39,22 @@
    "fieldname": "error_log",
    "fieldtype": "Long Text",
    "label": "Errores"
+  },
+  {
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "label": "Compa\u00f1ia",
+   "options": "Company"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-06-02 11:14:23.055474",
+ "modified": "2026-04-17 20:34:57.274579",
  "modified_by": "Administrator",
  "module": "Sap Integration",
  "name": "Sincronizacion Articulos Grupo SAP",
- "naming_rule": "Expression",
+ "naming_rule": "Expression (old style)",
  "owner": "Administrator",
  "permissions": [
   {
