@@ -5,7 +5,8 @@
  "doctype": "DocType",
  "engine": "InnoDB",
  "field_order": [
-  "mapeo_uom"
+  "mapeo_uom",
+  "company_detalle"
  ],
  "fields": [
   {
@@ -13,13 +14,19 @@
    "fieldtype": "Table",
    "label": "Mapeo UOM",
    "options": "Mapeo campos"
+  },
+  {
+   "fieldname": "company_detalle",
+   "fieldtype": "Table",
+   "label": "Compa\u00f1ias autorizadas",
+   "options": "Campos empresas autorizadas"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "issingle": 1,
  "links": [],
- "modified": "2025-06-16 16:32:13.899866",
+ "modified": "2026-04-21 18:41:46.137027",
  "modified_by": "Administrator",
  "module": "Sap Integration",
  "name": "Mapeo UOM",

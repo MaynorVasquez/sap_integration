@@ -94,29 +94,34 @@ def procesar_datos(lista_mapeo, mapeo_lista, doctype, company,debug_messages):
             doc = frappe.get_doc(doctype, dato_existente[0].name)
             for campo, valor in dato_lista.items():
                 if campo != "name":
-                    setattr(doc, campo, valor)
-
-                debug_messages.append(f"Update --> campo: {campo} --- valor: {valor}")
-                setattr(doc, campo, valor)
+                    doc.set(campo, valor)
             
-                doc.flags.ignore_permissions = True 
-                doc.save()
-                frappe.db.commit()
+            print(f"Update --> {nuevo_nombre}")
 
             if nuevo_nombre and doc.name != nuevo_nombre:
                 if not frappe.db.exists(doctype, nuevo_nombre):
                     frappe.rename_doc(doctype, doc.name, nuevo_nombre, force=True)
+            
+            doc.flags.ignore_permissions = True 
+            doc.save()
+            frappe.db.commit()
 
             return f"{sap_id} (actualizado)", dato_lista
         else:
-            # Crea Vendedor Nuevo
-            doc = frappe.new_doc(doctype)
-            for campo, valor in dato_lista.items():
-                debug_messages.append(f"insert --> campo: {campo} --- valor: {valor}")
-                setattr(doc, campo, valor)
+            doc_data = {
+                "doctype": doctype,
+                **dato_lista
+            }
+            if nuevo_nombre:
+                doc_data["sales_person_name"] = nuevo_nombre
+
+            print(f"Insert -->{nuevo_nombre}")
+            
+            doc = frappe.get_doc(doc_data)
+
             doc.flags.ignore_permissions = True 
             doc.insert()
-            frappe.db.commit()  # ✅ commit después de insertar
+            frappe.db.commit()
             return f"{sap_id} (creado)", dato_lista
 
     except Exception as e:
@@ -145,124 +150,3 @@ def asignar_vendedor_por_codigo_sap(datos_doc, sales_employee_code, campo_destin
     else:
         frappe.logger().info(f"No se encontró Sales Person con custom_salesemployeecode = {sales_employee_code} tras reintento")
         return False
-
-
-# @frappe.whitelist()
-# def sincronizar_lista_vendedores(docname=None):
-#     debug_messages = []
-#     total_procesados = 0
-#     session = None
-#     detalles = []
-#     doctype_logs = "Sincronizacion person sales SAP"
-#     doctype_target = "Sales Person"
-#     detalle = []
-
-#     try:
-#         # 1. Autenticación
-#         debug_messages.append("Iniciando autenticación con SAP...")
-#         session = login_sap()
-
-#         if not session or not isinstance(session, requests.Session):
-#             raise Exception("La sesión SAP no se creó correctamente")
-#         debug_messages.append("✔ Autenticación exitosa")
-
-#         # 2. Obtener vendedores
-#         mapeo_lista = mapping_blueprint("Mapeo Vendedores SAP", "SalesEmployeeCode", "custom_salesemployeecode")
-#         if not mapeo_lista or "sap_fields" not in mapeo_lista:
-#             raise Exception("No se pudo obtener el mapeo de campos desde el blueprint")
-#         debug_messages.append("✔ Mapeo de campos exitoso")
-#         print("✔ Mapeo de campos exitoso")
-
-#         top = 20
-#         skip = 0
-#         page = 0
-#         print("Inicio de paginación URL: ", mapeo_lista["url"])
-
-#         while True:
-#             url_final = construir_url_sap(mapeo_lista, top=top, skip=skip)
-#             debug_messages.append(f"URL: {url_final}")
-
-#             intentos = 0
-#             max_reintentos = 3
-#             while intentos <= max_reintentos:
-#                 try:
-#                     response = session.get(url_final, timeout=30)
-#                     if response.status_code == 401:
-#                         debug_messages.append("⚠ Sesión expirada, intentando nueva sesión")
-#                         session = login_sap()
-#                         intentos += 1
-#                         continue
-#                     response.raise_for_status()
-#                     data = response.json()
-#                     lista_datos = data.get("value", [])
-#                     detalles.extend(lista_datos)
-#                     break
-#                 except Exception as e:
-#                     debug_messages.append(f"✗ Error al obtener datos desde SAP: {e}")
-#                     if intentos >= max_reintentos:
-#                         return {"status": "error", "message": "Error al obtener datos de SAP", "debug": debug_messages}
-#                     intentos += 1
-
-#             debug_messages.append(f"📄 Página {page} → Registros recibidos: {len(lista_datos)}")
-
-#             if not lista_datos:
-#                 print("Fin de la paginación...")
-#                 break
-
-#             skip += top
-#             page += 1
-
-#         debug_messages.append(f"✅ Total registros acumulados: {len(detalles)}")
-
-#         # Procesar todos los registros individualmente
-#         if detalles:
-#             for detalle in detalles:
-#                 procesado = procesar_datos(detalle, mapeo_lista, doctype = doctype_target)
-#                 if procesado:
-#                     total_procesados += 1
-#                     debug_messages.append(f"✔ Procesado: {procesado}")
-#                 else:
-#                     debug_messages.append(f"✗ Falló procesar: {detalle}")        
-
-#     except Exception as e:
-#         error_msg = f"Error durante sincronización: {str(e)}"
-#         debug_messages.append(f"✗ {error_msg}")
-#         frappe.log_error(title="Vendedores:", message= f"{detalle} --- {error_msg}")
-
-#         if docname:
-#             log_sincronizacion(
-#                 doctype=doctype_logs,
-#                 docname=docname,
-#                 status="Error",
-#                 total=total_procesados,
-#                 detalles={},
-#                 errores=error_msg
-#             )
-
-#         return {
-#             "status": "error",
-#             "message": "Ocurrió un error durante la sincronización",
-#             "debug": debug_messages,
-#             "total": total_procesados
-#         }
-    
-#     finally:        
-#         if session and isinstance(session, requests.Session):
-#             session.close()
-#             debug_messages.append("✓ Sesión SAP cerrada correctamente")
-
-#         if docname:
-#             log_sincronizacion(
-#                 doctype=doctype_logs,
-#                 docname=docname,
-#                 status="Exitoso" if total_procesados > 0 else "Sin cambios",
-#                 total=total_procesados,
-#                 detalles=detalles, #Json devuelto
-#                 errores=""
-#             )
-#     return {
-#         "status": "success" if total_procesados > 0 else "warning",
-#         "total": total_procesados,
-#         "debug": debug_messages
-#     }
-

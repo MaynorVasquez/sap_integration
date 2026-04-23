@@ -30,7 +30,7 @@ frappe.ui.form.on('Sincronizacion UOM', {
 
             // Llamada al backend
             frappe.call({
-                method: "sap_integration.api.sap_categoria_uom.sincronizar_lista_categoria_uom",
+                method: "sap_integration.api.sap_uom_categoria.sincronizar_uom_categoria",
                 args: {
                     docname: frm.doc.name
                 },
@@ -95,7 +95,7 @@ frappe.ui.form.on('Sincronizacion UOM', {
 
             // Llamada al backend
             frappe.call({
-                method: "sap_integration.api.sap_categoria_uom.sincronizar_lista_uom",
+                method: "sap_integration.api.sap_uom.sincronizar_uom",
                 args: {
                     docname: frm.doc.name
                 },
@@ -160,7 +160,7 @@ frappe.ui.form.on('Sincronizacion UOM', {
 
             // Llamada al backend
             frappe.call({
-                method: "sap_integration.api.sap_categoria_uom.sincronizar_factores_conversion",
+                method: "sap_integration.api.sap_uom_conversion.sincronizar_uom_conversion",
                 args: {
                     docname: frm.doc.name
                 },

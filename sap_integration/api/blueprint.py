@@ -137,7 +137,7 @@ def construir_filtro(lista_filtros):
     return " and ".join(condiciones)
 
 
-def construir_url_sap(mapeo_lista: dict, empresa,endpoint, top: int = 20, skip: int = 0):
+def construir_url_sap(mapeo_lista: dict, empresa,endpoint, usa_paginacion=True,top: int = 20, skip: int = 0):
     """
     Construye la URL final a consumir desde SAP Service Layer usando el mapeo proporcionado.
     """
@@ -160,8 +160,9 @@ def construir_url_sap(mapeo_lista: dict, empresa,endpoint, top: int = 20, skip: 
             select_fields = ",".join(campos.values())
             params.append(f"$select={select_fields}")
 
-        params.append(f"$top={top}")
-        params.append(f"$skip={skip}")
+        if usa_paginacion:
+            params.append(f"$top={top}")
+            params.append(f"$skip={skip}")
 
         url_final = f"{base_url}?" + "&".join(params)
         return url_final

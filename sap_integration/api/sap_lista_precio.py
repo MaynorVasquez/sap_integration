@@ -10,8 +10,8 @@ def sincronizar_lista_precio(docname=None):
     doctype_logs = "Sincronizacion Lista Precios SAP"
     doctype_target =  "Price List"
     doctype_mapeo = "Mapeo Lista De Precios SAP"
-    key_erpnext = "custom_pricelistno"
     key_sap = "PriceListNo"
+    key_erpnext = "custom_pricelistno"
 
     config = frappe.get_doc(doctype_mapeo, docname)
 
@@ -52,7 +52,7 @@ def procesar_datos(lista_mapeo, mapeo_lista, doctype, company,debug_messages):
             return None, None  # No se puede continuar sin ID
 
         # Buscar datos ERPNEXT
-        lista_existente = frappe.get_all(
+        dato_existente = frappe.get_all(
             doctype,
             filters={
                 erp_key_field: sap_id,
@@ -65,7 +65,7 @@ def procesar_datos(lista_mapeo, mapeo_lista, doctype, company,debug_messages):
         campos = mapeo_lista.get("sap_fields", {}).get("head", {})
 
         # Mapear datos SAP -> ERP
-        datos_lista_precio = {}
+        dato_lista = {}
         nuevo_nombre = None
         company_abbr = frappe.get_value("Company", company, "abbr")
         for erp_field, sap_field in campos.items():
@@ -85,45 +85,49 @@ def procesar_datos(lista_mapeo, mapeo_lista, doctype, company,debug_messages):
                 nuevo_nombre = f"{company_abbr} - {valor}"
                 continue
 
-            datos_lista_precio[erp_field] = valor
+            dato_lista[erp_field] = valor
         
         
         # Asegurar que el campo clave esté presente
-        datos_lista_precio[erp_key_field] = sap_id
-        # Asegurar campos obligatorios en ERPNext
-        datos_lista_precio.setdefault("selling", 1)
-        datos_lista_precio.setdefault("buying", 1)
-        datos_lista_precio["custom_company"] = company
+        dato_lista[erp_key_field] = sap_id
+        dato_lista.setdefault("selling", 1)
+        dato_lista.setdefault("buying", 1)
+        dato_lista["custom_company"] = company
 
-        if lista_existente:
-            # Actualizar lista de precios existente
-            lista_precio_doc = frappe.get_doc(doctype, lista_existente[0].name)
-            for campo, valor in datos_lista_precio.items():
+        if dato_existente:
+            doc = frappe.get_doc(doctype, dato_existente[0].name)
+    
+            for campo, valor in dato_lista.items():
                 if campo != "name":
-                    setattr(lista_precio_doc, campo, valor)
+                    doc.set(campo, valor)
+            
+            print(f"Update --> {nuevo_nombre}")
 
-                debug_messages.append(f"Update --> campo: {campo} --- valor: {valor}")
-                setattr(lista_precio_doc, campo, valor)
-                
-                lista_precio_doc.flags.ignore_permissions = True 
-                lista_precio_doc.save()
-                frappe.db.commit()
-
-            if nuevo_nombre and lista_precio_doc.name != nuevo_nombre:
+            if nuevo_nombre and doc.name != nuevo_nombre:
                 if not frappe.db.exists(doctype, nuevo_nombre):
-                    frappe.rename_doc(doctype, lista_precio_doc.name, nuevo_nombre, force=True)
+                    frappe.rename_doc(doctype, doc.name, nuevo_nombre, force=True)
+            
+            doc.flags.ignore_permissions = True 
+            doc.save()
+            frappe.db.commit()
 
-            return f"{sap_id} (actualizado)", datos_lista_precio
+            return f"{sap_id} (actualizado)", dato_lista
         else:
-            # Crea Lista de precios Nuevo
-            lista_precio_doc = frappe.new_doc(doctype)
-            for campo, valor in datos_lista_precio.items():
-                debug_messages.append(f"insert --> campo: {campo} --- valor: {valor}")
-                setattr(lista_precio_doc, campo, valor)
-            # 👇 Esto ignora los permisos del usuario actual
-            lista_precio_doc.flags.ignore_permissions = True 
-            lista_precio_doc.insert()
-            return f"{sap_id} (creado)", datos_lista_precio
+            doc_data = {
+                "doctype": doctype,
+                **dato_lista,
+                "item_group_defaults": []
+            }
+            if nuevo_nombre:
+                doc_data["price_list_name"] = nuevo_nombre
+            
+            print(f"Insert -->{nuevo_nombre}")
+            doc = frappe.get_doc(doc_data)
+
+            doc.flags.ignore_permissions = True 
+            doc.insert()
+            frappe.db.commit()
+            return f"{sap_id} (creado)", dato_lista
 
     except Exception as e:
         frappe.log_error(f"Error al procesar lista de precios {sap_id}: {str(e)}\n{traceback.format_exc()}")
