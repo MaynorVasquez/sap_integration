@@ -43,6 +43,7 @@ fixtures = [
                 "Sales Order-custom_docnum",
                 "Sales Order-custom_comentarios",
                 "Item-custom_ean",
+                "Item-custom_itemcode",
                 "Sales Order-custom_doc_due_date",  # <- nuevo
                 "Warehouse-custom_warehousecode",
                 "Item Group-custom_number",

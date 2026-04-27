@@ -48,7 +48,7 @@ def procesar_empresa_individual(config,
             print(f"✔ URL: {url_final}")
             response = session.get(url_final)
             response.raise_for_status()
-            print(f"Respuesta servidor: {response}")
+            #print(f"Respuesta servidor: {response}")
 
             data = response.json()
             lista_datos = data.get("value", [])

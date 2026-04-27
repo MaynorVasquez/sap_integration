@@ -1,18 +1,25 @@
 [
  {
+  "company_detalle": [
+   {
+    "company": "Productos Alimenticios YAESTA, S.A.",
+    "endpoint": "Warehouses",
+    "parent": "Mapeo Almacenes SAP",
+    "parentfield": "company_detalle",
+    "parenttype": "Mapeo Almacenes SAP"
+   },
+   {
+    "company": "Sanola Foods, LLC",
+    "endpoint": "Warehouses",
+    "parent": "Mapeo Almacenes SAP",
+    "parentfield": "company_detalle",
+    "parenttype": "Mapeo Almacenes SAP"
+   }
+  ],
   "docstatus": 0,
   "doctype": "Mapeo Almacenes SAP",
+  "endpoint": null,
   "mapeo_almacenes": [
-   {
-    "campo_erpnext": null,
-    "campo_sap": null,
-    "nivel": "head",
-    "parent": "Mapeo Almacenes SAP",
-    "parentfield": "mapeo_almacenes",
-    "parenttype": "Mapeo Almacenes SAP",
-    "tipo": "url",
-    "valor": "https://apisap.yaesta.com.gt/b1s/v2/Warehouses"
-   },
    {
     "campo_erpnext": "custom_warehousecode",
     "campo_sap": "WarehouseCode",
@@ -42,9 +49,19 @@
     "parenttype": "Mapeo Almacenes SAP",
     "tipo": "map",
     "valor": null
+   },
+   {
+    "campo_erpnext": "name",
+    "campo_sap": "WarehouseName",
+    "nivel": "head",
+    "parent": "Mapeo Almacenes SAP",
+    "parentfield": "mapeo_almacenes",
+    "parenttype": "Mapeo Almacenes SAP",
+    "tipo": "map",
+    "valor": null
    }
   ],
-  "modified": "2025-07-26 21:07:21.824118",
+  "modified": "2026-04-24 10:13:12.811389",
   "name": "Mapeo Almacenes SAP"
  }
 ]
