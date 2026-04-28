@@ -36,7 +36,7 @@ def procesar_empresa_individual(config,
         mapeo_lista = mapping_blueprint1(doctype_mapeo, key_sap, key_erpnext )
         if not mapeo_lista or "sap_fields" not in mapeo_lista:
             raise Exception("No se pudo obtener el mapeo de campos desde el blueprint")
-        print(f"✔ Mapeo de campos exitoso : {json.dumps(mapeo_lista, indent=2)}")
+        #print(f"✔ Mapeo de campos exitoso : {json.dumps(mapeo_lista, indent=2)}")
 
         # 🔁 PAGINACIÓN (tu código actual)
         top = 20

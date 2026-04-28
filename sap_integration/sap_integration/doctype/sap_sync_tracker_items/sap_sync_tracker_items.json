@@ -1,0 +1,45 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2026-04-27 11:50:20.298212",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "sap_sync_tracker"
+ ],
+ "fields": [
+  {
+   "fieldname": "sap_sync_tracker",
+   "fieldtype": "Table",
+   "label": "Articulos sincronizados",
+   "options": "SAP Sync Record Items"
+  }
+ ],
+ "grid_page_length": 50,
+ "hide_toolbar": 1,
+ "index_web_pages_for_search": 1,
+ "issingle": 1,
+ "links": [],
+ "modified": "2026-04-27 11:53:33.183951",
+ "modified_by": "Administrator",
+ "module": "Sap Integration",
+ "name": "SAP Sync Tracker Items",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "print": 1,
+   "read": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "rows_threshold_for_grid_search": 20,
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

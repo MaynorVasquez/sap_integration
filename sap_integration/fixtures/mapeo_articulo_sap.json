@@ -23,17 +23,7 @@
     "valor": "1"
    },
    {
-    "campo_erpnext": null,
-    "campo_sap": "ItemCode",
-    "nivel": "head",
-    "parent": "Mapeo Articulo SAP",
-    "parentfield": "mapeo_articulo_sap",
-    "parenttype": "Mapeo Articulo SAP",
-    "tipo": "filter",
-    "valor": "EP00048"
-   },
-   {
-    "campo_erpnext": "item_code",
+    "campo_erpnext": "custom_itemcode",
     "campo_sap": "ItemCode",
     "nivel": "head",
     "parent": "Mapeo Articulo SAP",
@@ -45,6 +35,16 @@
    {
     "campo_erpnext": "item_name",
     "campo_sap": "ItemName",
+    "nivel": "head",
+    "parent": "Mapeo Articulo SAP",
+    "parentfield": "mapeo_articulo_sap",
+    "parenttype": "Mapeo Articulo SAP",
+    "tipo": "map",
+    "valor": null
+   },
+   {
+    "campo_erpnext": "item_code",
+    "campo_sap": "ItemCode",
     "nivel": "head",
     "parent": "Mapeo Articulo SAP",
     "parentfield": "mapeo_articulo_sap",
@@ -203,7 +203,7 @@
     "valor": null
    }
   ],
-  "modified": "2026-04-24 21:31:50.420964",
+  "modified": "2026-04-28 12:48:30.750576",
   "name": "Mapeo Articulo SAP"
  }
 ]

@@ -5,6 +5,7 @@ import traceback  # Importación añadida
 from datetime import datetime
 from sap_integration.utils.procesar_empresa_individual import procesar_empresa_individual
 from sap_integration.api.sap_lista_precio import sincronizar_lista_precio
+from sap_integration.api.last_update import sync_tracker, sync_tracker_update
 
 
 @frappe.whitelist()
@@ -45,6 +46,8 @@ def procesar_datos(registro_sap, mapeo_lista, doctype, company,debug_messages):
         sap_key_field = mapeo_lista["key_field"]  
         erp_key_field = mapeo_lista["erp_key_field"]     
         sap_id = registro_sap.get(sap_key_field)
+        doctype_synctracker = "SAP Sync Tracker Items"
+        doctype_syncrecord = "SAP Sync Record Items"
         
         # Obtener campos de fecha y hora de actualización o creación
         update_date = registro_sap.get("UpdateDate").split("T")[0]
@@ -61,17 +64,7 @@ def procesar_datos(registro_sap, mapeo_lista, doctype, company,debug_messages):
         except Exception as e:
             frappe.log_error("Error al convertir datetime", f"{update_str}\n{traceback.format_exc()}")
             return None, "Error al convertir la fecha de actualización"
-        
-        # #Busca en la tabla de Syncs Traker a los articulos
-        # syncs = obtener_filtro_ultima_sync("Sync Tracker", "Sync Record", "Articulos")
-        # sync_records = syncs["data"] if syncs["success"] else {}
-        
-        # last_sync = sync_records.get(sap_id)
-        # if last_sync:
-        #     last_sync_dt = datetime.strptime(last_sync, "%Y-%m-%d %H:%M:%S")
-        #     if update_datetime <= last_sync_dt:
-        #         return None, "Articulo sin cambios"
-
+        print(f"valor erp_key_field: {erp_key_field}")
         dato_existente = frappe.db.sql("""
             SELECT T0.name
             FROM `tabItem` T0
@@ -156,36 +149,79 @@ def procesar_datos(registro_sap, mapeo_lista, doctype, company,debug_messages):
                 continue
 
             dato_lista[erp_field] = valor
-        #(f"Datos: {json.dumps( dato_lista, indent=2)}")
-
-        item_prices = registro_sap.get("ItemPrices", [])
-        
-
+        warehouse = frappe.get_value(
+            "Warehouse",
+            {"company": company, "is_group": 0},
+            "name"
+        )
+        print(f"El Valor encontrado es: {dato_existente}")
         if dato_existente:
+            itemcode_erpnext = dato_existente[0]["name"]            
+            data_synctracker = sync_tracker(doctype_synctracker,doctype_syncrecord,itemcode_erpnext, company)
+            success = data_synctracker.get("success", False)
+            if not success:
+                print(f"no existe en la tabla, se actualiza los valores")
+            else:
+                data = data_synctracker.get("data") or {}
+                code = data.get("code")
+                last_sync = data.get("last_sync")
+
+                if last_sync:
+                    last_sync = datetime.strptime(last_sync, "%Y-%m-%d %H:%M:%S")
+
+                    if update_datetime <= last_sync:
+                        print(f"Code: {code} ---- last_sync: {last_sync} Sin Cambios")
+                        return None, "Articulo sin cambios"                        
+
             doc = frappe.get_doc(doctype, dato_existente[0].name)
             for campo, valor in dato_lista.items():
                 if campo != "name":
                     doc.set(campo, valor)
-            print(f"Update --> {nuevo_nombre}")
+            
+            print(f"Update --> {nuevo_nombre}")           
 
-            sincronizar_uoms(doc, registro_sap, company)
-
+            
             if nuevo_nombre and doc.name != nuevo_nombre:
                 if not frappe.db.exists(doctype, nuevo_nombre):
                     frappe.rename_doc(doctype, doc.name, nuevo_nombre, force=True)
-
+                    doc = frappe.get_doc(doctype, nuevo_nombre)
+            
             doc.flags.ignore_permissions = True 
             doc.save()
             frappe.db.commit()
-
+            sync_tracker_update(doctype_synctracker, nuevo_nombre, company,update_datetime)
+            sincronizar_uoms(doc, registro_sap, company)
             sincronizar_articulo_precio(nuevo_nombre, registro_sap, company)
             return f"{sap_id} (actualizado)", dato_lista
 
         else:
-            print("insert aun en dev *******")
+            # Crear nuevo documento
+            doc_data = {
+                "doctype": doctype,
+                **dato_lista,
+                "item_defaults": []
+            }
+            if nuevo_nombre:
+                doc_data["item_code"] = nuevo_nombre
+
+            if warehouse:
+                doc_data["item_defaults"].append({
+                    "company": company,
+                    "default_warehouse": warehouse
+                })
+
+            print(f"Insert -->{nuevo_nombre}")
+            doc = frappe.get_doc(doc_data)
+            doc.flags.ignore_permissions = True 
+            doc.insert()
+            frappe.db.commit()
+            sync_tracker_update(doctype_synctracker, nuevo_nombre, company,update_datetime)
+            return f"{sap_id} (creado)", dato_lista
     
     except Exception as e:
-        frappe.log_error(f"Error al procesar lista vendedor {sap_id}: {str(e)}\n{traceback.format_exc()}")
+        frappe.log_error(
+            title=f"Error al procesar dato {sap_id}: {str(e)}" 
+        )
         return None
 
 def sincronizar_uoms(item_doc, registro_sap, company):
@@ -234,6 +270,7 @@ def sincronizar_uoms(item_doc, registro_sap, company):
         if hay_cambios:
             item_doc.flags.ignore_permissions = True 
             item_doc.save()
+            frappe.db.commit()
 
     except Exception as e:
         frappe.log_error(f"Error sincronizando UOMs para {item_doc.name}: {str(e)}")
@@ -241,102 +278,175 @@ def sincronizar_uoms(item_doc, registro_sap, company):
 
 def sincronizar_articulo_precio(item_code, registro_sap, company):
 
-    item_prices = registro_sap.get("ItemPrices", [])
-    # Obtener la unidad de medida por defecto desde InventoryUoMEntry
-    inv_uom_entry = registro_sap.get("InventoryUoMEntry")
+    try:
+        if not item_code:
+            frappe.log_error("Item code vacío al sincronizar precios")
+            return
 
-    uom_por_defecto = frappe.get_value(
-                    "UOM", 
-                    filters={"custom_absentry": inv_uom_entry,
-                                "custom_company": company}, 
-                    fieldname="name")
+        # Validar que el item exista
+        if not frappe.db.exists("Item", item_code):
+            frappe.log_error(f"Item no existe en ERPNext: {item_code}")
+            return
 
-    for precio in item_prices:
-        price_list_id = precio.get("PriceList")
-        
-        if price_list_id == -1:
-            continue
+        item_prices = registro_sap.get("ItemPrices", [])
+        inv_uom_entry = registro_sap.get("InventoryUoMEntry")
 
-        # Validar existencia de la lista de precios
-        price_list_name = frappe.get_value(
-                            "Price List", 
-                            filters={"custom_pricelistno": price_list_id,
-                                     "custom_company": company}, 
-                            fieldname="name")
-        
-        if not price_list_name:
-            # Si no existe, intenta sincronizar la lista de precios desde SAP
-            sincronizar_lista_precio()  # función ya existente que creará las listas
-            # Vuelve a verificar si ya existe
-            price_list_name = frappe.get_all("Price List", filters={"custom_sap_pricelist": price_list_id}, fields=["name"], limit=1)
-            if not price_list_name:
-                frappe.log_error(f"Lista de precios SAP {price_list_id} no encontrada incluso después de sincronización.")
-                continue  # Salta si aún no existe
-        
-        moneda = precio.get("Currency", "QTZ")
-        precio_base = precio.get("Price")
-        uom_prices = precio.get("UoMPrices", [])
+        uom_por_defecto = frappe.get_value(
+            "UOM",
+            filters={"custom_absentry": inv_uom_entry, "custom_company": company},
+            fieldname="name"
+        )
 
-        if moneda == "QTZ":
-            moneda = "GTQ"
- 
-        # Precio base (UOM por defecto)
-        if precio_base is not None and uom_por_defecto:
-            insertar_o_actualizar_item_price({
-                "item_code": item_code,
-                "price_list": price_list_name,
-                "price_list_rate": precio_base,
-                "uom": uom_por_defecto,
-                "currency": moneda
-            })
-        
-        # Precios por UOM adicional
-        for uom in uom_prices:
-            uom_entry = uom.get("UoMEntry")
-            precio_uom = uom.get("Price")
-            moneda_uom = uom.get("Currency", "QTZ")
+        for precio in item_prices:
+            try:
+                price_list_id = precio.get("PriceList")
 
-            if moneda_uom == "QTZ":
-                moneda_uom = "GTQ"
+                if price_list_id == -1:
+                    continue
 
-            if uom_entry and precio_uom:
-                uom_doc = frappe.get_all(
-                            "UOM", filters={"custom_absentry": uom_entry,
-                                            "custom_company": company}, 
-                            fields=["name"], limit=1)
-                if uom_doc:
+                price_list_name = frappe.get_value(
+                    "Price List",
+                    filters={
+                        "custom_pricelistno": price_list_id,
+                        "custom_company": company
+                    },
+                    fieldname="name"
+                )
+
+                if not price_list_name:
+                    sincronizar_lista_precio()
+
+                    price_list = frappe.get_all(
+                        "Price List",
+                        filters={"custom_sap_pricelist": price_list_id},
+                        fields=["name"],
+                        limit=1
+                    )
+
+                    if not price_list:
+                        frappe.log_error(
+                            f"Lista de precios SAP {price_list_id} no encontrada"
+                        )
+                        continue
+
+                    price_list_name = price_list[0].name
+
+                moneda = precio.get("Currency", "QTZ")
+                precio_base = precio.get("Price")
+                uom_prices = precio.get("UoMPrices", [])
+
+                if moneda == "QTZ":
+                    moneda = "GTQ"
+
+                # Precio base
+                if precio_base is not None and uom_por_defecto:
                     insertar_o_actualizar_item_price({
                         "item_code": item_code,
                         "price_list": price_list_name,
-                        "price_list_rate": precio_uom,
-                        "uom": uom_doc[0].name,
-                        "currency": moneda_uom
+                        "price_list_rate": precio_base,
+                        "uom": uom_por_defecto,
+                        "currency": moneda
                     })
-        
+
+                # Precios por UOM
+                for uom in uom_prices:
+                    uom_entry = uom.get("UoMEntry")
+                    precio_uom = uom.get("Price")
+                    moneda_uom = uom.get("Currency", "QTZ")
+
+                    if moneda_uom == "QTZ":
+                        moneda_uom = "GTQ"
+
+                    if uom_entry and precio_uom:
+                        uom_doc = frappe.get_all(
+                            "UOM",
+                            filters={
+                                "custom_absentry": uom_entry,
+                                "custom_company": company
+                            },
+                            fields=["name"],
+                            limit=1
+                        )
+
+                        if uom_doc:
+                            insertar_o_actualizar_item_price({
+                                "item_code": item_code,
+                                "price_list": price_list_name,
+                                "price_list_rate": precio_uom,
+                                "uom": uom_doc[0].name,
+                                "currency": moneda_uom
+                            })
+
+            except Exception as e:
+                frappe.log_error(
+                    f"Error procesando precio {precio.get('PriceList')} para item {item_code}: {str(e)}"
+                )
+                continue
+
+    except Exception as e:
+        frappe.log_error(
+            f"Error general sincronizando precios para item {item_code}: {str(e)}"
+        )
         
 
 def insertar_o_actualizar_item_price(data):
     """Crea o actualiza un registro en Item Price con base en el código de artículo, lista de precios y UOM."""
-    filtros = {
-        "item_code": data["item_code"],
-        "price_list": data["price_list"],
-        "uom": data.get("uom")
-    }
+    
+    try:
+        # 🔹 Validaciones básicas
+        if not data.get("item_code") or not data.get("price_list"):
+            frappe.log_error(f"Datos incompletos para Item Price: {data}")
+            return
 
-    item_price = frappe.get_all("Item Price", filters=filtros, fields=["name"], limit=1)
-    #print(f"✅ ID Precio lista {data} ")
-    if item_price:
-        doc = frappe.get_doc("Item Price", item_price[0].name)
-        doc.price_list_rate = data["price_list_rate"]
-        doc.currency = data["currency"]
-        # 👇 Esto ignora los permisos del usuario actual
-        doc.flags.ignore_permissions = True 
-        doc.save()
-        frappe.db.commit()
-    else:
-        doc = frappe.new_doc("Item Price")
-        # 👇 Esto ignora los permisos del usuario actual
-        doc.flags.ignore_permissions = True 
-        doc.update(data)
-        doc.insert()
-        frappe.db.commit()
+        # Validar que el item exista
+        if not frappe.db.exists("Item", data["item_code"]):
+            frappe.log_error(f"Item no existe al insertar precio: {data['item_code']}")
+            return
+
+        filtros = {
+            "item_code": data["item_code"],
+            "price_list": data["price_list"],
+            "uom": data.get("uom")
+        }
+
+        item_price = frappe.get_all(
+            "Item Price",
+            filters=filtros,
+            fields=["name"],
+            limit=1
+        )
+
+        # 🔹 UPDATE
+        if item_price:
+            try:
+                doc = frappe.get_doc("Item Price", item_price[0].name)
+                doc.price_list_rate = data.get("price_list_rate")
+                doc.currency = data.get("currency")
+
+                doc.flags.ignore_permissions = True
+                doc.save()
+                frappe.db.commit()
+
+            except Exception as e:
+                frappe.log_error(
+                    f"Error actualizando Item Price {item_price[0].name}: {str(e)}\nData: {data}"
+                )
+
+        # 🔹 INSERT
+        else:
+            try:
+                doc = frappe.new_doc("Item Price")
+                doc.flags.ignore_permissions = True
+                doc.update(data)
+                doc.insert()
+                frappe.db.commit()
+
+            except Exception as e:
+                frappe.log_error(
+                    f"Error insertando Item Price: {str(e)}\nData: {data}"
+                )
+
+    except Exception as e:
+        frappe.log_error(
+            f"Error general en insertar_o_actualizar_item_price: {str(e)}\nData: {data}"
+        )     
