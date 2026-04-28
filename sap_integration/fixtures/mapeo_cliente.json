@@ -1,5 +1,14 @@
 [
  {
+  "company_detalle": [
+   {
+    "company": "Productos Alimenticios YAESTA, S.A.",
+    "endpoint": "BusinessPartners",
+    "parent": "Mapeo Cliente",
+    "parentfield": "company_detalle",
+    "parenttype": "Mapeo Cliente"
+   }
+  ],
   "docstatus": 0,
   "doctype": "Mapeo Cliente",
   "mapeo_cliente": [
@@ -142,9 +151,89 @@
     "parenttype": "Mapeo Cliente",
     "tipo": "map",
     "valor": null
+   },
+   {
+    "campo_erpnext": "address_title",
+    "campo_sap": "AddressName",
+    "nivel": "DocumentLines",
+    "parent": "Mapeo Cliente",
+    "parentfield": "mapeo_cliente",
+    "parenttype": "Mapeo Cliente",
+    "tipo": "map",
+    "valor": null
+   },
+   {
+    "campo_erpnext": "address_line1",
+    "campo_sap": "Street",
+    "nivel": "head",
+    "parent": "Mapeo Cliente",
+    "parentfield": "mapeo_cliente",
+    "parenttype": "Mapeo Cliente",
+    "tipo": "map",
+    "valor": null
+   },
+   {
+    "campo_erpnext": "city",
+    "campo_sap": "City",
+    "nivel": "head",
+    "parent": "Mapeo Cliente",
+    "parentfield": "mapeo_cliente",
+    "parenttype": "Mapeo Cliente",
+    "tipo": "map",
+    "valor": null
+   },
+   {
+    "campo_erpnext": "county",
+    "campo_sap": "County",
+    "nivel": "head",
+    "parent": "Mapeo Cliente",
+    "parentfield": "mapeo_cliente",
+    "parenttype": "Mapeo Cliente",
+    "tipo": "map",
+    "valor": null
+   },
+   {
+    "campo_erpnext": "country",
+    "campo_sap": "Country",
+    "nivel": "head",
+    "parent": "Mapeo Cliente",
+    "parentfield": "mapeo_cliente",
+    "parenttype": "Mapeo Cliente",
+    "tipo": "map",
+    "valor": null
+   },
+   {
+    "campo_erpnext": "address_type",
+    "campo_sap": "AddressType",
+    "nivel": "head",
+    "parent": "Mapeo Cliente",
+    "parentfield": "mapeo_cliente",
+    "parenttype": "Mapeo Cliente",
+    "tipo": "map",
+    "valor": null
+   },
+   {
+    "campo_erpnext": "is_shipping_address",
+    "campo_sap": "is_shipping_address",
+    "nivel": "head",
+    "parent": "Mapeo Cliente",
+    "parentfield": "mapeo_cliente",
+    "parenttype": "Mapeo Cliente",
+    "tipo": "map",
+    "valor": null
+   },
+   {
+    "campo_erpnext": "is_primary_address",
+    "campo_sap": "is_primary_address",
+    "nivel": "head",
+    "parent": "Mapeo Cliente",
+    "parentfield": "mapeo_cliente",
+    "parenttype": "Mapeo Cliente",
+    "tipo": "map",
+    "valor": null
    }
   ],
-  "modified": "2025-08-21 16:21:26.853352",
+  "modified": "2026-04-28 15:20:13.979016",
   "name": "Mapeo Cliente"
  }
 ]

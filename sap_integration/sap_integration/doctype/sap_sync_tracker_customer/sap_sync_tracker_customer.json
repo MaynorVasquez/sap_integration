@@ -1,35 +1,28 @@
 {
  "actions": [],
  "allow_rename": 1,
- "creation": "2025-05-18 21:49:27.954838",
+ "creation": "2026-04-28 14:10:56.233153",
  "doctype": "DocType",
  "engine": "InnoDB",
  "field_order": [
-  "mapeo_cliente",
-  "company_detalle"
+  "sap_sync_tracker"
  ],
  "fields": [
   {
-   "fieldname": "mapeo_cliente",
+   "fieldname": "sap_sync_tracker",
    "fieldtype": "Table",
-   "label": "Mapeo cliente",
-   "options": "Mapeo campos"
-  },
-  {
-   "fieldname": "company_detalle",
-   "fieldtype": "Table",
-   "label": "Compa\u00f1ias Autorizadas",
-   "options": "Campos empresas autorizadas"
+   "label": "Clientes Actualizados",
+   "options": "SAP Sync Record Customer"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "issingle": 1,
  "links": [],
- "modified": "2026-04-28 15:16:32.180594",
+ "modified": "2026-04-28 14:12:32.999064",
  "modified_by": "Administrator",
  "module": "Sap Integration",
- "name": "Mapeo Cliente",
+ "name": "SAP Sync Tracker Customer",
  "owner": "Administrator",
  "permissions": [
   {
@@ -44,6 +37,7 @@
   }
  ],
  "row_format": "Dynamic",
+ "rows_threshold_for_grid_search": 20,
  "sort_field": "modified",
  "sort_order": "DESC",
  "states": []
