@@ -14,13 +14,23 @@
   "mapeo_cliente": [
    {
     "campo_erpnext": null,
-    "campo_sap": null,
+    "campo_sap": "U_smart_cli",
     "nivel": "head",
     "parent": "Mapeo Cliente",
     "parentfield": "mapeo_cliente",
     "parenttype": "Mapeo Cliente",
-    "tipo": "url",
-    "valor": "https://apisap.yaesta.com.gt/b1s/v2/BusinessPartners"
+    "tipo": "filter",
+    "valor": "1"
+   },
+   {
+    "campo_erpnext": null,
+    "campo_sap": "CardCode",
+    "nivel": "head",
+    "parent": "Mapeo Cliente",
+    "parentfield": "mapeo_cliente",
+    "parenttype": "Mapeo Cliente",
+    "tipo": "filter",
+    "valor": "C00001"
    },
    {
     "campo_erpnext": "customer_name",
@@ -63,17 +73,7 @@
     "valor": null
    },
    {
-    "campo_erpnext": null,
-    "campo_sap": "U_smart_cli",
-    "nivel": "head",
-    "parent": "Mapeo Cliente",
-    "parentfield": "mapeo_cliente",
-    "parenttype": "Mapeo Cliente",
-    "tipo": "filter",
-    "valor": "1"
-   },
-   {
-    "campo_erpnext": "custom_nit",
+    "campo_erpnext": "tax_id",
     "campo_sap": "U_NIT",
     "nivel": "head",
     "parent": "Mapeo Cliente",
@@ -83,7 +83,7 @@
     "valor": null
    },
    {
-    "campo_erpnext": "PriceListNum",
+    "campo_erpnext": "default_price_list",
     "campo_sap": "PriceListNum",
     "nivel": "head",
     "parent": "Mapeo Cliente",
@@ -113,7 +113,7 @@
     "valor": null
    },
    {
-    "campo_erpnext": "GroupCode",
+    "campo_erpnext": "customer_group",
     "campo_sap": "GroupCode",
     "nivel": "head",
     "parent": "Mapeo Cliente",
@@ -165,7 +165,7 @@
    {
     "campo_erpnext": "address_line1",
     "campo_sap": "Street",
-    "nivel": "head",
+    "nivel": "DocumentLines",
     "parent": "Mapeo Cliente",
     "parentfield": "mapeo_cliente",
     "parenttype": "Mapeo Cliente",
@@ -175,7 +175,7 @@
    {
     "campo_erpnext": "city",
     "campo_sap": "City",
-    "nivel": "head",
+    "nivel": "DocumentLines",
     "parent": "Mapeo Cliente",
     "parentfield": "mapeo_cliente",
     "parenttype": "Mapeo Cliente",
@@ -185,7 +185,7 @@
    {
     "campo_erpnext": "county",
     "campo_sap": "County",
-    "nivel": "head",
+    "nivel": "DocumentLines",
     "parent": "Mapeo Cliente",
     "parentfield": "mapeo_cliente",
     "parenttype": "Mapeo Cliente",
@@ -195,7 +195,7 @@
    {
     "campo_erpnext": "country",
     "campo_sap": "Country",
-    "nivel": "head",
+    "nivel": "DocumentLines",
     "parent": "Mapeo Cliente",
     "parentfield": "mapeo_cliente",
     "parenttype": "Mapeo Cliente",
@@ -205,7 +205,7 @@
    {
     "campo_erpnext": "address_type",
     "campo_sap": "AddressType",
-    "nivel": "head",
+    "nivel": "DocumentLines",
     "parent": "Mapeo Cliente",
     "parentfield": "mapeo_cliente",
     "parenttype": "Mapeo Cliente",
@@ -215,7 +215,7 @@
    {
     "campo_erpnext": "is_shipping_address",
     "campo_sap": "is_shipping_address",
-    "nivel": "head",
+    "nivel": "DocumentLines",
     "parent": "Mapeo Cliente",
     "parentfield": "mapeo_cliente",
     "parenttype": "Mapeo Cliente",
@@ -225,7 +225,7 @@
    {
     "campo_erpnext": "is_primary_address",
     "campo_sap": "is_primary_address",
-    "nivel": "head",
+    "nivel": "DocumentLines",
     "parent": "Mapeo Cliente",
     "parentfield": "mapeo_cliente",
     "parenttype": "Mapeo Cliente",
@@ -233,7 +233,7 @@
     "valor": null
    }
   ],
-  "modified": "2026-04-28 15:20:13.979016",
+  "modified": "2026-04-28 17:02:11.444870",
   "name": "Mapeo Cliente"
  }
 ]

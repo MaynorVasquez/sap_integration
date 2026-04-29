@@ -38,7 +38,7 @@ fixtures = [
         "filters": [
             ["name", "in", [
                 "Customer-custom_cardcode",
-                "Customer-custom_nit",
+                "Customer-custom_company",
                 "Address-custom_cardcode",
                 "Sales Order-custom_docnum",
                 "Sales Order-custom_comentarios",
