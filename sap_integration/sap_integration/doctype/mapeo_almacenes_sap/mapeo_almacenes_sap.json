@@ -6,7 +6,6 @@
  "doctype": "DocType",
  "engine": "InnoDB",
  "field_order": [
-  "endpoint",
   "mapeo_almacenes",
   "company_detalle"
  ],
@@ -16,11 +15,6 @@
    "fieldtype": "Table",
    "label": "Mapeo Almacenes",
    "options": "Mapeo campos"
-  },
-  {
-   "fieldname": "endpoint",
-   "fieldtype": "Data",
-   "label": "EndPoint"
   },
   {
    "fieldname": "company_detalle",
@@ -33,7 +27,7 @@
  "index_web_pages_for_search": 1,
  "issingle": 1,
  "links": [],
- "modified": "2026-04-15 14:03:08.580933",
+ "modified": "2026-04-29 21:57:29.224249",
  "modified_by": "Administrator",
  "module": "Sap Integration",
  "name": "Mapeo Almacenes SAP",

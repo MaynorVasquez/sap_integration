@@ -1,19 +1,24 @@
 [
  {
-  "company_detalle": [],
+  "company_detalle": [
+   {
+    "company": "Productos Alimenticios YAESTA, S.A.",
+    "endpoint": "SalesPersons",
+    "parent": "Mapeo Vendedores SAP",
+    "parentfield": "company_detalle",
+    "parenttype": "Mapeo Vendedores SAP"
+   },
+   {
+    "company": "Sanola Foods, LLC",
+    "endpoint": "SalesPersons",
+    "parent": "Mapeo Vendedores SAP",
+    "parentfield": "company_detalle",
+    "parenttype": "Mapeo Vendedores SAP"
+   }
+  ],
   "docstatus": 0,
   "doctype": "Mapeo Vendedores SAP",
   "mapeo_vendedores": [
-   {
-    "campo_erpnext": null,
-    "campo_sap": null,
-    "nivel": "head",
-    "parent": "Mapeo Vendedores SAP",
-    "parentfield": "mapeo_vendedores",
-    "parenttype": "Mapeo Vendedores SAP",
-    "tipo": "url",
-    "valor": "https://apisap.yaesta.com.gt/b1s/v2/SalesPersons"
-   },
    {
     "campo_erpnext": "custom_salesemployeecode",
     "campo_sap": "SalesEmployeeCode",
@@ -43,9 +48,19 @@
     "parenttype": "Mapeo Vendedores SAP",
     "tipo": "map",
     "valor": null
+   },
+   {
+    "campo_erpnext": "name",
+    "campo_sap": "SalesEmployeeName",
+    "nivel": "head",
+    "parent": "Mapeo Vendedores SAP",
+    "parentfield": "mapeo_vendedores",
+    "parenttype": "Mapeo Vendedores SAP",
+    "tipo": "map",
+    "valor": null
    }
   ],
-  "modified": "2025-08-19 16:34:03.760425",
+  "modified": "2026-04-29 21:55:44.101677",
   "name": "Mapeo Vendedores SAP"
  }
 ]

@@ -16,45 +16,6 @@
   {
    "hidden": 0,
    "is_query_report": 0,
-   "label": "Mapeo de datos maestros",
-   "link_count": 3,
-   "link_type": "DocType",
-   "onboard": 0,
-   "type": "Card Break"
-  },
-  {
-   "hidden": 0,
-   "is_query_report": 0,
-   "label": "Mapeo Articulo SAP",
-   "link_count": 0,
-   "link_to": "Mapeo Articulo SAP",
-   "link_type": "DocType",
-   "onboard": 0,
-   "type": "Link"
-  },
-  {
-   "hidden": 0,
-   "is_query_report": 0,
-   "label": "Mapeo Cliente",
-   "link_count": 0,
-   "link_to": "Mapeo Cliente",
-   "link_type": "DocType",
-   "onboard": 0,
-   "type": "Link"
-  },
-  {
-   "hidden": 0,
-   "is_query_report": 0,
-   "label": "Mapeo Cliente Direcciones",
-   "link_count": 0,
-   "link_to": "Mapeo Cliente Direcciones",
-   "link_type": "DocType",
-   "onboard": 0,
-   "type": "Link"
-  },
-  {
-   "hidden": 0,
-   "is_query_report": 0,
    "label": "Mapeo de datos iniciales",
    "link_count": 9,
    "link_type": "DocType",
@@ -365,9 +326,38 @@
    "link_type": "DocType",
    "onboard": 0,
    "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Mapeo de datos maestros",
+   "link_count": 2,
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Card Break"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Mapeo Articulo SAP",
+   "link_count": 0,
+   "link_to": "Mapeo Articulo SAP",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Mapeo Socios de negocio",
+   "link_count": 0,
+   "link_to": "Mapeo Cliente",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
   }
  ],
- "modified": "2026-04-29 21:40:22.067364",
+ "modified": "2026-04-29 22:34:21.323310",
  "modified_by": "Administrator",
  "module": "Sap Integration",
  "name": "SAP Integration",

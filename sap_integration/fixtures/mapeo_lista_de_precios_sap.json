@@ -1,19 +1,24 @@
 [
  {
-  "company_detalle": [],
+  "company_detalle": [
+   {
+    "company": "Productos Alimenticios YAESTA, S.A.",
+    "endpoint": "PriceLists",
+    "parent": "Mapeo Lista De Precios SAP",
+    "parentfield": "company_detalle",
+    "parenttype": "Mapeo Lista De Precios SAP"
+   },
+   {
+    "company": "Sanola Foods, LLC",
+    "endpoint": "PriceLists",
+    "parent": "Mapeo Lista De Precios SAP",
+    "parentfield": "company_detalle",
+    "parenttype": "Mapeo Lista De Precios SAP"
+   }
+  ],
   "docstatus": 0,
   "doctype": "Mapeo Lista De Precios SAP",
   "mapeo_lista_precio": [
-   {
-    "campo_erpnext": null,
-    "campo_sap": null,
-    "nivel": "head",
-    "parent": "Mapeo Lista De Precios SAP",
-    "parentfield": "mapeo_lista_precio",
-    "parenttype": "Mapeo Lista De Precios SAP",
-    "tipo": "url",
-    "valor": "https://apisap.yaesta.com.gt/b1s/v2/PriceLists"
-   },
    {
     "campo_erpnext": "price_list_name",
     "campo_sap": "PriceListName",
@@ -43,9 +48,19 @@
     "parenttype": "Mapeo Lista De Precios SAP",
     "tipo": "map",
     "valor": null
+   },
+   {
+    "campo_erpnext": "name",
+    "campo_sap": "PriceListName",
+    "nivel": "head",
+    "parent": "Mapeo Lista De Precios SAP",
+    "parentfield": "mapeo_lista_precio",
+    "parenttype": "Mapeo Lista De Precios SAP",
+    "tipo": "map",
+    "valor": null
    }
   ],
-  "modified": "2025-07-26 21:13:03.291097",
+  "modified": "2026-04-29 21:51:58.589251",
   "name": "Mapeo Lista De Precios SAP"
  }
 ]

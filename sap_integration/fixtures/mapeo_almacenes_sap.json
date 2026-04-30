@@ -18,7 +18,6 @@
   ],
   "docstatus": 0,
   "doctype": "Mapeo Almacenes SAP",
-  "endpoint": null,
   "mapeo_almacenes": [
    {
     "campo_erpnext": "custom_warehousecode",

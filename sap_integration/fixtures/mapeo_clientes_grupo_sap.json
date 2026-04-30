@@ -1,19 +1,24 @@
 [
  {
-  "company_detalle": [],
+  "company_detalle": [
+   {
+    "company": "Productos Alimenticios YAESTA, S.A.",
+    "endpoint": "BusinessPartnerGroups",
+    "parent": "Mapeo Clientes Grupo SAP",
+    "parentfield": "company_detalle",
+    "parenttype": "Mapeo Clientes Grupo SAP"
+   },
+   {
+    "company": "Sanola Foods, LLC",
+    "endpoint": "BusinessPartnerGroups",
+    "parent": "Mapeo Clientes Grupo SAP",
+    "parentfield": "company_detalle",
+    "parenttype": "Mapeo Clientes Grupo SAP"
+   }
+  ],
   "docstatus": 0,
   "doctype": "Mapeo Clientes Grupo SAP",
   "mapeo_clientes_grupo": [
-   {
-    "campo_erpnext": null,
-    "campo_sap": null,
-    "nivel": "head",
-    "parent": "Mapeo Clientes Grupo SAP",
-    "parentfield": "mapeo_clientes_grupo",
-    "parenttype": "Mapeo Clientes Grupo SAP",
-    "tipo": "url",
-    "valor": "https://apisap.yaesta.com.gt/b1s/v2/BusinessPartnerGroups"
-   },
    {
     "campo_erpnext": "custom_code",
     "campo_sap": "Code",
@@ -33,9 +38,19 @@
     "parenttype": "Mapeo Clientes Grupo SAP",
     "tipo": "map",
     "valor": null
+   },
+   {
+    "campo_erpnext": "name",
+    "campo_sap": "Name",
+    "nivel": "head",
+    "parent": "Mapeo Clientes Grupo SAP",
+    "parentfield": "mapeo_clientes_grupo",
+    "parenttype": "Mapeo Clientes Grupo SAP",
+    "tipo": "map",
+    "valor": null
    }
   ],
-  "modified": "2025-07-26 22:20:04.075223",
+  "modified": "2026-04-29 21:51:01.602506",
   "name": "Mapeo Clientes Grupo SAP"
  }
 ]
