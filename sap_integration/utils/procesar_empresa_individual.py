@@ -16,7 +16,8 @@ def procesar_empresa_individual(config,
                                 doctype_mapeo,                                
                                 key_sap,
                                 key_erpnext,
-                                usa_paginacion=True):
+                                usa_paginacion=True,
+                                almacen=None):
     debug_messages = []
     total_procesados = 0
     session = None
@@ -43,7 +44,7 @@ def procesar_empresa_individual(config,
         page, skip = 1, 0
 
         while True:
-            url_final = construir_url_sap(mapeo_lista, empresa.company, empresa.endpoint, usa_paginacion, top=top, skip=skip)
+            url_final = construir_url_sap(mapeo_lista, empresa.company, empresa.endpoint, usa_paginacion, almacen, top=top, skip=skip)
             
             print(f"✔ URL: {url_final}")
             response = session.get(url_final)

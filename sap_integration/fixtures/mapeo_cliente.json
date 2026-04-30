@@ -30,7 +30,7 @@
     "parentfield": "mapeo_cliente",
     "parenttype": "Mapeo Cliente",
     "tipo": "filter",
-    "valor": "P00002"
+    "valor": "C00006"
    },
    {
     "campo_erpnext": "customer_name",
@@ -273,7 +273,7 @@
     "valor": null
    }
   ],
-  "modified": "2026-04-29 21:42:19.310905",
+  "modified": "2026-04-30 09:22:26.663976",
   "name": "Mapeo Cliente"
  }
 ]

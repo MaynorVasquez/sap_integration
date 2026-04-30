@@ -1,5 +1,14 @@
 [
  {
+  "company_detalle": [
+   {
+    "company": "Productos Alimenticios YAESTA, S.A.",
+    "endpoint": "YAESTA_CurrentStockPerWarehouseB1SLQuery",
+    "parent": "Mapeo Inventario SAP",
+    "parentfield": "company_detalle",
+    "parenttype": "Mapeo Inventario SAP"
+   }
+  ],
   "docstatus": 0,
   "doctype": "Mapeo Inventario SAP",
   "mapeo_inventario_sap": [
@@ -24,7 +33,7 @@
     "valor": "29"
    }
   ],
-  "modified": "2025-07-29 16:12:00.943227",
+  "modified": "2026-04-30 08:39:08.267812",
   "name": "Mapeo Inventario SAP"
  }
 ]
