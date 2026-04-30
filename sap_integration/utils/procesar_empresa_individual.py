@@ -67,17 +67,18 @@ def procesar_empresa_individual(config,
 
 
         # 🏭 Procesar datos
-        for detalle in detalles:
-            procesado, _ = procesar_datos(
-                detalle,
+        if detalles:
+            resultados = procesar_datos(
+                detalles,  # 👈 lista completa
                 mapeo_lista,
                 doctype_target,
                 empresa.company,
                 debug_messages
             )
 
-            if procesado:
-                total_procesados += 1
+            total_procesados = len(resultados)
+        else:
+            debug_messages.append("⚠ No hay datos para procesar")
 
     except Exception as e:
         frappe.log_error(

@@ -41,194 +41,193 @@ def sincronizar_lista_articulos(docname=None):
 
     return resultados
 
-def procesar_datos(registro_sap, mapeo_lista, doctype, company,debug_messages):
-    try:
-        sap_key_field = mapeo_lista["key_field"]  
-        erp_key_field = mapeo_lista["erp_key_field"]     
-        sap_id = registro_sap.get(sap_key_field)
-        doctype_synctracker = "SAP Sync Tracker Items"
-        doctype_syncrecord = "SAP Sync Record Items"
-        
-        # Obtener campos de fecha y hora de actualización o creación
-        update_date = registro_sap.get("UpdateDate").split("T")[0]
-        update_time = registro_sap.get("UpdateTime")
-        # # Si no hay fecha/hora de actualización, usar fecha/hora de creación
-        if not update_date or not update_time:
-            update_date = registro_sap.get("CreateDate").split("T")[0]
-            update_time = registro_sap.get("CreateTime")
-        
-        # # Convertir a datetime
-        update_str = f"{update_date} {update_time}"
-        try:
-            update_datetime = datetime.strptime(update_str, "%Y-%m-%d %H:%M:%S")
-        except Exception as e:
-            frappe.log_error("Error al convertir datetime", f"{update_str}\n{traceback.format_exc()}")
-            return None, "Error al convertir la fecha de actualización"
-        print(f"valor erp_key_field: {erp_key_field}")
-        dato_existente = frappe.db.sql("""
-            SELECT T0.name
-            FROM `tabItem` T0
-            INNER JOIN `tabItem Default` T1
-                ON T0.name = T1.parent
-            WHERE T0.{erp_key_field} = %s
-            AND T1.company = %s
-            LIMIT 1
-        """.format(erp_key_field=erp_key_field), (sap_id, company), as_dict=True)
-        
-        codigo_grupo_articulo = registro_sap.get("ItemsGroupCode")
-        grupo_articulo = frappe.db.sql("""
-            SELECT ig.item_group_name
-            FROM `tabItem Group` ig
-            INNER JOIN `tabItem Default` igd
-                ON ig.name = igd.parent
-            WHERE ig.custom_number = %s
-            AND igd.company = %s
-            LIMIT 1
-        """, (codigo_grupo_articulo, company), as_list=True)
-        grupo_articulo = grupo_articulo[0][0] if grupo_articulo else None
-        
-        InventoryUoMEntry = registro_sap.get("InventoryUoMEntry")
-        InventoryUoMEntry_uom = frappe.get_value(
-            "UOM",
-            filters={"custom_absentry": InventoryUoMEntry, "custom_company": company},
-            fieldname="name"
-        )
+def procesar_datos(registros_sap, mapeo_lista, doctype, company,debug_messages):
+    sap_key_field = mapeo_lista["key_field"]  
+    erp_key_field = mapeo_lista["erp_key_field"]
+    for lista_mapeo in registros_sap:
+        try:     
+            sap_id = lista_mapeo.get(sap_key_field)
+            doctype_synctracker = "SAP Sync Tracker Items"
+            doctype_syncrecord = "SAP Sync Record Items"
+            
+            # Obtener campos de fecha y hora de actualización o creación
+            update_date = lista_mapeo.get("UpdateDate").split("T")[0]
+            update_time = lista_mapeo.get("UpdateTime")
+            # # Si no hay fecha/hora de actualización, usar fecha/hora de creación
+            if not update_date or not update_time:
+                update_date = lista_mapeo.get("CreateDate").split("T")[0]
+                update_time = lista_mapeo.get("CreateTime")
+            
+            # # Convertir a datetime
+            update_str = f"{update_date} {update_time}"
+            try:
+                update_datetime = datetime.strptime(update_str, "%Y-%m-%d %H:%M:%S")
+            except Exception as e:
+                frappe.log_error("Error al convertir datetime", f"{update_str}\n{traceback.format_exc()}")
+                return None, "Error al convertir la fecha de actualización"
+            print(f"valor erp_key_field: {erp_key_field}")
+            dato_existente = frappe.db.sql("""
+                SELECT T0.name
+                FROM `tabItem` T0
+                INNER JOIN `tabItem Default` T1
+                    ON T0.name = T1.parent
+                WHERE T0.{erp_key_field} = %s
+                AND T1.company = %s
+                LIMIT 1
+            """.format(erp_key_field=erp_key_field), (sap_id, company), as_dict=True)
+            
+            codigo_grupo_articulo = lista_mapeo.get("ItemsGroupCode")
+            grupo_articulo = frappe.db.sql("""
+                SELECT ig.item_group_name
+                FROM `tabItem Group` ig
+                INNER JOIN `tabItem Default` igd
+                    ON ig.name = igd.parent
+                WHERE ig.custom_number = %s
+                AND igd.company = %s
+                LIMIT 1
+            """, (codigo_grupo_articulo, company), as_list=True)
+            grupo_articulo = grupo_articulo[0][0] if grupo_articulo else None
+            
+            InventoryUoMEntry = lista_mapeo.get("InventoryUoMEntry")
+            InventoryUoMEntry_uom = frappe.get_value(
+                "UOM",
+                filters={"custom_absentry": InventoryUoMEntry, "custom_company": company},
+                fieldname="name"
+            )
 
-        DefaultPurchasingUoMEntry = registro_sap.get("DefaultPurchasingUoMEntry")
-        DefaultPurchasingUoMEntry_uom = frappe.get_value(
-            "UOM",
-            filters={"custom_absentry": DefaultPurchasingUoMEntry, "custom_company": company},
-            fieldname="name"
-        )
+            DefaultPurchasingUoMEntry = lista_mapeo.get("DefaultPurchasingUoMEntry")
+            DefaultPurchasingUoMEntry_uom = frappe.get_value(
+                "UOM",
+                filters={"custom_absentry": DefaultPurchasingUoMEntry, "custom_company": company},
+                fieldname="name"
+            )
 
-        DefaultSalesUoMEntry = registro_sap.get("DefaultSalesUoMEntry")
-        DefaultSalesUoMEntry_uom = frappe.get_value(
-            "UOM",
-            filters={"custom_absentry": DefaultSalesUoMEntry, "custom_company": company},
-            fieldname="name"
-        )
+            DefaultSalesUoMEntry = lista_mapeo.get("DefaultSalesUoMEntry")
+            DefaultSalesUoMEntry_uom = frappe.get_value(
+                "UOM",
+                filters={"custom_absentry": DefaultSalesUoMEntry, "custom_company": company},
+                fieldname="name"
+            )
 
-        # 1. Obtener datos básicos
-        campos = mapeo_lista.get("sap_fields", {}).get("head", {})
-        company_abbr = frappe.get_value("Company", company, "abbr")
+            # 1. Obtener datos básicos
+            campos = mapeo_lista.get("sap_fields", {}).get("head", {})
+            company_abbr = frappe.get_value("Company", company, "abbr")
 
-        dato_lista = {}
-        nuevo_nombre = None
+            dato_lista = {}
+            nuevo_nombre = None
 
-        # 2. Mapear campos y preparar el nombre
-        for erp_field, sap_field in campos.items():
-            valor = registro_sap.get(sap_field)
+            # 2. Mapear campos y preparar el nombre
+            for erp_field, sap_field in campos.items():
+                valor = lista_mapeo.get(sap_field)
 
-            if erp_field == "disabled":
-                if valor == "tYES":
-                    valor = 0
-                elif valor == "tNO":
-                    valor = 1
-            elif erp_field == "has_batch_no":
-                if valor == "tYES":
-                    valor = 1
+                if erp_field == "disabled":
+                    if valor == "tYES":
+                        valor = 0
+                    elif valor == "tNO":
+                        valor = 1
+                elif erp_field == "has_batch_no":
+                    if valor == "tYES":
+                        valor = 1
+                    else:
+                        valor = 0
+                elif erp_field == "item_group":
+                    valor = grupo_articulo
+
+                elif erp_field == "stock_uom":
+                    valor = InventoryUoMEntry_uom
+                elif erp_field == "weight_uom":
+                    valor = InventoryUoMEntry_uom
+                elif erp_field == "purchase_uom":
+                    valor = DefaultPurchasingUoMEntry_uom
+                elif erp_field == "sales_uom":
+                    valor = DefaultSalesUoMEntry_uom
+
+                elif erp_field == "item_code":
+                    valor = f"{company_abbr} - {valor}"
+
+                elif erp_field == "name":
+                    nuevo_nombre = f"{company_abbr} - {valor}"
+                    continue
+
+                dato_lista[erp_field] = valor
+            warehouse = frappe.get_value(
+                "Warehouse",
+                {"company": company, "is_group": 0},
+                "name"
+            )
+            print(f"El Valor encontrado es: {dato_existente}")
+            if dato_existente:
+                itemcode_erpnext = dato_existente[0]["name"]            
+                data_synctracker = sync_tracker(doctype_synctracker,doctype_syncrecord,itemcode_erpnext, company)
+                success = data_synctracker.get("success", False)
+                if not success:
+                    print(f"no existe en la tabla, se actualiza los valores")
                 else:
-                    valor = 0
-            elif erp_field == "item_group":
-                valor = grupo_articulo
+                    data = data_synctracker.get("data") or {}
+                    code = data.get("code")
+                    last_sync = data.get("last_sync")
 
-            elif erp_field == "stock_uom":
-                valor = InventoryUoMEntry_uom
-            elif erp_field == "weight_uom":
-                valor = InventoryUoMEntry_uom
-            elif erp_field == "purchase_uom":
-                valor = DefaultPurchasingUoMEntry_uom
-            elif erp_field == "sales_uom":
-                valor = DefaultSalesUoMEntry_uom
+                    if last_sync:
+                        last_sync = datetime.strptime(last_sync, "%Y-%m-%d %H:%M:%S")
 
-            elif erp_field == "item_code":
-                valor = f"{company_abbr} - {valor}"
+                        if update_datetime <= last_sync:
+                            print(f"Code: {code} ---- last_sync: {last_sync} Sin Cambios")
+                            continue                       
 
-            elif erp_field == "name":
-                nuevo_nombre = f"{company_abbr} - {valor}"
-                continue
+                doc = frappe.get_doc(doctype, dato_existente[0].name)
+                for campo, valor in dato_lista.items():
+                    if campo != "name":
+                        doc.set(campo, valor)
+                
+                print(f"Update --> {nuevo_nombre}")           
 
-            dato_lista[erp_field] = valor
-        warehouse = frappe.get_value(
-            "Warehouse",
-            {"company": company, "is_group": 0},
-            "name"
-        )
-        print(f"El Valor encontrado es: {dato_existente}")
-        if dato_existente:
-            itemcode_erpnext = dato_existente[0]["name"]            
-            data_synctracker = sync_tracker(doctype_synctracker,doctype_syncrecord,itemcode_erpnext, company)
-            success = data_synctracker.get("success", False)
-            if not success:
-                print(f"no existe en la tabla, se actualiza los valores")
+                
+                if nuevo_nombre and doc.name != nuevo_nombre:
+                    if not frappe.db.exists(doctype, nuevo_nombre):
+                        frappe.rename_doc(doctype, doc.name, nuevo_nombre, force=True)
+                        doc = frappe.get_doc(doctype, nuevo_nombre)
+                
+                doc.flags.ignore_permissions = True 
+                doc.save()
+                frappe.db.commit()
+                sync_tracker_update(doctype_synctracker, nuevo_nombre, company,update_datetime)
+                sincronizar_uoms(doc, lista_mapeo, company)
+                sincronizar_articulo_precio(nuevo_nombre, lista_mapeo, company)
             else:
-                data = data_synctracker.get("data") or {}
-                code = data.get("code")
-                last_sync = data.get("last_sync")
+                # Crear nuevo documento
+                doc_data = {
+                    "doctype": doctype,
+                    **dato_lista,
+                    "item_defaults": []
+                }
+                if nuevo_nombre:
+                    doc_data["item_code"] = nuevo_nombre
 
-                if last_sync:
-                    last_sync = datetime.strptime(last_sync, "%Y-%m-%d %H:%M:%S")
+                if warehouse:
+                    doc_data["item_defaults"].append({
+                        "company": company,
+                        "default_warehouse": warehouse
+                    })
 
-                    if update_datetime <= last_sync:
-                        print(f"Code: {code} ---- last_sync: {last_sync} Sin Cambios")
-                        return None, "Articulo sin cambios"                        
+                print(f"Insert -->{nuevo_nombre}")
+                doc = frappe.get_doc(doc_data)
+                doc.flags.ignore_permissions = True 
+                doc.insert()
+                frappe.db.commit()
+                sync_tracker_update(doctype_synctracker, nuevo_nombre, company,update_datetime)        
+        except Exception as e:
+            frappe.log_error(
+                title=f"Error al procesar dato {sap_id}: {str(e)}" 
+            )
+            debug_messages.append(f"Error en {sap_id}: {str(e)}")
+            continue
+    return None, None
 
-            doc = frappe.get_doc(doctype, dato_existente[0].name)
-            for campo, valor in dato_lista.items():
-                if campo != "name":
-                    doc.set(campo, valor)
-            
-            print(f"Update --> {nuevo_nombre}")           
-
-            
-            if nuevo_nombre and doc.name != nuevo_nombre:
-                if not frappe.db.exists(doctype, nuevo_nombre):
-                    frappe.rename_doc(doctype, doc.name, nuevo_nombre, force=True)
-                    doc = frappe.get_doc(doctype, nuevo_nombre)
-            
-            doc.flags.ignore_permissions = True 
-            doc.save()
-            frappe.db.commit()
-            sync_tracker_update(doctype_synctracker, nuevo_nombre, company,update_datetime)
-            sincronizar_uoms(doc, registro_sap, company)
-            sincronizar_articulo_precio(nuevo_nombre, registro_sap, company)
-            return f"{sap_id} (actualizado)", dato_lista
-
-        else:
-            # Crear nuevo documento
-            doc_data = {
-                "doctype": doctype,
-                **dato_lista,
-                "item_defaults": []
-            }
-            if nuevo_nombre:
-                doc_data["item_code"] = nuevo_nombre
-
-            if warehouse:
-                doc_data["item_defaults"].append({
-                    "company": company,
-                    "default_warehouse": warehouse
-                })
-
-            print(f"Insert -->{nuevo_nombre}")
-            doc = frappe.get_doc(doc_data)
-            doc.flags.ignore_permissions = True 
-            doc.insert()
-            frappe.db.commit()
-            sync_tracker_update(doctype_synctracker, nuevo_nombre, company,update_datetime)
-            return f"{sap_id} (creado)", dato_lista
-    
-    except Exception as e:
-        frappe.log_error(
-            title=f"Error al procesar dato {sap_id}: {str(e)}" 
-        )
-        return None
-
-def sincronizar_uoms(item_doc, registro_sap, company):
+def sincronizar_uoms(item_doc, lista_mapeo, company):
     try:
         # 1. Extraer todos los UoMPrices de forma plana y eficiente
         uom_prices_raw = [
-            uom for price in registro_sap.get("ItemPrices", []) 
+            uom for price in lista_mapeo.get("ItemPrices", []) 
             for uom in price.get("UoMPrices", []) 
             if uom.get("UoMEntry")
         ]
@@ -276,7 +275,7 @@ def sincronizar_uoms(item_doc, registro_sap, company):
         frappe.log_error(f"Error sincronizando UOMs para {item_doc.name}: {str(e)}")
 
 
-def sincronizar_articulo_precio(item_code, registro_sap, company):
+def sincronizar_articulo_precio(item_code, lista_mapeo, company):
 
     try:
         if not item_code:
@@ -288,8 +287,8 @@ def sincronizar_articulo_precio(item_code, registro_sap, company):
             frappe.log_error(f"Item no existe en ERPNext: {item_code}")
             return
 
-        item_prices = registro_sap.get("ItemPrices", [])
-        inv_uom_entry = registro_sap.get("InventoryUoMEntry")
+        item_prices = lista_mapeo.get("ItemPrices", [])
+        inv_uom_entry = lista_mapeo.get("InventoryUoMEntry")
 
         uom_por_defecto = frappe.get_value(
             "UOM",

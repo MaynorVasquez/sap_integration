@@ -148,116 +148,118 @@ def sincronizar_clientes_desde_sap(docname=None):
 
 
 def procesar_dato(cliente_sap, mapeo_cliente, sync_records, doctype_target, debug_messages):
-    """Crea o actualiza un cliente en ERPNext a partir de los datos de SAP"""
-    try:
-        # Obtener campos clave
-        sap_key_field = mapeo_cliente["key_field"]          
-        erp_key_field = mapeo_cliente["erp_key_field"]     
-        sap_id = cliente_sap.get(sap_key_field)
-
-        if not sap_id:
-            frappe.log_error("Cliente SAP sin custom_cardcode", json.dumps(cliente_sap, indent=2))
-            return None, "Falta campo clave SAP ID"
-        
-        # Obtener campos de fecha y hora de actualización o creación
-        update_date = cliente_sap.get("UpdateDate").split("T")[0]
-        update_time = cliente_sap.get("UpdateTime")
-
-        # Si no hay fecha/hora de actualización, usar fecha/hora de creación
-        if not update_date or not update_time:
-            update_date = cliente_sap.get("CreateDate").split("T")[0]
-            update_time = cliente_sap.get("CreateTime")
-
-        # Validar que al menos uno de los dos pares exista
-        if not update_date or not update_time:
-            frappe.log_error("Faltan campos UpdateDate/UpdateTime y CreateDate/CreateTime", json.dumps(cliente_sap, indent=2))
-            return None, "Fecha de actualización no valida"
-
-        # Convertir a datetime
-        print(f"fecha de actualizacion: {update_date}")
-        print(f"hora de actualizacion: {update_time}")
-        update_str = f"{update_date} {update_time}"
+    sap_key_field = mapeo_cliente["key_field"]          
+    erp_key_field = mapeo_cliente["erp_key_field"]
+    for lista_mapeo in registros_sap:
         try:
-            update_datetime = datetime.strptime(update_str, "%Y-%m-%d %H:%M:%S")
-        except Exception as e:
-            frappe.log_error("Error al convertir datetime", f"{update_str}\n{traceback.format_exc()}")
-            return None, "Error al convertir la fecha de actualización"
-        
-        last_sync = sync_records.get(sap_id)
-        if last_sync:
-            last_sync_dt = datetime.strptime(last_sync, "%Y-%m-%d %H:%M:%S")
-            if update_datetime <= last_sync_dt:
-                return None, "Cliente sin cambios"
+            # Obtener campos clave
+            sap_key_field = mapeo_cliente["key_field"]          
+            erp_key_field = mapeo_cliente["erp_key_field"]     
+            sap_id = cliente_sap.get(sap_key_field)
 
-        # Buscar cliente en ERPNext por el campo clave
-        cliente_existente = frappe.get_all(doctype_target, filters={erp_key_field: sap_id}, limit=1)
+            if not sap_id:
+                frappe.log_error("Cliente SAP sin custom_cardcode", json.dumps(cliente_sap, indent=2))
+                return None, "Falta campo clave SAP ID"
+            
+            # Obtener campos de fecha y hora de actualización o creación
+            update_date = cliente_sap.get("UpdateDate").split("T")[0]
+            update_time = cliente_sap.get("UpdateTime")
 
-        # Mapear datos SAP -> ERP
-        datos_cliente = {}
-        for erp_field, sap_field in mapeo_cliente["sap_fields"].items():
-            valor = cliente_sap.get(sap_field)
+            # Si no hay fecha/hora de actualización, usar fecha/hora de creación
+            if not update_date or not update_time:
+                update_date = cliente_sap.get("CreateDate").split("T")[0]
+                update_time = cliente_sap.get("CreateTime")
 
-            if erp_field == "disabled":
-                valor = 0 if valor == "tYES" else 1
+            # Validar que al menos uno de los dos pares exista
+            if not update_date or not update_time:
+                frappe.log_error("Faltan campos UpdateDate/UpdateTime y CreateDate/CreateTime", json.dumps(cliente_sap, indent=2))
+                return None, "Fecha de actualización no valida"
 
-            datos_cliente[erp_field] = valor
-        
-        # Limpieza de campos None
-        datos_cliente = {k: v for k, v in datos_cliente.items() if v is not None}
-        
-        # Asignar lista de precios por código SAP
-        listnum_sap = cliente_sap.get("PriceListNum")
-        asignar_lista_precios_por_codigo_sap(datos_cliente, listnum_sap)
-
-        # Asegurar que el campo clave esté presente
-        datos_cliente[erp_key_field] = sap_id
-
-        print("procesando código de cliente: ",sap_id)
-        if cliente_existente:
-            # Actualizar cliente existente
-            cliente_doc = frappe.get_doc(doctype_target, cliente_existente[0].name)
+            # Convertir a datetime
+            print(f"fecha de actualizacion: {update_date}")
+            print(f"hora de actualizacion: {update_time}")
+            update_str = f"{update_date} {update_time}"
             try:
-                cliente_doc.update(datos_cliente)
+                update_datetime = datetime.strptime(update_str, "%Y-%m-%d %H:%M:%S")
+            except Exception as e:
+                frappe.log_error("Error al convertir datetime", f"{update_str}\n{traceback.format_exc()}")
+                return None, "Error al convertir la fecha de actualización"
+            
+            last_sync = sync_records.get(sap_id)
+            if last_sync:
+                last_sync_dt = datetime.strptime(last_sync, "%Y-%m-%d %H:%M:%S")
+                if update_datetime <= last_sync_dt:
+                    return None, "Cliente sin cambios"
+
+            # Buscar cliente en ERPNext por el campo clave
+            cliente_existente = frappe.get_all(doctype_target, filters={erp_key_field: sap_id}, limit=1)
+
+            # Mapear datos SAP -> ERP
+            datos_cliente = {}
+            for erp_field, sap_field in mapeo_cliente["sap_fields"].items():
+                valor = cliente_sap.get(sap_field)
+
+                if erp_field == "disabled":
+                    valor = 0 if valor == "tYES" else 1
+
+                datos_cliente[erp_field] = valor
+            
+            # Limpieza de campos None
+            datos_cliente = {k: v for k, v in datos_cliente.items() if v is not None}
+            
+            # Asignar lista de precios por código SAP
+            listnum_sap = cliente_sap.get("PriceListNum")
+            asignar_lista_precios_por_codigo_sap(datos_cliente, listnum_sap)
+
+            # Asegurar que el campo clave esté presente
+            datos_cliente[erp_key_field] = sap_id
+
+            print("procesando código de cliente: ",sap_id)
+            if cliente_existente:
+                # Actualizar cliente existente
+                cliente_doc = frappe.get_doc(doctype_target, cliente_existente[0].name)
+                try:
+                    cliente_doc.update(datos_cliente)
+                    asignar_vendedor(cliente_doc, cliente_sap)
+                    asignar_cliente_grupo(cliente_doc, cliente_sap)
+                    # 👇 Esto ignora los permisos del usuario actual
+                    cliente_doc.flags.ignore_permissions = True 
+                    cliente_doc.save()
+                    frappe.db.commit()  # ✅ commit después de guardar
+                except frappe.exceptions.DocumentHasBeenModifiedError:
+                    frappe.log_error(f"Error al actualizar cliente o asignar vendedor para {sap_id}: {str(e)}\n{traceback.format_exc()}")
+                    return None, "Error DocumentHasBeenModifiedError"
+                try:                
+                    procesar_direcciones(cliente_sap, cliente_sap.get("BPAddresses", []), sap_id, debug_messages)
+                except frappe.exceptions.DocumentHasBeenModifiedError:
+                    frappe.log_error(f"error al procesar direccion {sap_id}: {str(e)}\n{traceback.format_exc()}")
+                    return None, "Error DocumentHasBeenModifiedError"
+                
+                # Actualizar registro de sincronización
+                actualizar_last_sync("Clientes", sap_id, update_datetime)
+                return f"{sap_id} (actualizado)", datos_cliente
+            else:
+                # Crear cliente nuevo                    
+                cliente_doc = frappe.new_doc(doctype_target)
+                print(datos_cliente)
+                cliente_doc.update(datos_cliente)                
+                cliente_doc.insert()
+                procesar_direcciones(cliente_sap, cliente_sap.get("BPAddresses", []), sap_id, debug_messages)
                 asignar_vendedor(cliente_doc, cliente_sap)
                 asignar_cliente_grupo(cliente_doc, cliente_sap)
                 # 👇 Esto ignora los permisos del usuario actual
                 cliente_doc.flags.ignore_permissions = True 
                 cliente_doc.save()
                 frappe.db.commit()  # ✅ commit después de guardar
-            except frappe.exceptions.DocumentHasBeenModifiedError:
-                frappe.log_error(f"Error al actualizar cliente o asignar vendedor para {sap_id}: {str(e)}\n{traceback.format_exc()}")
-                return None, "Error DocumentHasBeenModifiedError"
-            try:                
-                procesar_direcciones(cliente_sap, cliente_sap.get("BPAddresses", []), sap_id, debug_messages)
-            except frappe.exceptions.DocumentHasBeenModifiedError:
-                frappe.log_error(f"error al procesar direccion {sap_id}: {str(e)}\n{traceback.format_exc()}")
-                return None, "Error DocumentHasBeenModifiedError"
-            
-            # Actualizar registro de sincronización
-            actualizar_last_sync("Clientes", sap_id, update_datetime)
-            return f"{sap_id} (actualizado)", datos_cliente
-        else:
-            # Crear cliente nuevo
-                 
-            cliente_doc = frappe.new_doc(doctype_target)
-            print(datos_cliente)
-            cliente_doc.update(datos_cliente)                
-            cliente_doc.insert()
-            procesar_direcciones(cliente_sap, cliente_sap.get("BPAddresses", []), sap_id, debug_messages)
-            asignar_vendedor(cliente_doc, cliente_sap)
-            asignar_cliente_grupo(cliente_doc, cliente_sap)
-            # 👇 Esto ignora los permisos del usuario actual
-            cliente_doc.flags.ignore_permissions = True 
-            cliente_doc.save()
-            frappe.db.commit()  # ✅ commit después de guardar
-            # Actualizar registro de sincronización
-            actualizar_last_sync("Clientes", sap_id, update_datetime)
-            return f"{sap_id} (creado)", datos_cliente
+                # Actualizar registro de sincronización
+                actualizar_last_sync("Clientes", sap_id, update_datetime)
+                return f"{sap_id} (creado)", datos_cliente
 
-    except Exception as e:
-        id_log = sap_id if "sap_id" in locals() else "DESCONOCIDO"
-        frappe.log_error(f"Error al procesar cliente {sap_id}: {str(e)}\n{traceback.format_exc()}")
-        return None, f"Excepción: {str(e)}"
+        except Exception as e:
+            id_log = sap_id if "sap_id" in locals() else "DESCONOCIDO"
+            frappe.log_error(f"Error al procesar cliente {sap_id}: {str(e)}\n{traceback.format_exc()}")
+            continue
+    return None, None
 
 
 def asignar_vendedor(cliente_doc, cliente_sap):

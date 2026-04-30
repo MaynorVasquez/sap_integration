@@ -39,98 +39,93 @@ def sincronizar_uom_conversion(docname=None):
     return resultados
 
 
-def procesar_datos(datos_sap, mapeo_lista, doctype, company, debug_messages):
-    try:
-        resultados = []
+def procesar_datos(registros_sap, mapeo_lista, doctype, company, debug_messages):
+    for lista_mapeo in registros_sap:
+        try:
+            resultados = []
 
-        absentry_category = datos_sap.get("AbsEntry")
-        baseuom = datos_sap.get("BaseUoM")
-        colecciones = datos_sap.get("UoMGroupDefinitionCollection", [])
-        campos = mapeo_lista.get("sap_fields", {}).get("DocumentLines", {})
+            absentry_category = lista_mapeo.get("AbsEntry")
+            baseuom = lista_mapeo.get("BaseUoM")
+            colecciones = lista_mapeo.get("UoMGroupDefinitionCollection", [])
+            campos = mapeo_lista.get("sap_fields", {}).get("DocumentLines", {})
 
-        uom_category = frappe.get_value(
-            "UOM Category",
-            {"custom_absentry": absentry_category, "custom_company": company},
-            "name"
-        )
-
-        to_uom = frappe.get_value(
-            "UOM",
-            {"custom_absentry": baseuom, "custom_company": company},
-            "name"
-        )
-
-        for colection in colecciones:
-            alt_uom_code = colection.get("AlternateUoM")
-            uom_base = colection.get("BaseQuantity")
-
-            from_uom_sap = frappe.get_value(
-                "UOM",
-                {"custom_absentry": alt_uom_code, "custom_company": company},
+            uom_category = frappe.get_value(
+                "UOM Category",
+                {"custom_absentry": absentry_category, "custom_company": company},
                 "name"
             )
 
-            dato_lista = {}
-
-            for erp_field, sap_field in campos.items():
-                valor = datos_sap.get(sap_field)
-
-                if erp_field == "category":
-                    valor = uom_category
-                elif erp_field == "from_uom":
-                    valor = from_uom_sap
-                elif erp_field == "to_uom":
-                    valor = to_uom
-                elif erp_field == "value":
-                    valor = uom_base
-
-                dato_lista[erp_field] = valor
-
-            # 🔍 Buscar si existe
-            dato_existente = frappe.get_all(
-                "UOM Conversion Factor",
-                filters={
-                    "category": uom_category,
-                    "from_uom": from_uom_sap,
-                    "to_uom": to_uom
-                },
-                fields=["name"],
-                limit=1
+            to_uom = frappe.get_value(
+                "UOM",
+                {"custom_absentry": baseuom, "custom_company": company},
+                "name"
             )
 
-            if dato_existente:
-                doc = frappe.get_doc(doctype, dato_existente[0]["name"])
+            for colection in colecciones:
+                alt_uom_code = colection.get("AlternateUoM")
+                uom_base = colection.get("BaseQuantity")
 
-                for campo, valor in dato_lista.items():
-                    doc.set(campo, valor)
+                from_uom_sap = frappe.get_value(
+                    "UOM",
+                    {"custom_absentry": alt_uom_code, "custom_company": company},
+                    "name"
+                )
 
-                print(f"Update --> {from_uom_sap} ---> {to_uom}")
+                dato_lista = {}
 
-                doc.flags.ignore_permissions = True
-                doc.save()
+                for erp_field, sap_field in campos.items():
+                    valor = lista_mapeo.get(sap_field)
 
-                resultados.append("actualizado")
+                    if erp_field == "category":
+                        valor = uom_category
+                    elif erp_field == "from_uom":
+                        valor = from_uom_sap
+                    elif erp_field == "to_uom":
+                        valor = to_uom
+                    elif erp_field == "value":
+                        valor = uom_base
 
-            else:
-                doc_data = {
-                    "doctype": doctype,
-                    **dato_lista
-                }
+                    dato_lista[erp_field] = valor
 
-                print(f"Insert --> {from_uom_sap} ---> {to_uom}")
+                # 🔍 Buscar si existe
+                dato_existente = frappe.get_all(
+                    "UOM Conversion Factor",
+                    filters={
+                        "category": uom_category,
+                        "from_uom": from_uom_sap,
+                        "to_uom": to_uom
+                    },
+                    fields=["name"],
+                    limit=1
+                )
 
-                doc = frappe.get_doc(doc_data)
-                doc.flags.ignore_permissions = True
-                doc.insert()
+                if dato_existente:
+                    doc = frappe.get_doc(doctype, dato_existente[0]["name"])
 
-                resultados.append("creado")
+                    for campo, valor in dato_lista.items():
+                        doc.set(campo, valor)
 
-        frappe.db.commit()
+                    print(f"Update --> {from_uom_sap} ---> {to_uom}")
+                    doc.flags.ignore_permissions = True
+                    doc.save()
+                    resultados.append("actualizado")
 
-        return resultados, None
+                else:
+                    doc_data = {
+                        "doctype": doctype,
+                        **dato_lista
+                    }
 
-    except Exception as e:
-        print(f"❌ Error procesando: {datos_sap.get('Code')}")
-        print(e)
-        return None, str(e)
+                    print(f"Insert --> {from_uom_sap} ---> {to_uom}")
 
+                    doc = frappe.get_doc(doc_data)
+                    doc.flags.ignore_permissions = True
+                    doc.insert()
+                    resultados.append("creado")
+            frappe.db.commit()
+
+        except Exception as e:
+            print(f"❌ Error procesando: {lista_mapeo.get('Code')}")
+            print(e)
+            return None, str(e)
+    return None, None

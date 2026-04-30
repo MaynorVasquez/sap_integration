@@ -37,101 +37,95 @@ def sincronizar_lista_precio(docname=None):
 
     return resultados
 
-def procesar_datos(lista_mapeo, mapeo_lista, doctype, company,debug_messages):
-#def procesar_datos(lista_precio, mapeo_lista, doctype):
-    """"Crea o actualiza lista de precios en ERPNEXT"""
-    try:
-        # Obtener campos clave
-        sap_key_field = mapeo_lista["key_field"]          # Ej: "KeySAP"
-        erp_key_field = mapeo_lista["erp_key_field"]      # Ej: "custom_ERPNEXT"
-        sap_id = lista_mapeo.get(sap_key_field)
+def procesar_datos(registros_sap, mapeo_lista, doctype, company,debug_messages):
+    sap_key_field = mapeo_lista["key_field"]          # Ej: "KeySAP"
+    erp_key_field = mapeo_lista["erp_key_field"]      # Ej: "custom_ERPNEXT"
+    for lista_mapeo in registros_sap:
+        try:
+            sap_id = lista_mapeo.get(sap_key_field)            
+
+            if not sap_id:
+                frappe.log_error("Dato sin código", json.dumps(lista_mapeo, indent=2))
+                return None, None  # No se puede continuar sin ID
+
+            # Buscar datos ERPNEXT
+            dato_existente = frappe.get_all(
+                doctype,
+                filters={
+                    erp_key_field: sap_id,
+                    "custom_company": company
+                },
+                limit=1
+            )
+
+            # ✅ Ahora se utiliza el head 
+            campos = mapeo_lista.get("sap_fields", {}).get("head", {})
+
+            # Mapear datos SAP -> ERP
+            dato_lista = {}
+            nuevo_nombre = None
+            company_abbr = frappe.get_value("Company", company, "abbr")
+            for erp_field, sap_field in campos.items():
+                valor = lista_mapeo.get(sap_field)
+
+                # Corrección de moneda
+                if erp_field == "currency" and valor == "QTZ":
+                    valor = "GTQ"
+
+                if erp_field == "enabled":
+                    valor = 1 if valor == "tYES" else 0
+                
+                if erp_field == "price_list_name":
+                    valor = f"{company_abbr} - {valor}"
+                
+                if erp_field == "name":
+                    nuevo_nombre = f"{company_abbr} - {valor}"
+                    continue
+
+                dato_lista[erp_field] = valor
+            
+            
+            # Asegurar que el campo clave esté presente
+            dato_lista[erp_key_field] = sap_id
+            dato_lista.setdefault("selling", 1)
+            dato_lista.setdefault("buying", 1)
+            dato_lista["custom_company"] = company
+
+            if dato_existente:
+                doc = frappe.get_doc(doctype, dato_existente[0].name)
         
+                for campo, valor in dato_lista.items():
+                    if campo != "name":
+                        doc.set(campo, valor)
+                
+                print(f"Update --> {nuevo_nombre}")
 
-        if not sap_id:
-            frappe.log_error("Dato sin código", json.dumps(lista_mapeo, indent=2))
-            return None, None  # No se puede continuar sin ID
+                if nuevo_nombre and doc.name != nuevo_nombre:
+                    if not frappe.db.exists(doctype, nuevo_nombre):
+                        frappe.rename_doc(doctype, doc.name, nuevo_nombre, force=True)
+                
+                doc.flags.ignore_permissions = True 
+                doc.save()
+                frappe.db.commit()
+            else:
+                doc_data = {
+                    "doctype": doctype,
+                    **dato_lista,
+                    "item_group_defaults": []
+                }
+                if nuevo_nombre:
+                    doc_data["price_list_name"] = nuevo_nombre
+                
+                print(f"Insert -->{nuevo_nombre}")
+                doc = frappe.get_doc(doc_data)
 
-        # Buscar datos ERPNEXT
-        dato_existente = frappe.get_all(
-            doctype,
-            filters={
-                erp_key_field: sap_id,
-                "custom_company": company
-            },
-            limit=1
-        )
-
-        # ✅ Ahora se utiliza el head 
-        campos = mapeo_lista.get("sap_fields", {}).get("head", {})
-
-        # Mapear datos SAP -> ERP
-        dato_lista = {}
-        nuevo_nombre = None
-        company_abbr = frappe.get_value("Company", company, "abbr")
-        for erp_field, sap_field in campos.items():
-            valor = lista_mapeo.get(sap_field)
-
-            # Corrección de moneda
-            if erp_field == "currency" and valor == "QTZ":
-                valor = "GTQ"
-
-            if erp_field == "enabled":
-                valor = 1 if valor == "tYES" else 0
-            
-            if erp_field == "price_list_name":
-                valor = f"{company_abbr} - {valor}"
-            
-            if erp_field == "name":
-                nuevo_nombre = f"{company_abbr} - {valor}"
-                continue
-
-            dato_lista[erp_field] = valor
-        
-        
-        # Asegurar que el campo clave esté presente
-        dato_lista[erp_key_field] = sap_id
-        dato_lista.setdefault("selling", 1)
-        dato_lista.setdefault("buying", 1)
-        dato_lista["custom_company"] = company
-
-        if dato_existente:
-            doc = frappe.get_doc(doctype, dato_existente[0].name)
-    
-            for campo, valor in dato_lista.items():
-                if campo != "name":
-                    doc.set(campo, valor)
-            
-            print(f"Update --> {nuevo_nombre}")
-
-            if nuevo_nombre and doc.name != nuevo_nombre:
-                if not frappe.db.exists(doctype, nuevo_nombre):
-                    frappe.rename_doc(doctype, doc.name, nuevo_nombre, force=True)
-            
-            doc.flags.ignore_permissions = True 
-            doc.save()
-            frappe.db.commit()
-
-            return f"{sap_id} (actualizado)", dato_lista
-        else:
-            doc_data = {
-                "doctype": doctype,
-                **dato_lista,
-                "item_group_defaults": []
-            }
-            if nuevo_nombre:
-                doc_data["price_list_name"] = nuevo_nombre
-            
-            print(f"Insert -->{nuevo_nombre}")
-            doc = frappe.get_doc(doc_data)
-
-            doc.flags.ignore_permissions = True 
-            doc.insert()
-            frappe.db.commit()
-            return f"{sap_id} (creado)", dato_lista
-
-    except Exception as e:
-        frappe.log_error(f"Error al procesar lista de precios {sap_id}: {str(e)}\n{traceback.format_exc()}")
-        return None, None
+                doc.flags.ignore_permissions = True 
+                doc.insert()
+                frappe.db.commit()
+        except Exception as e:
+            frappe.log_error(f"Error al procesar lista de precios {sap_id}: {str(e)}\n{traceback.format_exc()}")
+            return None, None
+    return None, None
     
 
 def asignar_lista_precios_por_codigo_sap(datos_doc, listnum_sap, campo_destino="default_price_list", reintento=True):

@@ -23,16 +23,6 @@
     "valor": "1"
    },
    {
-    "campo_erpnext": null,
-    "campo_sap": "CardCode",
-    "nivel": "head",
-    "parent": "Mapeo Cliente",
-    "parentfield": "mapeo_cliente",
-    "parenttype": "Mapeo Cliente",
-    "tipo": "filter",
-    "valor": "C00006"
-   },
-   {
     "campo_erpnext": "customer_name",
     "campo_sap": "CardName",
     "nivel": "head",
@@ -273,7 +263,7 @@
     "valor": null
    }
   ],
-  "modified": "2026-04-30 09:22:26.663976",
+  "modified": "2026-04-30 17:13:48.367214",
   "name": "Mapeo Cliente"
  }
 ]

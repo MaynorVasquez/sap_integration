@@ -23,6 +23,16 @@
     "valor": "29"
    },
    {
+    "campo_erpnext": null,
+    "campo_sap": "ItemCode",
+    "nivel": "head",
+    "parent": "Mapeo Inventario SAP",
+    "parentfield": "mapeo_inventario_sap",
+    "parenttype": "Mapeo Inventario SAP",
+    "tipo": "filter",
+    "valor": "EP00048"
+   },
+   {
     "campo_erpnext": "custom_itemcode",
     "campo_sap": "ItemCode",
     "nivel": "head",
@@ -83,7 +93,7 @@
     "valor": null
    }
   ],
-  "modified": "2026-04-30 12:20:07.788074",
+  "modified": "2026-04-30 13:45:19.784650",
   "name": "Mapeo Inventario SAP"
  }
 ]
