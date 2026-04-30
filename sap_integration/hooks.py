@@ -39,6 +39,8 @@ fixtures = [
             ["name", "in", [
                 "Customer-custom_cardcode",
                 "Customer-custom_company",
+                "Supplier-custom_cardcode",
+                "Supplier-custom_company",
                 "Address-custom_cardcode",
                 "Sales Order-custom_docnum",
                 "Sales Order-custom_comentarios",

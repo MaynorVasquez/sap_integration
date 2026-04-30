@@ -30,10 +30,20 @@
     "parentfield": "mapeo_cliente",
     "parenttype": "Mapeo Cliente",
     "tipo": "filter",
-    "valor": "C00001"
+    "valor": "P00002"
    },
    {
     "campo_erpnext": "customer_name",
+    "campo_sap": "CardName",
+    "nivel": "head",
+    "parent": "Mapeo Cliente",
+    "parentfield": "mapeo_cliente",
+    "parenttype": "Mapeo Cliente",
+    "tipo": "map",
+    "valor": null
+   },
+   {
+    "campo_erpnext": "supplier_name",
     "campo_sap": "CardName",
     "nivel": "head",
     "parent": "Mapeo Cliente",
@@ -153,6 +163,16 @@
     "valor": null
    },
    {
+    "campo_erpnext": "CardType",
+    "campo_sap": "CardType",
+    "nivel": "head",
+    "parent": "Mapeo Cliente",
+    "parentfield": "mapeo_cliente",
+    "parenttype": "Mapeo Cliente",
+    "tipo": "map",
+    "valor": null
+   },
+   {
     "campo_erpnext": "address_title",
     "campo_sap": "AddressName",
     "nivel": "DocumentLines",
@@ -231,9 +251,29 @@
     "parenttype": "Mapeo Cliente",
     "tipo": "map",
     "valor": null
+   },
+   {
+    "campo_erpnext": "custom_cardcode",
+    "campo_sap": "BPCode",
+    "nivel": "DocumentLines",
+    "parent": "Mapeo Cliente",
+    "parentfield": "mapeo_cliente",
+    "parenttype": "Mapeo Cliente",
+    "tipo": "map",
+    "valor": null
+   },
+   {
+    "campo_erpnext": "custom_rownum",
+    "campo_sap": "RowNum",
+    "nivel": "DocumentLines",
+    "parent": "Mapeo Cliente",
+    "parentfield": "mapeo_cliente",
+    "parenttype": "Mapeo Cliente",
+    "tipo": "map",
+    "valor": null
    }
   ],
-  "modified": "2026-04-28 17:02:11.444870",
+  "modified": "2026-04-29 21:42:19.310905",
   "name": "Mapeo Cliente"
  }
 ]

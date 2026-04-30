@@ -1,0 +1,54 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2026-04-29 17:09:20.927222",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "company",
+  "code",
+  "description",
+  "last_sync"
+ ],
+ "fields": [
+  {
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "label": "Compa\u00f1ia",
+   "options": "Company"
+  },
+  {
+   "fieldname": "code",
+   "fieldtype": "Link",
+   "label": "C\u00f3digo Proveedor",
+   "options": "Supplier"
+  },
+  {
+   "fetch_from": "code.supplier_name",
+   "fieldname": "description",
+   "fieldtype": "Data",
+   "label": "Proveedor"
+  },
+  {
+   "fieldname": "last_sync",
+   "fieldtype": "Datetime",
+   "label": "\u00daltima sincronizaci\u00f3n"
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "istable": 1,
+ "links": [],
+ "modified": "2026-04-29 17:11:23.386205",
+ "modified_by": "Administrator",
+ "module": "Sap Integration",
+ "name": "SAP Sync Record Supplier",
+ "owner": "Administrator",
+ "permissions": [],
+ "row_format": "Dynamic",
+ "rows_threshold_for_grid_search": 20,
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

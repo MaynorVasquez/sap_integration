@@ -4,6 +4,7 @@ import json
 import traceback  # Importación añadida
 from datetime import datetime
 from sap_integration.utils.procesar_empresa_individual import procesar_empresa_individual
+from sap_integration.api.last_update import sync_tracker, sync_tracker_update
 
 @frappe.whitelist()
 
@@ -53,8 +54,8 @@ def procesar_datos(registro_sap, mapeo_lista, doctype, company,debug_messages):
         print(f"valor del cardtype: {CardType}")
         if CardType == "cSupplier":
             doctype = "Supplier"
-        
-        print(f"Ahora el doctype es: {doctype}")
+            doctype_synctracker = "SAP Sync Tracker Supplier"
+            doctype_syncrecord = "SAP Sync Record Supplier"
 
         # Obtener campos de fecha y hora de actualización o creación
         update_date = registro_sap.get("UpdateDate").split("T")[0]
@@ -140,35 +141,53 @@ def procesar_datos(registro_sap, mapeo_lista, doctype, company,debug_messages):
         #print(f"✔ Mapeo de campos exitoso : {json.dumps(dato_lista, indent=2)}")
 
         if dato_existente:
+            cardcode_erpnext = dato_existente[0]["name"]
+            data_synctracker = sync_tracker(doctype_synctracker,doctype_syncrecord,cardcode_erpnext, company)
+            success = data_synctracker.get("success", False)
+            if not success:
+                print(f"no existe en la tabla, se actualiza los valores")
+            else:
+                data = data_synctracker.get("data") or {}
+                code = data.get("code")
+                last_sync = data.get("last_sync")
+
+                if last_sync:
+                    last_sync = datetime.strptime(last_sync, "%Y-%m-%d %H:%M:%S")
+
+                    if update_datetime <= last_sync:
+                        print(f"Code: {code} ---- last_sync: {last_sync} Sin Cambios")
+                        return None, "Articulo sin cambios" 
+
             doc = frappe.get_doc(doctype, dato_existente[0].name)
             for campo, valor in dato_lista.items():
                     doc.set(campo, valor)
-            
-            if dato_vendedor:
-                existe = False
+            if doctype == "Customer":
+                if dato_vendedor:
+                    existe = False
 
-                for row in doc.sales_team:
-                    if row.sales_person == dato_vendedor:
-                        existe = True
-                        break
+                    for row in doc.sales_team:
+                        if row.sales_person == dato_vendedor:
+                            existe = True
+                            break
 
-                if not existe:
-                    total_actual = sum([row.allocated_percentage for row in doc.sales_team])
+                    if not existe:
+                        total_actual = sum([row.allocated_percentage for row in doc.sales_team])
 
-                    restante = 100 - total_actual
+                        restante = 100 - total_actual
 
-                    # Evita negativos por seguridad
-                    if restante < 0:
-                        restante = 0
+                        # Evita negativos por seguridad
+                        if restante < 0:
+                            restante = 0
 
-                    doc.append("sales_team", {
-                        "sales_person": dato_vendedor,
-                        "allocated_percentage": restante
-                    })
+                        doc.append("sales_team", {
+                            "sales_person": dato_vendedor,
+                            "allocated_percentage": restante
+                        })
 
             doc.flags.ignore_permissions = True 
             doc.save()
             frappe.db.commit()
+            sync_tracker_update(doctype_synctracker, cardcode_erpnext, company,update_datetime)
             procesar_direcciones(registro_sap,mapeo_lista, doctype, company,debug_messages)
             return f"{sap_id} (actualizado)", dato_lista
         else:
@@ -189,6 +208,15 @@ def procesar_datos(registro_sap, mapeo_lista, doctype, company,debug_messages):
             doc.insert()
             frappe.db.commit()
             procesar_direcciones(registro_sap,mapeo_lista,doctype,company, debug_messages)
+            cardcode_erpnext = frappe.get_value(
+                doctype,
+                filters={
+                    erp_key_field: sap_id,
+                    "custom_company": company
+                },
+                fieldname="name"
+            )
+            sync_tracker_update(doctype_synctracker, cardcode_erpnext, company,update_datetime)
             return f"{sap_id} (actualizado)", dato_lista
     except Exception as e:
         frappe.log_error(
