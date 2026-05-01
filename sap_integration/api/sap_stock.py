@@ -64,25 +64,17 @@ def sincronizar_lista_stock(docname=None, doctype_logs=None, almacen=None):
     return resultados
 
 def procesar_datos(registros_sap, mapeo_lista, doctype, company,debug_messages):
-    """
-    Procesa múltiples registros SAP, calcula diferencias reales con ERP
-    y acumula movimientos para un único Stock Entry por tipo ("In" o "Out").
-    También elimina lotes que ya no vienen de SAP.
-    """
     items_in = []
     items_out = []
 
     registros_unicos = set()
+    lotes_vistos_en_sap = set()
 
     for registro_sap in registros_sap:
-        print("entro den el for")
         try:
-            print("entro en el try")
             codigo_sap = registro_sap.get("ItemCode")
-            print(f"codigo sap: {codigo_sap}")
-
-            codigo_erpnext = frappe.db.sql("""
-                SELECT T0.name
+            item_data = frappe.db.sql("""
+                SELECT T0.name, T0.disabled
                 FROM `tabItem` T0
                 INNER JOIN `tabItem Default` T1
                     ON T0.name = T1.parent
@@ -90,12 +82,22 @@ def procesar_datos(registros_sap, mapeo_lista, doctype, company,debug_messages):
                 AND T1.company = %s
                 LIMIT 1
             """, (codigo_sap, company), as_dict=True)
-            item_code = codigo_erpnext[0]["name"] if codigo_erpnext else None
-
-            print(f"codigo erpnext: {item_code}")
-
+            if not item_data:
+                debug_messages.append(f"❌ Omitido: El código SAP {codigo_sap} no existe en ERPNext.")
+                print(f"❌ Omitido: El código SAP {codigo_sap} no existe en ERPNext.")
+                continue
+            if item_data[0].disabled:
+                debug_messages.append(f"🚫 Omitido: El producto {item_data[0].name} ({codigo_sap}) está deshabilitado.")
+                print(f"🚫 Omitido: El producto {item_data[0].name} ({codigo_sap}) está deshabilitado.")
+                continue
+            item_code = item_data[0]["name"]
             whs_code = registro_sap.get("WhsCode")
-            warehouse = obtener_nombre_almacen(whs_code)
+            
+            warehouse= frappe.get_value(
+                "Warehouse",
+                filters={"custom_warehousecode": whs_code, "company": company},
+                fieldname="name"
+            )
             raw_batch = (registro_sap.get("BatchNum") or "").strip()
             custom_batchnum = (registro_sap.get("BatchNum") or "").strip()
             batch = f"{item_code}-{raw_batch}"
@@ -119,11 +121,12 @@ def procesar_datos(registros_sap, mapeo_lista, doctype, company,debug_messages):
                 f"📦 {item_code} | Lote: {batch or 'SIN LOTE'} | Almacén: {warehouse} | SAP: {cantidad_sap} | ERP: {cantidad_erp} (corr: {cantidad_erp_corregida}) | Dif: {diferencia}"
             )
             print(f"📦 {item_code} | Lote: {batch or 'SIN LOTE'} | Almacén: {warehouse} | SAP: {cantidad_sap} | ERP: {cantidad_erp} (corr: {cantidad_erp_corregida}) | Dif: {diferencia}")
-
+            lotes_vistos_en_sap.add((item_code, batch, warehouse))
             # Si no hay diferencia, se omite
             if abs(diferencia) < 0.000001:
+                print(f"🚫 Se omite {item_code} ya que no hay diferencia")
                 continue
-
+            print(f"sigue el proceso porque si hay diferena de {diferencia}")
             clave_unica = f"{item_code}|{batch}|{warehouse}|{diferencia}"
             if clave_unica in registros_unicos:
                 debug_messages.append(f"🔁 Registro duplicado ignorado: {clave_unica}")
@@ -174,56 +177,42 @@ def procesar_datos(registros_sap, mapeo_lista, doctype, company,debug_messages):
             frappe.log_error(frappe.get_traceback(), "Error en procesar_registro_con_lote")
             debug_messages.append(f"✗ Error procesando registro SAP: {e} | Registro: {registro_sap}")
 
-    # --- Detectar lotes en ERP que ya no vienen en SAP ---
     try:
-        # set con los lotes que llegaron de SAP
-        lotes_sap = {
-            (registro.get("ItemCode"),
-             f"{registro.get('ItemCode')}-{(registro.get('BatchNum') or '').strip()}",
-             obtener_nombre_almacen(registro.get("WhsCode") ))
-            for registro in registros_sap
-            if registro.get("ItemCode")
-        }
-
-        # traer lotes con saldo > 0 en ERP para los almacenes involucrados
-        warehouses_sap = {
-            obtener_nombre_almacen(registro.get("WhsCode"))
-            for registro in registros_sap
-            if registro.get("ItemCode")
-        }
-        warehouses_sap = tuple(warehouses_sap) if warehouses_sap else ("",)
+        # Ya no construimos lotes_sap aquí porque lo hicimos arriba
+        
+        # Filtramos almacenes involucrados (esto se puede quedar parecido)
+        warehouses_lista = list({item[2] for item in lotes_vistos_en_sap})
+        if not warehouses_lista: return None, None
+        
+        wh_filter = tuple(warehouses_lista) if len(warehouses_lista) > 1 else f"('{warehouses_lista[0]}')"
 
         lotes_erp = frappe.db.sql(f"""
-            SELECT 
-                T0.item_code,
-                T1.batch_no,
-                T3.batch_qty,
-                T0.warehouse
+            SELECT T0.item_code, T1.batch_no, T3.batch_qty, T0.warehouse
             FROM `tabSerial and Batch Bundle` T0
             JOIN `tabSerial and Batch Entry` T1 ON T1.parent = T0.name
             JOIN `tabBatch` T3 ON T3.item = T0.item_code AND T3.batch_id = T1.batch_no
-            WHERE T0.docstatus = 1
-              AND T3.batch_qty > 0
-              AND T0.warehouse IN {warehouses_sap if len(warehouses_sap) > 1 else f"('{warehouses_sap[0]}')"}
+            JOIN `tabItem` I ON I.name = T0.item_code
+            WHERE T0.docstatus = 1 
+              AND T3.batch_qty > 0 
+              AND I.disabled = 0
+              AND T0.warehouse IN {wh_filter}
             GROUP BY T0.item_code, T0.warehouse, T1.batch_no
         """, as_dict=True)
 
         for row in lotes_erp:
-            clave = (row.item_code, row.batch_no, row.warehouse)
-            if clave not in lotes_sap:
-                # Este lote no vino en SAP → salida completa
+            clave_erp = (row.item_code, row.batch_no, row.warehouse)
+            
+            # Ahora comparamos ERPNext contra ERPNext (nombres iguales)
+            if clave_erp not in lotes_vistos_en_sap:
                 movimiento = {
                     "item_code": row.item_code,
                     "qty": row.batch_qty,
                     "warehouse": row.warehouse,
-                    "valuation_rate": 0,   # puedes ajustar si quieres cuadrar valor
+                    "valuation_rate": 0,
                     "batch_no": row.batch_no
                 }
                 items_out.append(movimiento)
-                debug_messages.append(
-                    f"🗑 Lote {row.batch_no} del item {row.item_code} en {row.warehouse} "
-                    f"no vino en SAP, salida total {row.batch_qty}"
-                )
+                print(f"🗑️ Limpieza: {row.item_code} lote {row.batch_no} no está en SAP, se retira.")
     except Exception as e:
         debug_messages.append(f"⚠ Error detectando lotes faltantes: {e}")
 
@@ -232,6 +221,7 @@ def procesar_datos(registros_sap, mapeo_lista, doctype, company,debug_messages):
         crear_stock_entry_multiple(items_in, tipo="In", debug_messages=debug_messages)
     if items_out:
         crear_stock_entry_multiple(items_out, tipo="Out", debug_messages=debug_messages)
+    return None, None
 
 
 def crear_stock_entry_multiple(items, tipo="In", debug_messages=None):
@@ -347,9 +337,9 @@ def get_stock_qty(item_code, warehouse, batch_no=None):
         return 0.0
 
 
-def obtener_nombre_almacen(codigo_sap):
-    try:
-        return frappe.db.get_value("Warehouse", {"custom_warehousecode": codigo_sap}, "name")
-    except Exception as e:
-        frappe.log_error(f"Error buscando almacén por código SAP {codigo_sap}: {e}", "Stock Sync")
-        return None
+# def obtener_nombre_almacen(codigo_sap):
+#     try:
+#         return frappe.db.get_value("Warehouse", {"custom_warehousecode": codigo_sap}, "name")
+#     except Exception as e:
+#         frappe.log_error(f"Error buscando almacén por código SAP {codigo_sap}: {e}", "Stock Sync")
+#         return None
