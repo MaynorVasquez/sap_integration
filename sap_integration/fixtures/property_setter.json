@@ -4734,5 +4734,53 @@
   "property_type": "Data",
   "row_name": null,
   "value": "[\"naming_series\", \"supplier_name\", \"country\", \"custom_cardcode\", \"company\", \"column_break0\", \"supplier_group\", \"supplier_type\", \"is_transporter\", \"image\", \"defaults_section\", \"default_currency\", \"default_bank_account\", \"column_break_10\", \"default_price_list\", \"internal_supplier_section\", \"is_internal_supplier\", \"represents_company\", \"column_break_16\", \"companies\", \"column_break2\", \"supplier_details\", \"column_break_30\", \"website\", \"language\", \"dashboard_tab\", \"tax_tab\", \"tax_id\", \"irs_1099\", \"column_break_27\", \"tax_category\", \"tax_withholding_category\", \"contact_and_address_tab\", \"address_contacts\", \"address_html\", \"column_break1\", \"contact_html\", \"primary_address_and_contact_detail_section\", \"column_break_44\", \"supplier_primary_address\", \"primary_address\", \"column_break_mglr\", \"supplier_primary_contact\", \"mobile_no\", \"email_id\", \"accounting_tab\", \"payment_terms\", \"default_accounts_section\", \"accounts\", \"settings_tab\", \"allow_purchase_invoice_creation_without_purchase_order\", \"allow_purchase_invoice_creation_without_purchase_receipt\", \"column_break_54\", \"is_frozen\", \"disabled\", \"warn_rfqs\", \"warn_pos\", \"prevent_rfqs\", \"prevent_pos\", \"block_supplier_section\", \"on_hold\", \"hold_type\", \"column_break_59\", \"release_date\", \"portal_users_tab\", \"portal_users\", \"column_break_1mqv\"]"
+ },
+ {
+  "default_value": null,
+  "doc_type": "SAP Logs Transactional Invoices",
+  "docstatus": 0,
+  "doctype": "Property Setter",
+  "doctype_or_field": "DocField",
+  "field_name": "status",
+  "is_system_generated": 1,
+  "modified": "2026-05-02 13:16:15.055004",
+  "module": null,
+  "name": "SAP Logs Transactional Invoices-status-in_list_view",
+  "property": "in_list_view",
+  "property_type": "Check",
+  "row_name": null,
+  "value": "1"
+ },
+ {
+  "default_value": null,
+  "doc_type": "SAP Logs Transactional Invoices",
+  "docstatus": 0,
+  "doctype": "Property Setter",
+  "doctype_or_field": "DocField",
+  "field_name": "company",
+  "is_system_generated": 1,
+  "modified": "2026-05-02 13:16:15.066833",
+  "module": null,
+  "name": "SAP Logs Transactional Invoices-company-in_list_view",
+  "property": "in_list_view",
+  "property_type": "Check",
+  "row_name": null,
+  "value": "1"
+ },
+ {
+  "default_value": null,
+  "doc_type": "SAP Logs Transactional Invoices",
+  "docstatus": 0,
+  "doctype": "Property Setter",
+  "doctype_or_field": "DocField",
+  "field_name": "docdate",
+  "is_system_generated": 1,
+  "modified": "2026-05-02 13:16:15.070623",
+  "module": null,
+  "name": "SAP Logs Transactional Invoices-docdate-in_list_view",
+  "property": "in_list_view",
+  "property_type": "Check",
+  "row_name": null,
+  "value": "1"
  }
 ]

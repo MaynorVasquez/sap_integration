@@ -1,4 +1,5 @@
 import frappe
+from frappe import _
 import json
 
 def log_sincronizacion(doctype, docname, company,status="Éxito", total=0, detalles=None, errores=None):

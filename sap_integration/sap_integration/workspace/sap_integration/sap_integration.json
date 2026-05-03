@@ -1,6 +1,6 @@
 {
  "charts": [],
- "content": "[{\"id\":\"0eEPkxeRf9\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\">SAP Integration</span>\",\"col\":12}},{\"id\":\"10tE37o8kY\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"UNzOXoj4D1\",\"type\":\"card\",\"data\":{\"card_name\":\"Configuraci\u00f3n\",\"col\":4}},{\"id\":\"aQLhGKJQ05\",\"type\":\"card\",\"data\":{\"card_name\":\"Sincronizacion de datos\",\"col\":4}},{\"id\":\"TnKYAo1z4m\",\"type\":\"card\",\"data\":{\"card_name\":\"Sincronizar datos maestros\",\"col\":4}},{\"id\":\"_kdfA6VaV3\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\"><b>                          Mapeo de datos para el funcionamiento del consumo de la API</b></span>\",\"col\":12}},{\"id\":\"ZJC_5u2EfM\",\"type\":\"card\",\"data\":{\"card_name\":\"Mapeo de datos iniciales\",\"col\":4}},{\"id\":\"Bn0A-g2C5s\",\"type\":\"card\",\"data\":{\"card_name\":\"Mapeo de datos maestros\",\"col\":4}},{\"id\":\"eKVZqezt5a\",\"type\":\"card\",\"data\":{\"card_name\":\"Mapeo datos transaccionales\",\"col\":4}},{\"id\":\"l1dnW91ReA\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\"><b>Historial de datos sincronizados desde SAP</b></span>\",\"col\":12}},{\"id\":\"Dz9dHk1pad\",\"type\":\"card\",\"data\":{\"card_name\":\"Datos maestros sincronizados\",\"col\":4}}]",
+ "content": "[{\"id\":\"0eEPkxeRf9\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\">SAP Integration</span>\",\"col\":12}},{\"id\":\"10tE37o8kY\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"UNzOXoj4D1\",\"type\":\"card\",\"data\":{\"card_name\":\"Configuraci\u00f3n\",\"col\":4}},{\"id\":\"aQLhGKJQ05\",\"type\":\"card\",\"data\":{\"card_name\":\"Sincronizacion de datos\",\"col\":4}},{\"id\":\"TnKYAo1z4m\",\"type\":\"card\",\"data\":{\"card_name\":\"Sincronizar datos maestros\",\"col\":4}},{\"id\":\"_kdfA6VaV3\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\"><b>                          Mapeo de datos para el funcionamiento del consumo de la API</b></span>\",\"col\":12}},{\"id\":\"ZJC_5u2EfM\",\"type\":\"card\",\"data\":{\"card_name\":\"Mapeo de datos iniciales\",\"col\":4}},{\"id\":\"Bn0A-g2C5s\",\"type\":\"card\",\"data\":{\"card_name\":\"Mapeo de datos maestros\",\"col\":4}},{\"id\":\"eKVZqezt5a\",\"type\":\"card\",\"data\":{\"card_name\":\"Mapeo datos transaccionales\",\"col\":4}},{\"id\":\"l1dnW91ReA\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\"><b>Historial de datos sincronizados desde SAP</b></span>\",\"col\":12}},{\"id\":\"Dz9dHk1pad\",\"type\":\"card\",\"data\":{\"card_name\":\"Datos maestros sincronizados\",\"col\":4}},{\"id\":\"4PgGpl7scu\",\"type\":\"card\",\"data\":{\"card_name\":\"Logs transaccionales\",\"col\":4}}]",
  "creation": "2026-04-28 10:37:52.088502",
  "custom_blocks": [],
  "docstatus": 0,
@@ -355,9 +355,28 @@
    "link_type": "DocType",
    "onboard": 0,
    "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Logs transaccionales",
+   "link_count": 1,
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Card Break"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "SAP Logs Transactional Invoices",
+   "link_count": 0,
+   "link_to": "SAP Logs Transactional Invoices",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
   }
  ],
- "modified": "2026-04-29 22:34:21.323310",
+ "modified": "2026-05-02 13:44:27.610471",
  "modified_by": "Administrator",
  "module": "Sap Integration",
  "name": "SAP Integration",

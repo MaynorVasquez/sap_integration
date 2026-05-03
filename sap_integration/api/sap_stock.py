@@ -10,7 +10,6 @@ import time
 
 @frappe.whitelist()
 def sincronizar_lista_stock(docname=None, doctype_logs=None, almacen=None):
-    
 
     if not doctype_logs:
         doctype_logs = "Sincronizacion Inventario SAP"
@@ -92,7 +91,7 @@ def procesar_datos(registros_sap, mapeo_lista, doctype, company,debug_messages):
                 continue
             item_code = item_data[0]["name"]
             whs_code = registro_sap.get("WhsCode")
-            
+
             warehouse= frappe.get_value(
                 "Warehouse",
                 filters={"custom_warehousecode": whs_code, "company": company},
@@ -335,11 +334,3 @@ def get_stock_qty(item_code, warehouse, batch_no=None):
     except Exception as e:
         frappe.log_error(f"Error obteniendo qty de stock desde Serial and Batch: {e}", "Stock Sync")
         return 0.0
-
-
-# def obtener_nombre_almacen(codigo_sap):
-#     try:
-#         return frappe.db.get_value("Warehouse", {"custom_warehousecode": codigo_sap}, "name")
-#     except Exception as e:
-#         frappe.log_error(f"Error buscando almacén por código SAP {codigo_sap}: {e}", "Stock Sync")
-#         return None
