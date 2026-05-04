@@ -1,0 +1,99 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "Format:{docnum}",
+ "creation": "2026-05-04 08:44:29.042061",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "docnum",
+  "docdate",
+  "company",
+  "doctype_mapeo",
+  "doctype_target",
+  "status",
+  "request",
+  "response"
+ ],
+ "fields": [
+  {
+   "fieldname": "docnum",
+   "fieldtype": "Link",
+   "label": "N\u00famero de Orden de venta",
+   "options": "Sales Order",
+   "read_only": 1
+  },
+  {
+   "fetch_from": "docnum.transaction_date",
+   "fieldname": "docdate",
+   "fieldtype": "Date",
+   "label": "Fecha",
+   "read_only": 1
+  },
+  {
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "label": "Compa\u00f1ia",
+   "options": "Company",
+   "read_only": 1
+  },
+  {
+   "fieldname": "doctype_mapeo",
+   "fieldtype": "Data",
+   "label": "Doctype Mapeo",
+   "read_only": 1
+  },
+  {
+   "fieldname": "doctype_target",
+   "fieldtype": "Data",
+   "label": "Doctype Target",
+   "read_only": 1
+  },
+  {
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "label": "Status",
+   "options": "Success\nError",
+   "read_only": 1
+  },
+  {
+   "fieldname": "request",
+   "fieldtype": "JSON",
+   "label": "Request"
+  },
+  {
+   "fieldname": "response",
+   "fieldtype": "Long Text",
+   "label": "Response",
+   "read_only": 1
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2026-05-04 11:00:16.727119",
+ "modified_by": "Administrator",
+ "module": "Sap Integration",
+ "name": "SAP Logs Transactional Sales Order",
+ "naming_rule": "Expression",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "rows_threshold_for_grid_search": 20,
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

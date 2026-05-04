@@ -164,7 +164,6 @@ def construir_payload_sap(doc, mapeo):
         item_code_original = item.get("item_code")
         item_doc = frappe.get_cached_doc("Item", item_code_original) if item_code_original else None
         item_code_limpio = item_doc.get("custom_itemcode") or item_code_original if item_doc else item_code_original
-        print(f"nuevo codigo o custom {item_code_limpio}")
         for campo_erp, campo_sap in mapeo["sap_fields"].get("DocumentLines", {}).items():
             # USAR EL CÓDIGO LIMPIO
             if campo_erp == "item_code":
