@@ -2,7 +2,9 @@ import frappe
 from sap_integration.api import (
     sap_almacenes,
     sap_articulos_grupo,
-    sap_categoria_uom,
+    sap_uom,
+    sap_uom_categoria,
+    sap_uom_conversion,
     sap_clientes_grupos,
     sap_lista_precio,
     sap_vendedores
@@ -14,9 +16,9 @@ def job_secuenciales():
     ligeros = [
         ("Almacenes", sap_almacenes.sincronizar_lista_alamacenes),
         ("Grupo de articulos", sap_articulos_grupo.sincronizar_articulos_grupo),
-        ("Categoria UOM", sap_categoria_uom.sincronizar_lista_categoria_uom),
-        ("Lista UOM", sap_categoria_uom.sincronizar_lista_uom),
-        ("Lista UOM Conversion", sap_categoria_uom.sincronizar_factores_conversion),
+        ("Categoria UOM", sap_uom_categoria.sincronizar_uom_categoria),
+        ("Lista UOM", sap_uom.sincronizar_uom),
+        ("Lista UOM Conversion", sap_uom_conversion.sincronizar_uom_conversion),
         ("Grupo cliente", sap_clientes_grupos.sincronizar_lista_clientes_grupos),
         ("Lista de precios", sap_lista_precio.sincronizar_lista_precio),
         ("Vendedores", sap_vendedores.sincronizar_lista_vendedores),
