@@ -1,16 +1,15 @@
 [
  {
-  "datos": [
+  "company_detalle": [
    {
-    "campo_erpnext": null,
-    "campo_sap": null,
-    "nivel": "head",
+    "company": "Productos Alimenticios YAESTA, S.A.",
+    "endpoint": "Orders",
     "parent": "Mapeo Orden De Venta SAP",
-    "parentfield": "datos",
-    "parenttype": "Mapeo Orden De Venta SAP",
-    "tipo": "url",
-    "valor": "https://apisap.yaesta.com.gt/b1s/v2/Orders"
-   },
+    "parentfield": "company_detalle",
+    "parenttype": "Mapeo Orden De Venta SAP"
+   }
+  ],
+  "datos": [
    {
     "campo_erpnext": "customer_name",
     "campo_sap": "CardName",
@@ -102,7 +101,7 @@
     "valor": null
    },
    {
-    "campo_erpnext": "custom_nit",
+    "campo_erpnext": "tax_id",
     "campo_sap": "U_FacNit",
     "nivel": "head",
     "parent": "Mapeo Orden De Venta SAP",
@@ -224,7 +223,7 @@
   ],
   "docstatus": 0,
   "doctype": "Mapeo Orden De Venta SAP",
-  "modified": "2026-03-06 17:00:58.487703",
+  "modified": "2026-05-04 08:39:07.785497",
   "name": "Mapeo Orden De Venta SAP"
  }
 ]
