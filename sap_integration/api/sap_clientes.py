@@ -131,11 +131,11 @@ def procesar_datos(registros_sap, mapeo_lista, doctype, company,debug_messages):
 
                 if erp_field == "disabled":
                     valor = 0 if valor == "tYES" else 1
-                if erp_field == "customer_group":
+                elif erp_field == "customer_group":
                     valor = grupo_cliente
-                if erp_field == "default_price_list":
+                elif erp_field == "default_price_list":
                     valor = dato_lista_precio
-                if erp_field == "default_currency":
+                elif erp_field == "default_currency":
                     if valor == "QTZ":
                         valor = "GTQ"
                 

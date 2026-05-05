@@ -2,7 +2,7 @@
  {
   "company_detalle": [
    {
-    "company": "Productos Alimenticios YAESTA, S.A.",
+    "company": "Sanola Foods, LLC",
     "endpoint": "Items",
     "parent": "Mapeo Articulo SAP",
     "parentfield": "company_detalle",
@@ -203,7 +203,7 @@
     "valor": null
    }
   ],
-  "modified": "2026-04-28 12:48:30.750576",
+  "modified": "2026-05-05 11:54:13.639988",
   "name": "Mapeo Articulo SAP"
  }
 ]

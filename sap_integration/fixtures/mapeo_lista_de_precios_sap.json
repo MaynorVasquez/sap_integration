@@ -58,9 +58,19 @@
     "parenttype": "Mapeo Lista De Precios SAP",
     "tipo": "map",
     "valor": null
+   },
+   {
+    "campo_erpnext": "currency",
+    "campo_sap": "DefaultPrimeCurrency",
+    "nivel": "head",
+    "parent": "Mapeo Lista De Precios SAP",
+    "parentfield": "mapeo_lista_precio",
+    "parenttype": "Mapeo Lista De Precios SAP",
+    "tipo": "map",
+    "valor": null
    }
   ],
-  "modified": "2026-04-29 21:51:58.589251",
+  "modified": "2026-05-05 12:09:11.235791",
   "name": "Mapeo Lista De Precios SAP"
  }
 ]

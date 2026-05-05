@@ -72,13 +72,13 @@ def procesar_datos(registros_sap, mapeo_lista, doctype, company,debug_messages):
                 if erp_field == "currency" and valor == "QTZ":
                     valor = "GTQ"
 
-                if erp_field == "enabled":
+                elif erp_field == "enabled":
                     valor = 1 if valor == "tYES" else 0
                 
-                if erp_field == "price_list_name":
+                elif erp_field == "price_list_name":
                     valor = f"{company_abbr} - {valor}"
                 
-                if erp_field == "name":
+                elif erp_field == "name":
                     nuevo_nombre = f"{company_abbr} - {valor}"
                     continue
 
