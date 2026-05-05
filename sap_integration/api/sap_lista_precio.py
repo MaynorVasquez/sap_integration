@@ -57,6 +57,7 @@ def procesar_datos(registros_sap, mapeo_lista, doctype, company,debug_messages):
                 },
                 limit=1
             )
+            print(f"El Valor encontrado es: {dato_existente}")
 
             # ✅ Ahora se utiliza el head 
             campos = mapeo_lista.get("sap_fields", {}).get("head", {})
@@ -80,6 +81,7 @@ def procesar_datos(registros_sap, mapeo_lista, doctype, company,debug_messages):
                 
                 elif erp_field == "name":
                     nuevo_nombre = f"{company_abbr} - {valor}"
+                    print(f"nombre compuesto a utilizar: {nuevo_nombre}")
                     continue
 
                 dato_lista[erp_field] = valor
@@ -103,6 +105,7 @@ def procesar_datos(registros_sap, mapeo_lista, doctype, company,debug_messages):
                 if nuevo_nombre and doc.name != nuevo_nombre:
                     if not frappe.db.exists(doctype, nuevo_nombre):
                         frappe.rename_doc(doctype, doc.name, nuevo_nombre, force=True)
+                        doc = frappe.get_doc(doctype, nuevo_nombre)
                 
                 doc.flags.ignore_permissions = True 
                 doc.save()

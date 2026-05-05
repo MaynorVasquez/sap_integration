@@ -100,6 +100,7 @@ def procesar_datos(registros_sap, mapeo_lista, doctype, company,debug_messages):
                 if nuevo_nombre and nombre_actual != nuevo_nombre:
                     if not frappe.db.exists(doctype, nuevo_nombre):
                         frappe.rename_doc(doctype, nombre_actual, nuevo_nombre, force=True)
+                        doc = frappe.get_doc(doctype, nuevo_nombre)
                 
                 frappe.db.commit()
             else:
