@@ -2,6 +2,13 @@
  {
   "company_detalle": [
    {
+    "company": "Sanola Foods, LLC",
+    "endpoint": "BusinessPartners",
+    "parent": "Mapeo Cliente",
+    "parentfield": "company_detalle",
+    "parenttype": "Mapeo Cliente"
+   },
+   {
     "company": "Productos Alimenticios YAESTA, S.A.",
     "endpoint": "BusinessPartners",
     "parent": "Mapeo Cliente",
@@ -163,6 +170,16 @@
     "valor": null
    },
    {
+    "campo_erpnext": "default_currency",
+    "campo_sap": "Currency",
+    "nivel": "head",
+    "parent": "Mapeo Cliente",
+    "parentfield": "mapeo_cliente",
+    "parenttype": "Mapeo Cliente",
+    "tipo": "map",
+    "valor": null
+   },
+   {
     "campo_erpnext": "address_title",
     "campo_sap": "AddressName",
     "nivel": "DocumentLines",
@@ -263,7 +280,7 @@
     "valor": null
    }
   ],
-  "modified": "2026-04-30 17:13:48.367214",
+  "modified": "2026-05-05 11:16:47.430022",
   "name": "Mapeo Cliente"
  }
 ]

@@ -135,6 +135,9 @@ def procesar_datos(registros_sap, mapeo_lista, doctype, company,debug_messages):
                     valor = grupo_cliente
                 if erp_field == "default_price_list":
                     valor = dato_lista_precio
+                if erp_field == "default_currency":
+                    if valor == "QTZ":
+                        valor = "GTQ"
                 
                 dato_lista[erp_field] = valor
 
@@ -252,11 +255,6 @@ def procesar_direcciones(lista_mapeo, mapeo_lista, doctype,company, debug_messag
 
     campos = mapeo_lista.get("sap_fields", {}).get("DocumentLines", {})
 
-    country_map = {
-        "NI": "Nicaragua",
-        "GT": "Guatemala"
-    }
-
     direcciones_procesadas = []
 
     for direccion in bp_addresses:
@@ -267,13 +265,24 @@ def procesar_direcciones(lista_mapeo, mapeo_lista, doctype,company, debug_messag
                 valor = direccion.get(sap_field)  # ✅ ahora sí correcto
 
                 # ejemplo de transformación
-                if sap_field == "Country":
-                    valor = country_map.get(valor, valor)
+                if sap_field == "Country" and valor:
+                    country_code = valor.lower()
+                    country_name = frappe.db.get_value(
+                        "Country",
+                        {"code": country_code},
+                        "country_name"
+                    )
+                    if country_name:
+                        valor = country_name
+                    else:
+                        # opcional: log para debug
+                        debug_messages.append(f"País no encontrado: {valor}")
 
                 dato_lista[erp_field] = valor
 
             dato_lista["is_primary_address"] = 0
             dato_lista["is_shipping_address"] = 0
+            dato_lista["custom_company"] = company
 
             address_name = direccion.get("AddressName")
             address_type = direccion.get("AddressType")
@@ -300,7 +309,8 @@ def procesar_direcciones(lista_mapeo, mapeo_lista, doctype,company, debug_messag
                 filters={
                     "address_title": address_name,
                     "address_type":  dato_lista["address_type"],
-                    "custom_cardcode": cardcode
+                    "custom_cardcode": cardcode,
+                    "custom_company": company
                 },
                 limit=1
             )
@@ -310,7 +320,8 @@ def procesar_direcciones(lista_mapeo, mapeo_lista, doctype,company, debug_messag
                     filters={
                         "custom_rownum": dato_lista["custom_rownum"],
                         "address_type": dato_lista["address_type"],
-                        "custom_cardcode": cardcode
+                        "custom_cardcode": cardcode,
+                        "custom_company": company
                     },
                     limit=1
                 )

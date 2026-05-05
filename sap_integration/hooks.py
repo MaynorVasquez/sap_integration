@@ -42,6 +42,8 @@ fixtures = [
                 "Supplier-custom_cardcode",
                 "Supplier-custom_company",
                 "Address-custom_cardcode",
+                "Address-custom_rownum",
+                "Address-custom_company",
                 "Sales Order-custom_docnum",
                 "Sales Order-custom_comentarios",
                 "Item-custom_ean",
