@@ -17,7 +17,6 @@ def job_secuenciales():
         ("Almacenes", sap_almacenes.sincronizar_lista_alamacenes),
         ("Grupo de articulos", sap_articulos_grupo.sincronizar_articulos_grupo),
         ("Lista UOM", sap_uom.sincronizar_uom),
-        ("Lista UOM", sap_uom.sincronizar_uom),
         ("Categoria UOM", sap_uom_categoria.sincronizar_uom_categoria),
         ("Lista UOM Conversion", sap_uom_conversion.sincronizar_uom_conversion),
         ("Grupo cliente", sap_clientes_grupos.sincronizar_lista_clientes_grupos),
