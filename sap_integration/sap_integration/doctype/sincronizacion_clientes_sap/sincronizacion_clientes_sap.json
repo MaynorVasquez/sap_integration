@@ -7,6 +7,7 @@
  "engine": "InnoDB",
  "field_order": [
   "sincronizacion",
+  "company",
   "status",
   "total_records",
   "details",
@@ -38,16 +39,22 @@
    "fieldname": "sincronizacion",
    "fieldtype": "Data",
    "label": "sincronizacion"
+  },
+  {
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "label": "company",
+   "options": "Company"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-05-23 11:49:13.868197",
+ "modified": "2026-05-13 10:27:28.212776",
  "modified_by": "Administrator",
  "module": "Sap Integration",
  "name": "Sincronizacion clientes SAP",
- "naming_rule": "Expression",
+ "naming_rule": "Expression (old style)",
  "owner": "Administrator",
  "permissions": [
   {
