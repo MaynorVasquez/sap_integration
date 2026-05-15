@@ -220,85 +220,6 @@
   {
    "hidden": 0,
    "is_query_report": 0,
-   "label": "Sincronizacion de datos",
-   "link_count": 7,
-   "link_type": "DocType",
-   "onboard": 0,
-   "type": "Card Break"
-  },
-  {
-   "hidden": 0,
-   "is_query_report": 0,
-   "label": "Sincronizacion Almacenes SAP",
-   "link_count": 0,
-   "link_to": "Sincronizacion Almacenes SAP",
-   "link_type": "DocType",
-   "onboard": 0,
-   "type": "Link"
-  },
-  {
-   "hidden": 0,
-   "is_query_report": 0,
-   "label": "Sincronizacion Articulos Grupo SAP",
-   "link_count": 0,
-   "link_to": "Sincronizacion Articulos Grupo SAP",
-   "link_type": "DocType",
-   "onboard": 0,
-   "type": "Link"
-  },
-  {
-   "hidden": 0,
-   "is_query_report": 0,
-   "label": "Sincronizacion UOM",
-   "link_count": 0,
-   "link_to": "Sincronizacion UOM",
-   "link_type": "DocType",
-   "onboard": 0,
-   "type": "Link"
-  },
-  {
-   "hidden": 0,
-   "is_query_report": 0,
-   "label": "Sincronizacion Clientes Grupos SAP",
-   "link_count": 0,
-   "link_to": "Sincronizacion Clientes Grupos SAP",
-   "link_type": "DocType",
-   "onboard": 0,
-   "type": "Link"
-  },
-  {
-   "hidden": 0,
-   "is_query_report": 0,
-   "label": "Sincronizacion Lista Precios SAP",
-   "link_count": 0,
-   "link_to": "Sincronizacion Lista Precios SAP",
-   "link_type": "DocType",
-   "onboard": 0,
-   "type": "Link"
-  },
-  {
-   "hidden": 0,
-   "is_query_report": 0,
-   "label": "Sincronizacion Vendedores SAP",
-   "link_count": 0,
-   "link_to": "Sincronizacion person sales SAP",
-   "link_type": "DocType",
-   "onboard": 0,
-   "type": "Link"
-  },
-  {
-   "hidden": 0,
-   "is_query_report": 0,
-   "label": "Mapeo Numero de Catalogo Interno",
-   "link_count": 0,
-   "link_to": "Mapeo Numero de Catalogo Interno",
-   "link_type": "DocType",
-   "onboard": 0,
-   "type": "Link"
-  },
-  {
-   "hidden": 0,
-   "is_query_report": 0,
    "label": "Mapeo de datos iniciales",
    "link_count": 10,
    "link_type": "DocType",
@@ -404,9 +325,88 @@
    "link_type": "DocType",
    "onboard": 0,
    "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Sincronizacion de datos",
+   "link_count": 7,
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Card Break"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Sincronizacion Almacenes SAP",
+   "link_count": 0,
+   "link_to": "Sincronizacion Almacenes SAP",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Sincronizacion Articulos Grupo SAP",
+   "link_count": 0,
+   "link_to": "Sincronizacion Articulos Grupo SAP",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Sincronizacion UOM",
+   "link_count": 0,
+   "link_to": "Sincronizacion UOM",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Sincronizacion Clientes Grupos SAP",
+   "link_count": 0,
+   "link_to": "Sincronizacion Clientes Grupos SAP",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Sincronizacion Lista Precios SAP",
+   "link_count": 0,
+   "link_to": "Sincronizacion Lista Precios SAP",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Sincronizacion Vendedores SAP",
+   "link_count": 0,
+   "link_to": "Sincronizacion person sales SAP",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Sincronizacion Numero de Catalogo",
+   "link_count": 0,
+   "link_to": "Sincronizacion Numero de Catalogo",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
   }
  ],
- "modified": "2026-05-15 12:13:46.098972",
+ "modified": "2026-05-15 12:33:56.102934",
  "modified_by": "Administrator",
  "module": "Sap Integration",
  "name": "SAP Integration",
