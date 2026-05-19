@@ -1,10 +1,23 @@
 [
  {
+<<<<<<< HEAD
+=======
+  "company_detalle": [
+   {
+    "company": "Sanola Foods, LLC",
+    "endpoint": "Items",
+    "parent": "Mapeo Articulo SAP",
+    "parentfield": "company_detalle",
+    "parenttype": "Mapeo Articulo SAP"
+   }
+  ],
+>>>>>>> origin/develop
   "docstatus": 0,
   "doctype": "Mapeo Articulo SAP",
   "mapeo_articulo_sap": [
    {
     "campo_erpnext": null,
+<<<<<<< HEAD
     "campo_sap": null,
     "nivel": "head",
     "tipo": "url",
@@ -14,6 +27,23 @@
     "campo_erpnext": "item_code",
     "campo_sap": "ItemCode",
     "nivel": "head",
+=======
+    "campo_sap": "U_smart_art",
+    "nivel": "head",
+    "parent": "Mapeo Articulo SAP",
+    "parentfield": "mapeo_articulo_sap",
+    "parenttype": "Mapeo Articulo SAP",
+    "tipo": "filter",
+    "valor": "1"
+   },
+   {
+    "campo_erpnext": "custom_itemcode",
+    "campo_sap": "ItemCode",
+    "nivel": "head",
+    "parent": "Mapeo Articulo SAP",
+    "parentfield": "mapeo_articulo_sap",
+    "parenttype": "Mapeo Articulo SAP",
+>>>>>>> origin/develop
     "tipo": "map",
     "valor": null
    },
@@ -21,6 +51,22 @@
     "campo_erpnext": "item_name",
     "campo_sap": "ItemName",
     "nivel": "head",
+<<<<<<< HEAD
+=======
+    "parent": "Mapeo Articulo SAP",
+    "parentfield": "mapeo_articulo_sap",
+    "parenttype": "Mapeo Articulo SAP",
+    "tipo": "map",
+    "valor": null
+   },
+   {
+    "campo_erpnext": "item_code",
+    "campo_sap": "ItemCode",
+    "nivel": "head",
+    "parent": "Mapeo Articulo SAP",
+    "parentfield": "mapeo_articulo_sap",
+    "parenttype": "Mapeo Articulo SAP",
+>>>>>>> origin/develop
     "tipo": "map",
     "valor": null
    },
@@ -28,10 +74,17 @@
     "campo_erpnext": "disabled",
     "campo_sap": "Valid",
     "nivel": "head",
+<<<<<<< HEAD
+=======
+    "parent": "Mapeo Articulo SAP",
+    "parentfield": "mapeo_articulo_sap",
+    "parenttype": "Mapeo Articulo SAP",
+>>>>>>> origin/develop
     "tipo": "map",
     "valor": null
    },
    {
+<<<<<<< HEAD
     "campo_erpnext": null,
     "campo_sap": "U_smart_art",
     "nivel": "head",
@@ -70,6 +123,14 @@
     "campo_erpnext": "InventoryUoMEntry",
     "campo_sap": "InventoryUoMEntry",
     "nivel": "head",
+=======
+    "campo_erpnext": "item_group",
+    "campo_sap": "ItemsGroupCode",
+    "nivel": "head",
+    "parent": "Mapeo Articulo SAP",
+    "parentfield": "mapeo_articulo_sap",
+    "parenttype": "Mapeo Articulo SAP",
+>>>>>>> origin/develop
     "tipo": "map",
     "valor": null
    },
@@ -77,6 +138,12 @@
     "campo_erpnext": "has_batch_no",
     "campo_sap": "ManageBatchNumbers",
     "nivel": "head",
+<<<<<<< HEAD
+=======
+    "parent": "Mapeo Articulo SAP",
+    "parentfield": "mapeo_articulo_sap",
+    "parenttype": "Mapeo Articulo SAP",
+>>>>>>> origin/develop
     "tipo": "map",
     "valor": null
    },
@@ -84,6 +151,12 @@
     "campo_erpnext": "disabled",
     "campo_sap": "Valid",
     "nivel": "head",
+<<<<<<< HEAD
+=======
+    "parent": "Mapeo Articulo SAP",
+    "parentfield": "mapeo_articulo_sap",
+    "parenttype": "Mapeo Articulo SAP",
+>>>>>>> origin/develop
     "tipo": "map",
     "valor": null
    },
@@ -91,6 +164,12 @@
     "campo_erpnext": "CreateDate",
     "campo_sap": "CreateDate",
     "nivel": "head",
+<<<<<<< HEAD
+=======
+    "parent": "Mapeo Articulo SAP",
+    "parentfield": "mapeo_articulo_sap",
+    "parenttype": "Mapeo Articulo SAP",
+>>>>>>> origin/develop
     "tipo": "map",
     "valor": null
    },
@@ -98,6 +177,12 @@
     "campo_erpnext": "CreateTime",
     "campo_sap": "CreateTime",
     "nivel": "head",
+<<<<<<< HEAD
+=======
+    "parent": "Mapeo Articulo SAP",
+    "parentfield": "mapeo_articulo_sap",
+    "parenttype": "Mapeo Articulo SAP",
+>>>>>>> origin/develop
     "tipo": "map",
     "valor": null
    },
@@ -105,6 +190,12 @@
     "campo_erpnext": "UpdateDate",
     "campo_sap": "UpdateDate",
     "nivel": "head",
+<<<<<<< HEAD
+=======
+    "parent": "Mapeo Articulo SAP",
+    "parentfield": "mapeo_articulo_sap",
+    "parenttype": "Mapeo Articulo SAP",
+>>>>>>> origin/develop
     "tipo": "map",
     "valor": null
    },
@@ -112,6 +203,12 @@
     "campo_erpnext": "UpdateTime",
     "campo_sap": "UpdateTime",
     "nivel": "head",
+<<<<<<< HEAD
+=======
+    "parent": "Mapeo Articulo SAP",
+    "parentfield": "mapeo_articulo_sap",
+    "parenttype": "Mapeo Articulo SAP",
+>>>>>>> origin/develop
     "tipo": "map",
     "valor": null
    },
@@ -119,11 +216,81 @@
     "campo_erpnext": "custom_ean",
     "campo_sap": "U_EAN",
     "nivel": "head",
+<<<<<<< HEAD
+=======
+    "parent": "Mapeo Articulo SAP",
+    "parentfield": "mapeo_articulo_sap",
+    "parenttype": "Mapeo Articulo SAP",
+    "tipo": "map",
+    "valor": null
+   },
+   {
+    "campo_erpnext": "name",
+    "campo_sap": "ItemCode",
+    "nivel": "head",
+    "parent": "Mapeo Articulo SAP",
+    "parentfield": "mapeo_articulo_sap",
+    "parenttype": "Mapeo Articulo SAP",
+    "tipo": "map",
+    "valor": null
+   },
+   {
+    "campo_erpnext": "ItemPrices",
+    "campo_sap": "ItemPrices",
+    "nivel": "head",
+    "parent": "Mapeo Articulo SAP",
+    "parentfield": "mapeo_articulo_sap",
+    "parenttype": "Mapeo Articulo SAP",
+    "tipo": "map",
+    "valor": null
+   },
+   {
+    "campo_erpnext": "stock_uom",
+    "campo_sap": "InventoryUoMEntry",
+    "nivel": "head",
+    "parent": "Mapeo Articulo SAP",
+    "parentfield": "mapeo_articulo_sap",
+    "parenttype": "Mapeo Articulo SAP",
+    "tipo": "map",
+    "valor": null
+   },
+   {
+    "campo_erpnext": "weight_uom",
+    "campo_sap": "InventoryUoMEntry",
+    "nivel": "head",
+    "parent": "Mapeo Articulo SAP",
+    "parentfield": "mapeo_articulo_sap",
+    "parenttype": "Mapeo Articulo SAP",
+    "tipo": "map",
+    "valor": null
+   },
+   {
+    "campo_erpnext": "purchase_uom",
+    "campo_sap": "DefaultPurchasingUoMEntry",
+    "nivel": "head",
+    "parent": "Mapeo Articulo SAP",
+    "parentfield": "mapeo_articulo_sap",
+    "parenttype": "Mapeo Articulo SAP",
+    "tipo": "map",
+    "valor": null
+   },
+   {
+    "campo_erpnext": "sales_uom",
+    "campo_sap": "DefaultSalesUoMEntry",
+    "nivel": "head",
+    "parent": "Mapeo Articulo SAP",
+    "parentfield": "mapeo_articulo_sap",
+    "parenttype": "Mapeo Articulo SAP",
+>>>>>>> origin/develop
     "tipo": "map",
     "valor": null
    }
   ],
+<<<<<<< HEAD
   "modified": "2026-03-06 13:07:18.649051",
+=======
+  "modified": "2026-05-05 11:54:13.639988",
+>>>>>>> origin/develop
   "name": "Mapeo Articulo SAP"
  }
 ]

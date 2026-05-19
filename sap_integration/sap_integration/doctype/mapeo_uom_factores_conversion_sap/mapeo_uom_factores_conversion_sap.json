@@ -5,7 +5,12 @@
  "doctype": "DocType",
  "engine": "InnoDB",
  "field_order": [
+<<<<<<< HEAD
   "mapeo_factores_conversion"
+=======
+  "mapeo_factores_conversion",
+  "company_detalle"
+>>>>>>> origin/develop
  ],
  "fields": [
   {
@@ -13,13 +18,26 @@
    "fieldtype": "Table",
    "label": "Mapeo factores de conversi\u00f3n",
    "options": "Mapeo campos"
+<<<<<<< HEAD
+=======
+  },
+  {
+   "fieldname": "company_detalle",
+   "fieldtype": "Table",
+   "label": "Compa\u00f1ias autorizadas",
+   "options": "Campos empresas autorizadas"
+>>>>>>> origin/develop
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "issingle": 1,
  "links": [],
+<<<<<<< HEAD
  "modified": "2025-06-16 16:54:49.804407",
+=======
+ "modified": "2026-04-22 11:58:36.917608",
+>>>>>>> origin/develop
  "modified_by": "Administrator",
  "module": "Sap Integration",
  "name": "Mapeo UOM factores conversion SAP",

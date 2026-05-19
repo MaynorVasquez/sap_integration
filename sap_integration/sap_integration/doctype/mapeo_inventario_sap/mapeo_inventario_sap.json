@@ -6,7 +6,12 @@
  "engine": "InnoDB",
  "field_order": [
   "mapeo_inventario",
+<<<<<<< HEAD
   "mapeo_inventario_sap"
+=======
+  "mapeo_inventario_sap",
+  "company_detalle"
+>>>>>>> origin/develop
  ],
  "fields": [
   {
@@ -19,13 +24,26 @@
    "fieldtype": "Table",
    "label": "Mapeo Inventario SAP",
    "options": "Mapeo campos"
+<<<<<<< HEAD
+=======
+  },
+  {
+   "fieldname": "company_detalle",
+   "fieldtype": "Table",
+   "label": "Compa\u00f1ias Autorizadas",
+   "options": "Campos empresas autorizadas"
+>>>>>>> origin/develop
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "issingle": 1,
  "links": [],
+<<<<<<< HEAD
  "modified": "2025-06-04 13:41:45.844701",
+=======
+ "modified": "2026-04-30 08:38:34.065597",
+>>>>>>> origin/develop
  "modified_by": "Administrator",
  "module": "Sap Integration",
  "name": "Mapeo Inventario SAP",

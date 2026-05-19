@@ -1,19 +1,64 @@
 [
  {
+<<<<<<< HEAD
+=======
+  "company_detalle": [
+   {
+    "company": "Sanola Foods, LLC",
+    "endpoint": "BusinessPartners",
+    "parent": "Mapeo Cliente",
+    "parentfield": "company_detalle",
+    "parenttype": "Mapeo Cliente"
+   },
+   {
+    "company": "Productos Alimenticios YAESTA, S.A.",
+    "endpoint": "BusinessPartners",
+    "parent": "Mapeo Cliente",
+    "parentfield": "company_detalle",
+    "parenttype": "Mapeo Cliente"
+   }
+  ],
+>>>>>>> origin/develop
   "docstatus": 0,
   "doctype": "Mapeo Cliente",
   "mapeo_cliente": [
    {
     "campo_erpnext": null,
+<<<<<<< HEAD
     "campo_sap": null,
     "nivel": "head",
     "tipo": "url",
     "valor": "https://apisap.yaesta.com.gt/b1s/v2/BusinessPartners"
+=======
+    "campo_sap": "U_smart_cli",
+    "nivel": "head",
+    "parent": "Mapeo Cliente",
+    "parentfield": "mapeo_cliente",
+    "parenttype": "Mapeo Cliente",
+    "tipo": "filter",
+    "valor": "1"
+>>>>>>> origin/develop
    },
    {
     "campo_erpnext": "customer_name",
     "campo_sap": "CardName",
     "nivel": "head",
+<<<<<<< HEAD
+=======
+    "parent": "Mapeo Cliente",
+    "parentfield": "mapeo_cliente",
+    "parenttype": "Mapeo Cliente",
+    "tipo": "map",
+    "valor": null
+   },
+   {
+    "campo_erpnext": "supplier_name",
+    "campo_sap": "CardName",
+    "nivel": "head",
+    "parent": "Mapeo Cliente",
+    "parentfield": "mapeo_cliente",
+    "parenttype": "Mapeo Cliente",
+>>>>>>> origin/develop
     "tipo": "map",
     "valor": null
    },
@@ -21,6 +66,12 @@
     "campo_erpnext": "custom_cardcode",
     "campo_sap": "CardCode",
     "nivel": "head",
+<<<<<<< HEAD
+=======
+    "parent": "Mapeo Cliente",
+    "parentfield": "mapeo_cliente",
+    "parenttype": "Mapeo Cliente",
+>>>>>>> origin/develop
     "tipo": "map",
     "valor": null
    },
@@ -28,6 +79,12 @@
     "campo_erpnext": "UpdateDate",
     "campo_sap": "UpdateDate",
     "nivel": "head",
+<<<<<<< HEAD
+=======
+    "parent": "Mapeo Cliente",
+    "parentfield": "mapeo_cliente",
+    "parenttype": "Mapeo Cliente",
+>>>>>>> origin/develop
     "tipo": "map",
     "valor": null
    },
@@ -35,10 +92,17 @@
     "campo_erpnext": "UpdateTime",
     "campo_sap": "UpdateTime",
     "nivel": "head",
+<<<<<<< HEAD
+=======
+    "parent": "Mapeo Cliente",
+    "parentfield": "mapeo_cliente",
+    "parenttype": "Mapeo Cliente",
+>>>>>>> origin/develop
     "tipo": "map",
     "valor": null
    },
    {
+<<<<<<< HEAD
     "campo_erpnext": null,
     "campo_sap": "U_smart_cli",
     "nivel": "head",
@@ -49,13 +113,30 @@
     "campo_erpnext": "custom_nit",
     "campo_sap": "U_NIT",
     "nivel": "head",
+=======
+    "campo_erpnext": "tax_id",
+    "campo_sap": "U_NIT",
+    "nivel": "head",
+    "parent": "Mapeo Cliente",
+    "parentfield": "mapeo_cliente",
+    "parenttype": "Mapeo Cliente",
+>>>>>>> origin/develop
     "tipo": "map",
     "valor": null
    },
    {
+<<<<<<< HEAD
     "campo_erpnext": "PriceListNum",
     "campo_sap": "PriceListNum",
     "nivel": "head",
+=======
+    "campo_erpnext": "default_price_list",
+    "campo_sap": "PriceListNum",
+    "nivel": "head",
+    "parent": "Mapeo Cliente",
+    "parentfield": "mapeo_cliente",
+    "parenttype": "Mapeo Cliente",
+>>>>>>> origin/develop
     "tipo": "map",
     "valor": null
    },
@@ -63,6 +144,12 @@
     "campo_erpnext": "SalesPersonCode",
     "campo_sap": "SalesPersonCode",
     "nivel": "head",
+<<<<<<< HEAD
+=======
+    "parent": "Mapeo Cliente",
+    "parentfield": "mapeo_cliente",
+    "parenttype": "Mapeo Cliente",
+>>>>>>> origin/develop
     "tipo": "map",
     "valor": null
    },
@@ -70,13 +157,28 @@
     "campo_erpnext": "BPAddresses",
     "campo_sap": "BPAddresses",
     "nivel": "head",
+<<<<<<< HEAD
+=======
+    "parent": "Mapeo Cliente",
+    "parentfield": "mapeo_cliente",
+    "parenttype": "Mapeo Cliente",
+>>>>>>> origin/develop
     "tipo": "map",
     "valor": null
    },
    {
+<<<<<<< HEAD
     "campo_erpnext": "GroupCode",
     "campo_sap": "GroupCode",
     "nivel": "head",
+=======
+    "campo_erpnext": "customer_group",
+    "campo_sap": "GroupCode",
+    "nivel": "head",
+    "parent": "Mapeo Cliente",
+    "parentfield": "mapeo_cliente",
+    "parenttype": "Mapeo Cliente",
+>>>>>>> origin/develop
     "tipo": "map",
     "valor": null
    },
@@ -84,6 +186,12 @@
     "campo_erpnext": "disabled",
     "campo_sap": "Valid",
     "nivel": "head",
+<<<<<<< HEAD
+=======
+    "parent": "Mapeo Cliente",
+    "parentfield": "mapeo_cliente",
+    "parenttype": "Mapeo Cliente",
+>>>>>>> origin/develop
     "tipo": "map",
     "valor": null
    },
@@ -91,6 +199,12 @@
     "campo_erpnext": "ShipToDefault",
     "campo_sap": "ShipToDefault",
     "nivel": "head",
+<<<<<<< HEAD
+=======
+    "parent": "Mapeo Cliente",
+    "parentfield": "mapeo_cliente",
+    "parenttype": "Mapeo Cliente",
+>>>>>>> origin/develop
     "tipo": "map",
     "valor": null
    },
@@ -98,11 +212,141 @@
     "campo_erpnext": "BilltoDefault",
     "campo_sap": "BilltoDefault",
     "nivel": "head",
+<<<<<<< HEAD
+=======
+    "parent": "Mapeo Cliente",
+    "parentfield": "mapeo_cliente",
+    "parenttype": "Mapeo Cliente",
+    "tipo": "map",
+    "valor": null
+   },
+   {
+    "campo_erpnext": "CardType",
+    "campo_sap": "CardType",
+    "nivel": "head",
+    "parent": "Mapeo Cliente",
+    "parentfield": "mapeo_cliente",
+    "parenttype": "Mapeo Cliente",
+    "tipo": "map",
+    "valor": null
+   },
+   {
+    "campo_erpnext": "default_currency",
+    "campo_sap": "Currency",
+    "nivel": "head",
+    "parent": "Mapeo Cliente",
+    "parentfield": "mapeo_cliente",
+    "parenttype": "Mapeo Cliente",
+    "tipo": "map",
+    "valor": null
+   },
+   {
+    "campo_erpnext": "address_title",
+    "campo_sap": "AddressName",
+    "nivel": "DocumentLines",
+    "parent": "Mapeo Cliente",
+    "parentfield": "mapeo_cliente",
+    "parenttype": "Mapeo Cliente",
+    "tipo": "map",
+    "valor": null
+   },
+   {
+    "campo_erpnext": "address_line1",
+    "campo_sap": "Street",
+    "nivel": "DocumentLines",
+    "parent": "Mapeo Cliente",
+    "parentfield": "mapeo_cliente",
+    "parenttype": "Mapeo Cliente",
+    "tipo": "map",
+    "valor": null
+   },
+   {
+    "campo_erpnext": "city",
+    "campo_sap": "City",
+    "nivel": "DocumentLines",
+    "parent": "Mapeo Cliente",
+    "parentfield": "mapeo_cliente",
+    "parenttype": "Mapeo Cliente",
+    "tipo": "map",
+    "valor": null
+   },
+   {
+    "campo_erpnext": "county",
+    "campo_sap": "County",
+    "nivel": "DocumentLines",
+    "parent": "Mapeo Cliente",
+    "parentfield": "mapeo_cliente",
+    "parenttype": "Mapeo Cliente",
+    "tipo": "map",
+    "valor": null
+   },
+   {
+    "campo_erpnext": "country",
+    "campo_sap": "Country",
+    "nivel": "DocumentLines",
+    "parent": "Mapeo Cliente",
+    "parentfield": "mapeo_cliente",
+    "parenttype": "Mapeo Cliente",
+    "tipo": "map",
+    "valor": null
+   },
+   {
+    "campo_erpnext": "address_type",
+    "campo_sap": "AddressType",
+    "nivel": "DocumentLines",
+    "parent": "Mapeo Cliente",
+    "parentfield": "mapeo_cliente",
+    "parenttype": "Mapeo Cliente",
+    "tipo": "map",
+    "valor": null
+   },
+   {
+    "campo_erpnext": "is_shipping_address",
+    "campo_sap": "is_shipping_address",
+    "nivel": "DocumentLines",
+    "parent": "Mapeo Cliente",
+    "parentfield": "mapeo_cliente",
+    "parenttype": "Mapeo Cliente",
+    "tipo": "map",
+    "valor": null
+   },
+   {
+    "campo_erpnext": "is_primary_address",
+    "campo_sap": "is_primary_address",
+    "nivel": "DocumentLines",
+    "parent": "Mapeo Cliente",
+    "parentfield": "mapeo_cliente",
+    "parenttype": "Mapeo Cliente",
+    "tipo": "map",
+    "valor": null
+   },
+   {
+    "campo_erpnext": "custom_cardcode",
+    "campo_sap": "BPCode",
+    "nivel": "DocumentLines",
+    "parent": "Mapeo Cliente",
+    "parentfield": "mapeo_cliente",
+    "parenttype": "Mapeo Cliente",
+    "tipo": "map",
+    "valor": null
+   },
+   {
+    "campo_erpnext": "custom_rownum",
+    "campo_sap": "RowNum",
+    "nivel": "DocumentLines",
+    "parent": "Mapeo Cliente",
+    "parentfield": "mapeo_cliente",
+    "parenttype": "Mapeo Cliente",
+>>>>>>> origin/develop
     "tipo": "map",
     "valor": null
    }
   ],
+<<<<<<< HEAD
   "modified": "2025-08-21 16:21:26.853352",
+=======
+  "modified": "2026-05-05 11:16:47.430022",
+>>>>>>> origin/develop
   "name": "Mapeo Cliente"
  }
 ]

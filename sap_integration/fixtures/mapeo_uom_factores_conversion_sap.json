@@ -1,9 +1,29 @@
 [
  {
+<<<<<<< HEAD
+=======
+  "company_detalle": [
+   {
+    "company": "Productos Alimenticios YAESTA, S.A.",
+    "endpoint": "UnitOfMeasurementGroups",
+    "parent": "Mapeo UOM factores conversion SAP",
+    "parentfield": "company_detalle",
+    "parenttype": "Mapeo UOM factores conversion SAP"
+   },
+   {
+    "company": "Sanola Foods, LLC",
+    "endpoint": "UnitOfMeasurementGroups",
+    "parent": "Mapeo UOM factores conversion SAP",
+    "parentfield": "company_detalle",
+    "parenttype": "Mapeo UOM factores conversion SAP"
+   }
+  ],
+>>>>>>> origin/develop
   "docstatus": 0,
   "doctype": "Mapeo UOM factores conversion SAP",
   "mapeo_factores_conversion": [
    {
+<<<<<<< HEAD
     "campo_erpnext": null,
     "campo_sap": null,
     "nivel": "head",
@@ -12,6 +32,79 @@
    }
   ],
   "modified": "2025-07-28 21:27:55.029195",
+=======
+    "campo_erpnext": "AbsEntry",
+    "campo_sap": "AbsEntry",
+    "nivel": "head",
+    "parent": "Mapeo UOM factores conversion SAP",
+    "parentfield": "mapeo_factores_conversion",
+    "parenttype": "Mapeo UOM factores conversion SAP",
+    "tipo": "map",
+    "valor": null
+   },
+   {
+    "campo_erpnext": "BaseUoM",
+    "campo_sap": "BaseUoM",
+    "nivel": "head",
+    "parent": "Mapeo UOM factores conversion SAP",
+    "parentfield": "mapeo_factores_conversion",
+    "parenttype": "Mapeo UOM factores conversion SAP",
+    "tipo": "map",
+    "valor": null
+   },
+   {
+    "campo_erpnext": "UoMGroupDefinitionCollection",
+    "campo_sap": "UoMGroupDefinitionCollection",
+    "nivel": "head",
+    "parent": "Mapeo UOM factores conversion SAP",
+    "parentfield": "mapeo_factores_conversion",
+    "parenttype": "Mapeo UOM factores conversion SAP",
+    "tipo": "map",
+    "valor": null
+   },
+   {
+    "campo_erpnext": "category",
+    "campo_sap": "AbsEntry",
+    "nivel": "DocumentLines",
+    "parent": "Mapeo UOM factores conversion SAP",
+    "parentfield": "mapeo_factores_conversion",
+    "parenttype": "Mapeo UOM factores conversion SAP",
+    "tipo": "map",
+    "valor": null
+   },
+   {
+    "campo_erpnext": "from_uom",
+    "campo_sap": "BaseUoM",
+    "nivel": "DocumentLines",
+    "parent": "Mapeo UOM factores conversion SAP",
+    "parentfield": "mapeo_factores_conversion",
+    "parenttype": "Mapeo UOM factores conversion SAP",
+    "tipo": "map",
+    "valor": null
+   },
+   {
+    "campo_erpnext": "to_uom",
+    "campo_sap": "AlternateUoM",
+    "nivel": "DocumentLines",
+    "parent": "Mapeo UOM factores conversion SAP",
+    "parentfield": "mapeo_factores_conversion",
+    "parenttype": "Mapeo UOM factores conversion SAP",
+    "tipo": "map",
+    "valor": null
+   },
+   {
+    "campo_erpnext": "value",
+    "campo_sap": "BaseQuantity\"",
+    "nivel": "DocumentLines",
+    "parent": "Mapeo UOM factores conversion SAP",
+    "parentfield": "mapeo_factores_conversion",
+    "parenttype": "Mapeo UOM factores conversion SAP",
+    "tipo": "map",
+    "valor": null
+   }
+  ],
+  "modified": "2026-04-29 22:29:10.283016",
+>>>>>>> origin/develop
   "name": "Mapeo UOM factores conversion SAP"
  }
 ]

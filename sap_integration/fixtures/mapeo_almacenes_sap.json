@@ -1,9 +1,29 @@
 [
  {
+<<<<<<< HEAD
+=======
+  "company_detalle": [
+   {
+    "company": "Productos Alimenticios YAESTA, S.A.",
+    "endpoint": "Warehouses",
+    "parent": "Mapeo Almacenes SAP",
+    "parentfield": "company_detalle",
+    "parenttype": "Mapeo Almacenes SAP"
+   },
+   {
+    "company": "Sanola Foods, LLC",
+    "endpoint": "Warehouses",
+    "parent": "Mapeo Almacenes SAP",
+    "parentfield": "company_detalle",
+    "parenttype": "Mapeo Almacenes SAP"
+   }
+  ],
+>>>>>>> origin/develop
   "docstatus": 0,
   "doctype": "Mapeo Almacenes SAP",
   "mapeo_almacenes": [
    {
+<<<<<<< HEAD
     "campo_erpnext": null,
     "campo_sap": null,
     "nivel": "head",
@@ -14,6 +34,14 @@
     "campo_erpnext": "custom_warehousecode",
     "campo_sap": "WarehouseCode",
     "nivel": "head",
+=======
+    "campo_erpnext": "custom_warehousecode",
+    "campo_sap": "WarehouseCode",
+    "nivel": "head",
+    "parent": "Mapeo Almacenes SAP",
+    "parentfield": "mapeo_almacenes",
+    "parenttype": "Mapeo Almacenes SAP",
+>>>>>>> origin/develop
     "tipo": "map",
     "valor": null
    },
@@ -21,6 +49,12 @@
     "campo_erpnext": "warehouse_name",
     "campo_sap": "WarehouseName",
     "nivel": "head",
+<<<<<<< HEAD
+=======
+    "parent": "Mapeo Almacenes SAP",
+    "parentfield": "mapeo_almacenes",
+    "parenttype": "Mapeo Almacenes SAP",
+>>>>>>> origin/develop
     "tipo": "map",
     "valor": null
    },
@@ -28,11 +62,31 @@
     "campo_erpnext": "disabled",
     "campo_sap": "Inactive",
     "nivel": "head",
+<<<<<<< HEAD
+=======
+    "parent": "Mapeo Almacenes SAP",
+    "parentfield": "mapeo_almacenes",
+    "parenttype": "Mapeo Almacenes SAP",
+    "tipo": "map",
+    "valor": null
+   },
+   {
+    "campo_erpnext": "name",
+    "campo_sap": "WarehouseName",
+    "nivel": "head",
+    "parent": "Mapeo Almacenes SAP",
+    "parentfield": "mapeo_almacenes",
+    "parenttype": "Mapeo Almacenes SAP",
+>>>>>>> origin/develop
     "tipo": "map",
     "valor": null
    }
   ],
+<<<<<<< HEAD
   "modified": "2025-07-26 21:07:21.824118",
+=======
+  "modified": "2026-04-24 10:13:12.811389",
+>>>>>>> origin/develop
   "name": "Mapeo Almacenes SAP"
  }
 ]

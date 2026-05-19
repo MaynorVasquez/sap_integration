@@ -1,17 +1,14 @@
 import frappe
+from frappe import _
 import json
 
-def log_sincronizacion(doctype, docname, status="Éxito", total=0, detalles=None, errores=None):
-    """
-    Registra logs en cualquier Doctype de sincronización con los campos estándar:
-    status, total_records, details, error_log.
-
-    - details se serializa como JSON válido automáticamente.
-    - Soporta detalles como dict, list o string (el string será envuelto como {"mensaje": str}).
-    """
+def log_sincronizacion(doctype, docname, company,status="Éxito", total=0, detalles=None, errores=None):
     try:
-        if not doctype or not docname:
-            frappe.log_error("No se especificó doctype o docname para log_sincronizacion")
+        if not docname:
+            docname = f"LOG-{frappe.utils.now()}"
+
+        if not doctype:
+            frappe.log_error("No se especificó doctype para log_sincronizacion")
             return
 
         if frappe.db.exists(doctype, docname):
@@ -22,6 +19,7 @@ def log_sincronizacion(doctype, docname, status="Éxito", total=0, detalles=None
 
         doc.status = status
         doc.total_records = total
+        doc.company = company
 
         # Asegura que 'detalles' siempre sea un JSON válido
         if isinstance(detalles, str):

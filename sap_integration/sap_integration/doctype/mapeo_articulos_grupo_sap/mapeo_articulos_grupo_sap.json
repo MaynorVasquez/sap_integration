@@ -5,7 +5,12 @@
  "doctype": "DocType",
  "engine": "InnoDB",
  "field_order": [
+<<<<<<< HEAD
   "mapeo_articulo_grupo"
+=======
+  "mapeo_articulo_grupo",
+  "company_detalle"
+>>>>>>> origin/develop
  ],
  "fields": [
   {
@@ -13,13 +18,26 @@
    "fieldtype": "Table",
    "label": "Mapeo articulos grupo",
    "options": "Mapeo campos"
+<<<<<<< HEAD
+=======
+  },
+  {
+   "fieldname": "company_detalle",
+   "fieldtype": "Table",
+   "label": "Empreas autorizadas",
+   "options": "Campos empresas autorizadas"
+>>>>>>> origin/develop
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "issingle": 1,
  "links": [],
+<<<<<<< HEAD
  "modified": "2025-06-16 09:50:32.689737",
+=======
+ "modified": "2026-04-17 16:36:23.086037",
+>>>>>>> origin/develop
  "modified_by": "Administrator",
  "module": "Sap Integration",
  "name": "Mapeo Articulos Grupo SAP",

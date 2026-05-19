@@ -6,6 +6,7 @@
  "doctype": "DocType",
  "engine": "InnoDB",
  "field_order": [
+  "company",
   "sincronizacion",
   "status",
   "total_records",
@@ -38,16 +39,22 @@
    "fieldname": "error_log",
    "fieldtype": "Long Text",
    "label": "Error"
+  },
+  {
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "label": "Compa\u00f1ia",
+   "options": "Company"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-06-01 21:57:07.848899",
+ "modified": "2026-04-15 19:00:23.757497",
  "modified_by": "Administrator",
  "module": "Sap Integration",
  "name": "Sincronizacion Almacenes SAP",
- "naming_rule": "Expression",
+ "naming_rule": "Expression (old style)",
  "owner": "Administrator",
  "permissions": [
   {

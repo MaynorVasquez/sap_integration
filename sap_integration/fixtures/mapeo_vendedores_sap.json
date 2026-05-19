@@ -1,9 +1,29 @@
 [
  {
+<<<<<<< HEAD
+=======
+  "company_detalle": [
+   {
+    "company": "Productos Alimenticios YAESTA, S.A.",
+    "endpoint": "SalesPersons",
+    "parent": "Mapeo Vendedores SAP",
+    "parentfield": "company_detalle",
+    "parenttype": "Mapeo Vendedores SAP"
+   },
+   {
+    "company": "Sanola Foods, LLC",
+    "endpoint": "SalesPersons",
+    "parent": "Mapeo Vendedores SAP",
+    "parentfield": "company_detalle",
+    "parenttype": "Mapeo Vendedores SAP"
+   }
+  ],
+>>>>>>> origin/develop
   "docstatus": 0,
   "doctype": "Mapeo Vendedores SAP",
   "mapeo_vendedores": [
    {
+<<<<<<< HEAD
     "campo_erpnext": null,
     "campo_sap": null,
     "nivel": "head",
@@ -14,6 +34,14 @@
     "campo_erpnext": "custom_salesemployeecode",
     "campo_sap": "SalesEmployeeCode",
     "nivel": "head",
+=======
+    "campo_erpnext": "custom_salesemployeecode",
+    "campo_sap": "SalesEmployeeCode",
+    "nivel": "head",
+    "parent": "Mapeo Vendedores SAP",
+    "parentfield": "mapeo_vendedores",
+    "parenttype": "Mapeo Vendedores SAP",
+>>>>>>> origin/develop
     "tipo": "map",
     "valor": null
    },
@@ -21,6 +49,12 @@
     "campo_erpnext": "sales_person_name",
     "campo_sap": "SalesEmployeeName",
     "nivel": "head",
+<<<<<<< HEAD
+=======
+    "parent": "Mapeo Vendedores SAP",
+    "parentfield": "mapeo_vendedores",
+    "parenttype": "Mapeo Vendedores SAP",
+>>>>>>> origin/develop
     "tipo": "map",
     "valor": null
    },
@@ -28,11 +62,31 @@
     "campo_erpnext": "enabled",
     "campo_sap": "Active",
     "nivel": "head",
+<<<<<<< HEAD
+=======
+    "parent": "Mapeo Vendedores SAP",
+    "parentfield": "mapeo_vendedores",
+    "parenttype": "Mapeo Vendedores SAP",
+    "tipo": "map",
+    "valor": null
+   },
+   {
+    "campo_erpnext": "name",
+    "campo_sap": "SalesEmployeeName",
+    "nivel": "head",
+    "parent": "Mapeo Vendedores SAP",
+    "parentfield": "mapeo_vendedores",
+    "parenttype": "Mapeo Vendedores SAP",
+>>>>>>> origin/develop
     "tipo": "map",
     "valor": null
    }
   ],
+<<<<<<< HEAD
   "modified": "2025-08-19 16:34:03.760425",
+=======
+  "modified": "2026-04-29 21:55:44.101677",
+>>>>>>> origin/develop
   "name": "Mapeo Vendedores SAP"
  }
 ]

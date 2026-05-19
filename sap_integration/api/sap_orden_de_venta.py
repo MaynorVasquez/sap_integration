@@ -6,15 +6,21 @@ from collections import defaultdict
 from .sap_auth import login_sap 
 from .blueprint import mapping_blueprint1
 from .usuarios_autorizados import verificar_autorizacion
+from sap_integration.utils.url_endpoint_post import url_endpoint_post
+from sap_integration.utils.logs_transactional import logs_transactional
 import requests
 
 def enviar_ov(doc, method):
-    """
-    Envía una factura de ERPNext hacia SAP
-    construyendo el payload dinámico.
-    """
     debug_messages = []
     try:
+        doctype_target = "Sales Order"
+        sales_order = frappe.get_doc(doctype_target, doc)
+        company = sales_order.company
+        doctype_mapeo = "Mapeo Orden De Venta SAP"
+        doctype_logs = "SAP Logs Transactional Sales Order"
+        
+
+        url = url_endpoint_post(doctype_mapeo,company)
 
         usuario_actual = frappe.session.user
         doctype_actual = doc.doctype  # Ej: "Sales Order"
@@ -25,21 +31,15 @@ def enviar_ov(doc, method):
             #frappe.msgprint(f"⚠ El usuario {usuario_actual} no está autorizado para sincronizar {doctype_actual} con SAP")
             return
         # 1. Login a SAP
-        session = login_sap()
+        session = login_sap(company)
         if not session or not isinstance(session, requests.Session):
             raise Exception("La sesión SAP no se creó correctamente")
         debug_messages.append("✔ Autenticación exitosa")
 
         # 2. Obtener el mapeo del blueprint
-        mapeo = mapping_blueprint1("Mapeo Orden De Venta SAP","DocEntry","DocEntry")
+        mapeo = mapping_blueprint1(doctype_mapeo,"DocEntry","DocEntry")
         if not mapeo or "sap_fields" not in mapeo:
             frappe.throw(_("No se pudo obtener el mapeo de campos desde el blueprint"))
-        print("Mapeo exitoso")
-
-        url = mapeo.get("url")
-        if not url:
-            frappe.throw(_("No se encontró la URL destino en el mapeo"))
-        
 
         # 2b. Verificar si la orden ya existe en SAP (U_OrdenDeCompra = po_no y Cancelled = 'tNO')
         filter_url = f"{url}?$filter=U_OrdenDeCompra eq '{doc.po_no}' and U_GLN eq '{doc.custom_gln}' and Cancelled eq 'tNO'"
@@ -70,12 +70,15 @@ def enviar_ov(doc, method):
             data = response.json()
             sap_docnum = data.get("DocNum")
             frappe.msgprint(f"Orden de venta enviada correctamente a SAP: {sap_docnum}")
-            # 6. Capturar DocNum de la respuesta y actualizar en ERPNext            
+            # 6. Capturar DocNum de la respuesta y actualizar en ERPNext  
+            respuesta = f"Factura enviada éxito, referencia SAP: {sap_docnum}"          
             if sap_docnum:
                 frappe.db.set_value("Sales Order", doc.name, "custom_docnum", sap_docnum)
                 frappe.db.commit()
+            logs_transactional(doctype_logs, doc, "Success" , payload, respuesta, doctype_mapeo,doctype_target)
             return data
         else:
+            logs_transactional(doctype_logs, doc,"Error" ,payload, response.text, doctype_mapeo,doctype_target)
             frappe.log_error(response.text, "Error al enviar OV a SAP")
             frappe.throw(_("Error al enviar la factura a SAP: {0}").format(response.text))
 
@@ -141,6 +144,10 @@ def construir_payload_sap(doc, mapeo):
     # === DETALLE dinámico ===
     for idx, item in enumerate(doc.get("items", [])):
         linea = {"LineNum": str(idx)}
+        # Obtenemos el item_doc una sola vez por cada línea para ahorrar recursos
+        item_code_original = item.get("item_code")
+        item_doc = frappe.get_cached_doc("Item", item_code_original) if item_code_original else None
+        item_code_limpio = item_doc.get("custom_itemcode") or item_code_original if item_doc else item_code_original
         for campo_erp, campo_sap in mapeo["sap_fields"].get("DocumentLines", {}).items():
             if campo_erp == "warehouse":
                 valor = None
@@ -154,6 +161,8 @@ def construir_payload_sap(doc, mapeo):
                 if uom_name:
                     uom_doc = frappe.get_doc("UOM", uom_name)
                     valor = uom_doc.get("custom_absentry") or uom_name
+            elif campo_erp == "item_code":
+                valor = item_code_limpio
             else:
                 valor = item.get(campo_erp)
 

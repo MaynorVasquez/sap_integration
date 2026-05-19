@@ -1,10 +1,23 @@
 [
  {
+<<<<<<< HEAD
+=======
+  "company_detalle": [
+   {
+    "company": "Productos Alimenticios YAESTA, S.A.",
+    "endpoint": "view.svc/YAESTA_CurrentStockPerWarehouseB1SLQuery",
+    "parent": "Mapeo Inventario SAP",
+    "parentfield": "company_detalle",
+    "parenttype": "Mapeo Inventario SAP"
+   }
+  ],
+>>>>>>> origin/develop
   "docstatus": 0,
   "doctype": "Mapeo Inventario SAP",
   "mapeo_inventario_sap": [
    {
     "campo_erpnext": null,
+<<<<<<< HEAD
     "campo_sap": null,
     "nivel": "head",
     "tipo": "url",
@@ -19,6 +32,78 @@
    }
   ],
   "modified": "2025-07-29 16:12:00.943227",
+=======
+    "campo_sap": "WhsCode",
+    "nivel": "head",
+    "parent": "Mapeo Inventario SAP",
+    "parentfield": "mapeo_inventario_sap",
+    "parenttype": "Mapeo Inventario SAP",
+    "tipo": "filter",
+    "valor": "29"
+   },
+   {
+    "campo_erpnext": "custom_itemcode",
+    "campo_sap": "ItemCode",
+    "nivel": "head",
+    "parent": "Mapeo Inventario SAP",
+    "parentfield": "mapeo_inventario_sap",
+    "parenttype": "Mapeo Inventario SAP",
+    "tipo": "map",
+    "valor": null
+   },
+   {
+    "campo_erpnext": "BatchNum",
+    "campo_sap": "BatchNum",
+    "nivel": "head",
+    "parent": "Mapeo Inventario SAP",
+    "parentfield": "mapeo_inventario_sap",
+    "parenttype": "Mapeo Inventario SAP",
+    "tipo": "map",
+    "valor": null
+   },
+   {
+    "campo_erpnext": "ExpDate",
+    "campo_sap": "ExpDate",
+    "nivel": "head",
+    "parent": "Mapeo Inventario SAP",
+    "parentfield": "mapeo_inventario_sap",
+    "parenttype": "Mapeo Inventario SAP",
+    "tipo": "map",
+    "valor": null
+   },
+   {
+    "campo_erpnext": "WhsCode",
+    "campo_sap": "WhsCode",
+    "nivel": "head",
+    "parent": "Mapeo Inventario SAP",
+    "parentfield": "mapeo_inventario_sap",
+    "parenttype": "Mapeo Inventario SAP",
+    "tipo": "map",
+    "valor": null
+   },
+   {
+    "campo_erpnext": "Quantity",
+    "campo_sap": "Quantity",
+    "nivel": "head",
+    "parent": "Mapeo Inventario SAP",
+    "parentfield": "mapeo_inventario_sap",
+    "parenttype": "Mapeo Inventario SAP",
+    "tipo": "map",
+    "valor": null
+   },
+   {
+    "campo_erpnext": "AvgPrice",
+    "campo_sap": "AvgPrice",
+    "nivel": "head",
+    "parent": "Mapeo Inventario SAP",
+    "parentfield": "mapeo_inventario_sap",
+    "parenttype": "Mapeo Inventario SAP",
+    "tipo": "map",
+    "valor": null
+   }
+  ],
+  "modified": "2026-04-30 22:48:05.905485",
+>>>>>>> origin/develop
   "name": "Mapeo Inventario SAP"
  }
 ]

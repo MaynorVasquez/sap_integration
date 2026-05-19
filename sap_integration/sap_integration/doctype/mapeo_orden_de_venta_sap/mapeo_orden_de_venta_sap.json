@@ -5,7 +5,12 @@
  "doctype": "DocType",
  "engine": "InnoDB",
  "field_order": [
+<<<<<<< HEAD
   "datos"
+=======
+  "datos",
+  "company_detalle"
+>>>>>>> origin/develop
  ],
  "fields": [
   {
@@ -13,13 +18,26 @@
    "fieldtype": "Table",
    "label": "datos",
    "options": "Mapeo campos"
+<<<<<<< HEAD
+=======
+  },
+  {
+   "fieldname": "company_detalle",
+   "fieldtype": "Table",
+   "label": "Coma\u00f1ias Autorizadas",
+   "options": "Campos empresas autorizadas"
+>>>>>>> origin/develop
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "issingle": 1,
  "links": [],
+<<<<<<< HEAD
  "modified": "2025-08-14 12:26:45.039273",
+=======
+ "modified": "2026-05-04 08:38:23.433335",
+>>>>>>> origin/develop
  "modified_by": "Administrator",
  "module": "Sap Integration",
  "name": "Mapeo Orden De Venta SAP",

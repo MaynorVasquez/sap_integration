@@ -1,0 +1,99 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "Format:{docnum}",
+ "creation": "2026-05-02 13:04:01.236462",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "docnum",
+  "docdate",
+  "company",
+  "doctype_mapeo",
+  "doctype_target",
+  "status",
+  "request",
+  "response"
+ ],
+ "fields": [
+  {
+   "fieldname": "docnum",
+   "fieldtype": "Link",
+   "label": "N\u00famero de factura",
+   "options": "Sales Invoice",
+   "read_only": 1
+  },
+  {
+   "fetch_from": "docnum.posting_date",
+   "fieldname": "docdate",
+   "fieldtype": "Data",
+   "label": "Fecha",
+   "read_only": 1
+  },
+  {
+   "fetch_from": "docnum.company",
+   "fieldname": "company",
+   "fieldtype": "Data",
+   "label": "Compa\u00f1ia",
+   "read_only": 1
+  },
+  {
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "in_global_search": 1,
+   "label": "Status",
+   "options": "Success\nError"
+  },
+  {
+   "fieldname": "request",
+   "fieldtype": "JSON",
+   "label": "Request"
+  },
+  {
+   "fieldname": "response",
+   "fieldtype": "Long Text",
+   "label": "Response",
+   "read_only": 1
+  },
+  {
+   "fieldname": "doctype_mapeo",
+   "fieldtype": "Data",
+   "label": "Doctype Mapeo",
+   "read_only": 1
+  },
+  {
+   "fieldname": "doctype_target",
+   "fieldtype": "Data",
+   "label": "Doctype Target",
+   "read_only": 1
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2026-05-03 12:45:59.859413",
+ "modified_by": "Administrator",
+ "module": "Sap Integration",
+ "name": "SAP Logs Transactional Invoices",
+ "naming_rule": "Expression",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "rows_threshold_for_grid_search": 20,
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

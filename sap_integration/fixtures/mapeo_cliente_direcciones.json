@@ -7,6 +7,12 @@
     "campo_erpnext": "address_title",
     "campo_sap": "AddressName",
     "nivel": "head",
+<<<<<<< HEAD
+=======
+    "parent": "Mapeo Cliente Direcciones",
+    "parentfield": "mapeo_cliente_direcciones",
+    "parenttype": "Mapeo Cliente Direcciones",
+>>>>>>> origin/develop
     "tipo": "map",
     "valor": null
    },
@@ -14,6 +20,12 @@
     "campo_erpnext": "address_line1",
     "campo_sap": "Street",
     "nivel": "head",
+<<<<<<< HEAD
+=======
+    "parent": "Mapeo Cliente Direcciones",
+    "parentfield": "mapeo_cliente_direcciones",
+    "parenttype": "Mapeo Cliente Direcciones",
+>>>>>>> origin/develop
     "tipo": "map",
     "valor": null
    },
@@ -21,6 +33,12 @@
     "campo_erpnext": "city",
     "campo_sap": "City",
     "nivel": "head",
+<<<<<<< HEAD
+=======
+    "parent": "Mapeo Cliente Direcciones",
+    "parentfield": "mapeo_cliente_direcciones",
+    "parenttype": "Mapeo Cliente Direcciones",
+>>>>>>> origin/develop
     "tipo": "map",
     "valor": null
    },
@@ -28,6 +46,12 @@
     "campo_erpnext": "county",
     "campo_sap": "County",
     "nivel": "head",
+<<<<<<< HEAD
+=======
+    "parent": "Mapeo Cliente Direcciones",
+    "parentfield": "mapeo_cliente_direcciones",
+    "parenttype": "Mapeo Cliente Direcciones",
+>>>>>>> origin/develop
     "tipo": "map",
     "valor": null
    },
@@ -35,6 +59,12 @@
     "campo_erpnext": "country",
     "campo_sap": "Country",
     "nivel": "head",
+<<<<<<< HEAD
+=======
+    "parent": "Mapeo Cliente Direcciones",
+    "parentfield": "mapeo_cliente_direcciones",
+    "parenttype": "Mapeo Cliente Direcciones",
+>>>>>>> origin/develop
     "tipo": "map",
     "valor": null
    },
@@ -42,6 +72,12 @@
     "campo_erpnext": "address_type",
     "campo_sap": "AddressType",
     "nivel": "head",
+<<<<<<< HEAD
+=======
+    "parent": "Mapeo Cliente Direcciones",
+    "parentfield": "mapeo_cliente_direcciones",
+    "parenttype": "Mapeo Cliente Direcciones",
+>>>>>>> origin/develop
     "tipo": "map",
     "valor": null
    },
@@ -49,6 +85,12 @@
     "campo_erpnext": "is_shipping_address",
     "campo_sap": "is_shipping_address",
     "nivel": "head",
+<<<<<<< HEAD
+=======
+    "parent": "Mapeo Cliente Direcciones",
+    "parentfield": "mapeo_cliente_direcciones",
+    "parenttype": "Mapeo Cliente Direcciones",
+>>>>>>> origin/develop
     "tipo": "map",
     "valor": null
    },
@@ -56,6 +98,12 @@
     "campo_erpnext": "is_primary_address",
     "campo_sap": "is_primary_address",
     "nivel": "head",
+<<<<<<< HEAD
+=======
+    "parent": "Mapeo Cliente Direcciones",
+    "parentfield": "mapeo_cliente_direcciones",
+    "parenttype": "Mapeo Cliente Direcciones",
+>>>>>>> origin/develop
     "tipo": "map",
     "valor": null
    }

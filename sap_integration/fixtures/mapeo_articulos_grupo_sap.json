@@ -1,9 +1,29 @@
 [
  {
+<<<<<<< HEAD
+=======
+  "company_detalle": [
+   {
+    "company": "Productos Alimenticios YAESTA, S.A.",
+    "endpoint": "ItemGroups",
+    "parent": "Mapeo Articulos Grupo SAP",
+    "parentfield": "company_detalle",
+    "parenttype": "Mapeo Articulos Grupo SAP"
+   },
+   {
+    "company": "Sanola Foods, LLC",
+    "endpoint": "ItemGroups",
+    "parent": "Mapeo Articulos Grupo SAP",
+    "parentfield": "company_detalle",
+    "parenttype": "Mapeo Articulos Grupo SAP"
+   }
+  ],
+>>>>>>> origin/develop
   "docstatus": 0,
   "doctype": "Mapeo Articulos Grupo SAP",
   "mapeo_articulo_grupo": [
    {
+<<<<<<< HEAD
     "campo_erpnext": null,
     "campo_sap": null,
     "nivel": "head",
@@ -14,6 +34,14 @@
     "campo_erpnext": "custom_number",
     "campo_sap": "Number",
     "nivel": "head",
+=======
+    "campo_erpnext": "custom_number",
+    "campo_sap": "Number",
+    "nivel": "head",
+    "parent": "Mapeo Articulos Grupo SAP",
+    "parentfield": "mapeo_articulo_grupo",
+    "parenttype": "Mapeo Articulos Grupo SAP",
+>>>>>>> origin/develop
     "tipo": "map",
     "valor": null
    },
@@ -21,11 +49,31 @@
     "campo_erpnext": "item_group_name",
     "campo_sap": "GroupName",
     "nivel": "head",
+<<<<<<< HEAD
+=======
+    "parent": "Mapeo Articulos Grupo SAP",
+    "parentfield": "mapeo_articulo_grupo",
+    "parenttype": "Mapeo Articulos Grupo SAP",
+    "tipo": "map",
+    "valor": null
+   },
+   {
+    "campo_erpnext": "name",
+    "campo_sap": "GroupName",
+    "nivel": "head",
+    "parent": "Mapeo Articulos Grupo SAP",
+    "parentfield": "mapeo_articulo_grupo",
+    "parenttype": "Mapeo Articulos Grupo SAP",
+>>>>>>> origin/develop
     "tipo": "map",
     "valor": null
    }
   ],
+<<<<<<< HEAD
   "modified": "2025-07-28 19:40:18.464171",
+=======
+  "modified": "2026-04-29 22:01:37.768050",
+>>>>>>> origin/develop
   "name": "Mapeo Articulos Grupo SAP"
  }
 ]

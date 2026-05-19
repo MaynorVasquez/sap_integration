@@ -6,7 +6,12 @@
  "doctype": "DocType",
  "engine": "InnoDB",
  "field_order": [
+<<<<<<< HEAD
   "mapeo_vendedores"
+=======
+  "mapeo_vendedores",
+  "company_detalle"
+>>>>>>> origin/develop
  ],
  "fields": [
   {
@@ -14,17 +19,34 @@
    "fieldtype": "Table",
    "label": "Vendedores",
    "options": "Mapeo campos"
+<<<<<<< HEAD
+=======
+  },
+  {
+   "fieldname": "company_detalle",
+   "fieldtype": "Table",
+   "label": "Empresas Autorizadas",
+   "options": "Campos empresas autorizadas"
+>>>>>>> origin/develop
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "issingle": 1,
  "links": [],
+<<<<<<< HEAD
  "modified": "2025-06-16 21:51:19.470228",
  "modified_by": "Administrator",
  "module": "Sap Integration",
  "name": "Mapeo Vendedores SAP",
  "naming_rule": "Expression",
+=======
+ "modified": "2026-04-19 15:02:53.029045",
+ "modified_by": "Administrator",
+ "module": "Sap Integration",
+ "name": "Mapeo Vendedores SAP",
+ "naming_rule": "Expression (old style)",
+>>>>>>> origin/develop
  "owner": "Administrator",
  "permissions": [
   {

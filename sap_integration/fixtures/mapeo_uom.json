@@ -1,9 +1,29 @@
 [
  {
+<<<<<<< HEAD
+=======
+  "company_detalle": [
+   {
+    "company": "Productos Alimenticios YAESTA, S.A.",
+    "endpoint": "UnitOfMeasurements",
+    "parent": "Mapeo UOM",
+    "parentfield": "company_detalle",
+    "parenttype": "Mapeo UOM"
+   },
+   {
+    "company": "Sanola Foods, LLC",
+    "endpoint": "UnitOfMeasurements",
+    "parent": "Mapeo UOM",
+    "parentfield": "company_detalle",
+    "parenttype": "Mapeo UOM"
+   }
+  ],
+>>>>>>> origin/develop
   "docstatus": 0,
   "doctype": "Mapeo UOM",
   "mapeo_uom": [
    {
+<<<<<<< HEAD
     "campo_erpnext": null,
     "campo_sap": null,
     "nivel": "head",
@@ -14,6 +34,14 @@
     "campo_erpnext": "custom_absentry",
     "campo_sap": "AbsEntry",
     "nivel": "head",
+=======
+    "campo_erpnext": "custom_absentry",
+    "campo_sap": "AbsEntry",
+    "nivel": "head",
+    "parent": "Mapeo UOM",
+    "parentfield": "mapeo_uom",
+    "parenttype": "Mapeo UOM",
+>>>>>>> origin/develop
     "tipo": "map",
     "valor": null
    },
@@ -21,11 +49,31 @@
     "campo_erpnext": "uom_name",
     "campo_sap": "Code",
     "nivel": "head",
+<<<<<<< HEAD
+=======
+    "parent": "Mapeo UOM",
+    "parentfield": "mapeo_uom",
+    "parenttype": "Mapeo UOM",
+    "tipo": "map",
+    "valor": null
+   },
+   {
+    "campo_erpnext": "name",
+    "campo_sap": "Name",
+    "nivel": "head",
+    "parent": "Mapeo UOM",
+    "parentfield": "mapeo_uom",
+    "parenttype": "Mapeo UOM",
+>>>>>>> origin/develop
     "tipo": "map",
     "valor": null
    }
   ],
+<<<<<<< HEAD
   "modified": "2025-07-28 21:20:03.092026",
+=======
+  "modified": "2026-04-29 22:11:21.839292",
+>>>>>>> origin/develop
   "name": "Mapeo UOM"
  }
 ]
