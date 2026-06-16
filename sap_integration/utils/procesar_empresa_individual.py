@@ -5,6 +5,8 @@ import json
 from sap_integration.api.logs import log_sincronizacion
 from sap_integration.api.blueprint import mapping_blueprint1, construir_url_sap
 from sap_integration.api.sap_auth import login_sap
+from sap_integration.utils.url_filtro_fecha_tiempo import construir_filtro_tiempo, inyectar_filtro_a_url
+from frappe.utils import now_datetime, add_to_date
 
 
 def procesar_empresa_individual(config, 
@@ -17,12 +19,19 @@ def procesar_empresa_individual(config,
                                 key_sap,
                                 key_erpnext,
                                 usa_paginacion=True,
-                                almacen=None):
+                                almacen=None,
+                                campos_delta=None):
     debug_messages = []
     total_procesados = 0
     session = None
     detalles = []
     try:
+
+        # 1. Obtienes la hora actual (Ej: 2026-06-11 11:50:53)
+        hora_inicio_job = now_datetime()
+        # 2. "Limpiamos" los segundos llevándolos a cero (Ej: 2026-06-11 11:50:00)
+        hora_exacta = hora_inicio_job.replace(second=0, microsecond=0)
+
         print(f"🚀 Procesando empresa: {empresa.company}")
         print(f"🚀 Procesando empresa Endpoint: {empresa.endpoint}")
 
@@ -39,12 +48,34 @@ def procesar_empresa_individual(config,
             raise Exception("No se pudo obtener el mapeo de campos desde el blueprint")
         #print(f"✔ Mapeo de campos exitoso : {json.dumps(mapeo_lista, indent=2)}")
 
+        datos_delta = frappe.db.get_value(
+            "Campos Delta Load", # <-- Nombre del DocType de la tabla HIJA
+            filters={
+                "parent": "Delta Load Transaccionales", # El padre en un Single siempre se llama igual que el DocType
+                "company": empresa.company,   # Tu variable de empresa
+                "doc_type": doctype_target,   # Ej: "Sales Order"
+                "enabled": 1                  # Solo si está marcado el check
+            },
+            fieldname=["name", "date_time"],  # Traemos la fecha y el ID único de la fila
+            as_dict=True
+        )
+        ultima_sync = None
+        fila_id = None # Guardamos el ID para actualizarla después
+
+        if datos_delta:
+            ultima_sync = datos_delta.date_time
+            fila_id = datos_delta.name
+
         # 🔁 PAGINACIÓN (tu código actual)
         top = 20
         page, skip = 1, 0
 
+        filtro_tiempo = construir_filtro_tiempo(ultima_sync, campos_delta)
+
         while True:
-            url_final = construir_url_sap(mapeo_lista, empresa.company, empresa.endpoint, usa_paginacion, almacen, top=top, skip=skip)
+            url_base = construir_url_sap(mapeo_lista, empresa.company, empresa.endpoint, usa_paginacion, almacen, top=top, skip=skip)
+            url_final = inyectar_filtro_a_url(url_base, filtro_tiempo)
+            #url_final = construir_url_sap(mapeo_lista, empresa.company, empresa.endpoint, usa_paginacion, almacen, top=top, skip=skip)
             
             print(f"✔ URL: {url_final}")
             response = session.get(url_final)
@@ -54,7 +85,6 @@ def procesar_empresa_individual(config,
             data = response.json()
             lista_datos = data.get("value", [])
             #print(f"Datos: {json.dumps(data, indent=2)}")
-
 
             detalles.extend(lista_datos)
             #print(f"Datos: {json.dumps( detalles, indent=2)}")           
@@ -75,8 +105,11 @@ def procesar_empresa_individual(config,
                 empresa.company,
                 debug_messages
             )
-
             total_procesados = len(resultados)
+        if fila_id:
+            frappe.db.set_value("Campos Delta Load", fila_id, "date_time", hora_exacta)
+            frappe.db.commit()
+            print(f"se actualizo la hora {hora_exacta}")
         else:
             debug_messages.append("⚠ No hay datos para procesar")
 

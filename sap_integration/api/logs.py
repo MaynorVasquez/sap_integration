@@ -2,13 +2,24 @@ import frappe
 from frappe import _
 import json
 
-def log_sincronizacion(doctype, docname, company,status="Éxito", total=0, detalles=None, errores=None):
+
+def log_sincronizacion(
+    doctype,
+    docname,
+    company,
+    status="Éxito",
+    total=0,
+    detalles=None,
+    errores=None
+):
     try:
+        MAX_LOG_SIZE = 100000  # caracteres máximos
+
         if not docname:
             docname = f"LOG-{frappe.utils.now()}"
 
         if not doctype:
-            frappe.log_error("No se especificó doctype para log_sincronizacion")
+            print("No se especificó doctype para log_sincronizacion")
             return
 
         if frappe.db.exists(doctype, docname):
@@ -21,27 +32,52 @@ def log_sincronizacion(doctype, docname, company,status="Éxito", total=0, detal
         doc.total_records = total
         doc.company = company
 
-        # Asegura que 'detalles' siempre sea un JSON válido
+        # Normalizar detalles
         if isinstance(detalles, str):
             detalles = {"mensaje": detalles}
+
         elif detalles is None:
             detalles = []
 
         try:
-            doc.details = json.dumps(detalles, indent=2, ensure_ascii=False)
-            # Validación adicional para evitar errores en MySQL con json_valid()
-            json.loads(doc.details)
-        except Exception as json_error:
-            frappe.log_error(f"Detalles no es JSON válido: {json_error}")
-            doc.details = json.dumps({"error": "Formato inválido en detalles"})
+            payload = json.dumps(
+                detalles,
+                indent=2,
+                ensure_ascii=False,
+                default=str
+            )
 
-        doc.error_log = errores if errores else ""
+            original_size = len(payload)
+
+            if original_size > MAX_LOG_SIZE:
+                payload = (
+                    payload[:MAX_LOG_SIZE]
+                    + f"\n\n... TRUNCADO ..."
+                    + f"\nTamaño original: {original_size} caracteres"
+                )
+
+            doc.details = payload
+
+        except Exception as json_error:
+
+            doc.details = (
+                f"Error serializando detalles: {str(json_error)}"
+            )
+
+        doc.error_log = (
+            str(errores)[:5000]
+            if errores else ""
+        )
 
         doc.save(ignore_permissions=True)
         frappe.db.commit()
 
     except Exception as e:
-        frappe.log_error(f"Error en log_sincronizacion para {doctype} {docname}: {str(e)}")
+        # Evitar frappe.log_error porque puede fallar si DB murió
+        print(
+            f"Error en log_sincronizacion "
+            f"para {doctype} {docname}: {str(e)}"
+        )
 
 
 

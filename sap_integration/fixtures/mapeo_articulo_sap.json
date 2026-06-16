@@ -15,7 +15,7 @@
    {
     "campo_erpnext": null,
     "campo_sap": "U_smart_art",
-    "nivel": "head",
+    "nivel": "Texto",
     "parent": "Mapeo Articulo SAP",
     "parentfield": "mapeo_articulo_sap",
     "parenttype": "Mapeo Articulo SAP",
@@ -203,7 +203,7 @@
     "valor": null
    }
   ],
-  "modified": "2026-05-05 11:54:13.639988",
+  "modified": "2026-05-22 17:57:04.174148",
   "name": "Mapeo Articulo SAP"
  }
 ]

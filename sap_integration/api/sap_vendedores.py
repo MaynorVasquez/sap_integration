@@ -124,26 +124,3 @@ def procesar_datos(registros_sap, mapeo_lista, doctype, company,debug_messages):
             frappe.log_error(f"Error al procesar lista vendedor {sap_id}: {str(e)}\n{traceback.format_exc()}")
             return None
     return None, None
-
-# @frappe.whitelist()
-# def asignar_vendedor_por_codigo_sap(datos_doc, sales_employee_code, campo_destino="sales_person", reintento=True):
-#     """
-#     Asigna el 'name' del Sales Person (buscado por custom_salesemployeecode=sales_employee_code)
-#     al campo especificado en datos_doc (por defecto 'sales_person').
-
-#     Si el vendedor no existe y reintento=True, intenta sincronizar desde SAP y reintenta la asignación.
-#     """
-#     if not sales_employee_code or str(sales_employee_code) == "-1":
-#         return False  # Nada que asignar
-
-#     vendedor_name = frappe.db.get_value("Sales Person", {"custom_salesemployeecode": sales_employee_code}, "name")
-
-#     if vendedor_name:
-#         datos_doc[campo_destino] = vendedor_name
-#         return True
-#     elif reintento:
-#         sincronizar_lista_vendedores()  # Asegúrate de que esta función está disponible
-#         return asignar_vendedor_por_codigo_sap(datos_doc, sales_employee_code, campo_destino, reintento=False)
-#     else:
-#         frappe.logger().info(f"No se encontró Sales Person con custom_salesemployeecode = {sales_employee_code} tras reintento")
-#         return False

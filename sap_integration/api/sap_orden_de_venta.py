@@ -1,4 +1,3 @@
-
 from frappe import _
 import frappe
 from datetime import date
@@ -140,6 +139,17 @@ def construir_payload_sap(doc, mapeo):
 
         if valor is not None:
             payload[campo_sap] = valor
+    # Obtener impuestos de la factura
+    tax_code_sap = None
+    plantilla_impuestos = doc.get("taxes_and_charges")
+
+    if plantilla_impuestos:
+        # Buscamos el código de SAP directamente en el maestro de la plantilla
+        tax_code_sap = frappe.get_cached_value(
+            "Sales Taxes and Charges Template", 
+            plantilla_impuestos, 
+            "custom_taxcode"
+        )
 
     # === DETALLE dinámico ===
     for idx, item in enumerate(doc.get("items", [])):
@@ -163,6 +173,8 @@ def construir_payload_sap(doc, mapeo):
                     valor = uom_doc.get("custom_absentry") or uom_name
             elif campo_erp == "item_code":
                 valor = item_code_limpio
+            elif campo_erp == "account_head":
+                valor = tax_code_sap
             else:
                 valor = item.get(campo_erp)
 

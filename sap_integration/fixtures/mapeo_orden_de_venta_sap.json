@@ -131,8 +131,68 @@
     "valor": null
    },
    {
+    "campo_erpnext": "DocumentLines",
+    "campo_sap": "DocumentLines",
+    "nivel": "head",
+    "parent": "Mapeo Orden De Venta SAP",
+    "parentfield": "datos",
+    "parenttype": "Mapeo Orden De Venta SAP",
+    "tipo": "map",
+    "valor": null
+   },
+   {
+    "campo_erpnext": "custom_docnum",
+    "campo_sap": "DocNum",
+    "nivel": "head",
+    "parent": "Mapeo Orden De Venta SAP",
+    "parentfield": "datos",
+    "parenttype": "Mapeo Orden De Venta SAP",
+    "tipo": "map",
+    "valor": null
+   },
+   {
     "campo_erpnext": "custom_gln",
     "campo_sap": "U_GLN",
+    "nivel": "head",
+    "parent": "Mapeo Orden De Venta SAP",
+    "parentfield": "datos",
+    "parenttype": "Mapeo Orden De Venta SAP",
+    "tipo": "map",
+    "valor": null
+   },
+   {
+    "campo_erpnext": "CreationDate",
+    "campo_sap": "CreationDate",
+    "nivel": "head",
+    "parent": "Mapeo Orden De Venta SAP",
+    "parentfield": "datos",
+    "parenttype": "Mapeo Orden De Venta SAP",
+    "tipo": "map",
+    "valor": null
+   },
+   {
+    "campo_erpnext": "DocTime",
+    "campo_sap": "DocTime",
+    "nivel": "head",
+    "parent": "Mapeo Orden De Venta SAP",
+    "parentfield": "datos",
+    "parenttype": "Mapeo Orden De Venta SAP",
+    "tipo": "map",
+    "valor": null
+   },
+   {
+    "campo_erpnext": "UpdateDate",
+    "campo_sap": "UpdateDate",
+    "nivel": "head",
+    "parent": "Mapeo Orden De Venta SAP",
+    "parentfield": "datos",
+    "parenttype": "Mapeo Orden De Venta SAP",
+    "tipo": "map",
+    "valor": null
+   },
+   {
+    "campo_erpnext": "UpdateTime",
+    "campo_sap": "UpdateTime",
     "nivel": "head",
     "parent": "Mapeo Orden De Venta SAP",
     "parentfield": "datos",
@@ -152,7 +212,7 @@
    },
    {
     "campo_erpnext": "item_name",
-    "campo_sap": "ItemName",
+    "campo_sap": "ItemDescription",
     "nivel": "DocumentLines",
     "parent": "Mapeo Orden De Venta SAP",
     "parentfield": "datos",
@@ -211,8 +271,68 @@
     "valor": null
    },
    {
+    "campo_erpnext": "custom_linenum",
+    "campo_sap": "LineNum",
+    "nivel": "DocumentLines",
+    "parent": "Mapeo Orden De Venta SAP",
+    "parentfield": "datos",
+    "parenttype": "Mapeo Orden De Venta SAP",
+    "tipo": "map",
+    "valor": null
+   },
+   {
     "campo_erpnext": "warehouse",
     "campo_sap": "WarehouseCode",
+    "nivel": "DocumentLines",
+    "parent": "Mapeo Orden De Venta SAP",
+    "parentfield": "datos",
+    "parenttype": "Mapeo Orden De Venta SAP",
+    "tipo": "map",
+    "valor": null
+   },
+   {
+    "campo_erpnext": "TaxPercentagePerRow",
+    "campo_sap": "TaxPercentagePerRow",
+    "nivel": "DocumentLines",
+    "parent": "Mapeo Orden De Venta SAP",
+    "parentfield": "datos",
+    "parenttype": "Mapeo Orden De Venta SAP",
+    "tipo": "map",
+    "valor": null
+   },
+   {
+    "campo_erpnext": null,
+    "campo_sap": "DocumentStatus",
+    "nivel": "Texto",
+    "parent": "Mapeo Orden De Venta SAP",
+    "parentfield": "datos",
+    "parenttype": "Mapeo Orden De Venta SAP",
+    "tipo": "filter",
+    "valor": "bost_Open"
+   },
+   {
+    "campo_erpnext": null,
+    "campo_sap": "DocNum",
+    "nivel": "Numero",
+    "parent": "Mapeo Orden De Venta SAP",
+    "parentfield": "datos",
+    "parenttype": "Mapeo Orden De Venta SAP",
+    "tipo": "filter",
+    "valor": "198728"
+   },
+   {
+    "campo_erpnext": "ERPNEXT_Price",
+    "campo_sap": "Price",
+    "nivel": "DocumentLines",
+    "parent": "Mapeo Orden De Venta SAP",
+    "parentfield": "datos",
+    "parenttype": "Mapeo Orden De Venta SAP",
+    "tipo": "map",
+    "valor": null
+   },
+   {
+    "campo_erpnext": "ERPNEXT_PriceAfterVAT",
+    "campo_sap": "PriceAfterVAT",
     "nivel": "DocumentLines",
     "parent": "Mapeo Orden De Venta SAP",
     "parentfield": "datos",
@@ -223,7 +343,7 @@
   ],
   "docstatus": 0,
   "doctype": "Mapeo Orden De Venta SAP",
-  "modified": "2026-05-04 08:39:07.785497",
+  "modified": "2026-06-15 13:11:11.869027",
   "name": "Mapeo Orden De Venta SAP"
  }
 ]

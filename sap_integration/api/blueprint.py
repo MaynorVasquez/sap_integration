@@ -17,6 +17,7 @@ def construir_url_sap(mapeo_lista: dict, empresa,endpoint, usa_paginacion=True, 
         base_url = f"{url.rstrip('/')}/{endpoint.lstrip('/')}"
         campos = mapeo_lista.get("sap_fields", {}).get("head", {})
         filtros = mapeo_lista.get("filters", [])
+        print(f"filtros: {filtros}")
         
         params = []
 
@@ -102,7 +103,7 @@ def mapping_blueprint1(doctype, key_field_sap, key_field_erpnext):
         valor = (item.get("valor") or "").strip()
         nivel = (item.get("nivel") or "").strip()
         #print(f"línea con valores: {tipo} | {campo_erp} | {campo_sap} | {nivel}")
-        if nivel not in ["head", "DocumentLines", "BatchNumbers"]:
+        if nivel not in ["head", "DocumentLines", "BatchNumbers","Numero","Texto"]:
             nivel = "DocumentLines"
 
         if tipo == "map":
@@ -117,12 +118,18 @@ def mapping_blueprint1(doctype, key_field_sap, key_field_erpnext):
 
         elif tipo == "filter" and campo_sap and valor:
             valores = [v.strip() for v in valor.split(",") if v.strip()]
-            if len(valores) > 1:
-                #filtro = f"{campo_sap} in ({', '.join([f'\'{v}\'' for v in valores])})"
-                valores_con_comillas = [f"'{v}'" for v in valores]
-                filtro = f"{campo_sap} in ({', '.join(valores_con_comillas)})"
+            # Formatear valores según tipo
+            print(f"valor de nivel: {nivel}")
+            if nivel.strip().lower() == "numero":
+                valores_formateados = [v.replace("'", "") for v in valores]
+                print(f"nuevo valor {valores_formateados}")
             else:
-                filtro = f"{campo_sap} eq '{valores[0]}'"
+                valores_formateados = [f"'{v}'" for v in valores]
+            if len(valores) > 1:
+                filtro = f"{campo_sap} in ({', '.join(valores_formateados)})"
+            else:
+                operador = valores_formateados[0]
+                filtro = f"{campo_sap} eq {operador}"
             mapeo["filters"].append(filtro)
 
     if not any(mapeo["sap_fields"].values()) and not mapeo["url"]:
@@ -131,18 +138,6 @@ def mapping_blueprint1(doctype, key_field_sap, key_field_erpnext):
     return mapeo
 
 def obtener_mapeo(doctype_padre, doctype_hijo, campos_mapeo):
-    """
-    Función genérica para obtener mapeos entre sistemas
-
-    Args:
-        doctype_padre (str): Nombre del Doctype padre (ej: "Mapeo Cliente")
-        doctype_hijo (str): Nombre del Doctype hijo/table (ej: "Mapeo Campos SAP")
-        campos_mapeo (dict): Diccionario con los campos a mapear 
-                             (ej: {"campo_erp": "campo_erpnext", "campo_externo": "campo_sap"})
-
-    Returns:
-        dict: {"success": bool, "data": list, "count": int, "error": str}
-    """
     try:
         # Validación de existencia de Doctypes
         if not frappe.db.exists("DocType", doctype_padre):

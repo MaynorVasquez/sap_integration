@@ -6,10 +6,10 @@ def logs_transactional(doctype, docnum, status, request, response, doctype_mapeo
     log_name = docnum  # Usamos el ID de la factura como nombre del log
 
     # Asegurar que el request sea un string JSON si viene como dict
-    request_str = json.dumps(request, indent=4) if isinstance(request, (dict, list)) else request
+    request_str = json.dumps(request, indent=4, default=str) if isinstance(request, (dict, list)) else request
     
     # Asegurar que la respuesta sea string
-    response_str = json.dumps(response, indent=4) if isinstance(response, (dict, list)) else str(response)
+    response_str = json.dumps(response, indent=4, default=str) if isinstance(response, (dict, list)) else str(response)
 
     if frappe.db.exists(doctype, log_name):
         # Actualizar existente

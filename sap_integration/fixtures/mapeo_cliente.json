@@ -22,7 +22,7 @@
    {
     "campo_erpnext": null,
     "campo_sap": "U_smart_cli",
-    "nivel": "head",
+    "nivel": "Texto",
     "parent": "Mapeo Cliente",
     "parentfield": "mapeo_cliente",
     "parenttype": "Mapeo Cliente",
@@ -280,7 +280,7 @@
     "valor": null
    }
   ],
-  "modified": "2026-05-05 11:16:47.430022",
+  "modified": "2026-05-22 17:57:18.059056",
   "name": "Mapeo Cliente"
  }
 ]

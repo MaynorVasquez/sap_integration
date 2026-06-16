@@ -2,7 +2,7 @@
  "actions": [],
  "allow_rename": 1,
  "autoname": "Format:{docnum}",
- "creation": "2026-05-02 13:04:01.236462",
+ "creation": "2026-06-11 18:45:00.356348",
  "doctype": "DocType",
  "engine": "InnoDB",
  "field_order": [
@@ -18,32 +18,35 @@
  "fields": [
   {
    "fieldname": "docnum",
-   "fieldtype": "Link",
-   "label": "N\u00famero de factura",
-   "options": "Sales Invoice",
-   "read_only": 1
+   "fieldtype": "Data",
+   "label": "N\u00famero de Orden de Venta"
   },
   {
-   "fetch_from": "docnum.posting_date",
    "fieldname": "docdate",
-   "fieldtype": "Data",
-   "label": "Fecha",
-   "read_only": 1
+   "fieldtype": "Date",
+   "label": "Fecha"
   },
   {
-   "fetch_from": "docnum.company",
    "fieldname": "company",
-   "fieldtype": "Data",
+   "fieldtype": "Link",
    "label": "Compa\u00f1ia",
-   "read_only": 1
+   "options": "Company"
+  },
+  {
+   "fieldname": "doctype_mapeo",
+   "fieldtype": "Data",
+   "label": "doctype_mapeo"
+  },
+  {
+   "fieldname": "doctype_target",
+   "fieldtype": "Data",
+   "label": "doctype_target"
   },
   {
    "fieldname": "status",
    "fieldtype": "Select",
-   "in_global_search": 1,
    "label": "Status",
-   "options": "Success\nError",
-   "read_only": 1
+   "options": "Success\nError"
   },
   {
    "fieldname": "request",
@@ -53,29 +56,16 @@
   {
    "fieldname": "response",
    "fieldtype": "Long Text",
-   "label": "Response",
-   "read_only": 1
-  },
-  {
-   "fieldname": "doctype_mapeo",
-   "fieldtype": "Data",
-   "label": "Doctype Mapeo",
-   "read_only": 1
-  },
-  {
-   "fieldname": "doctype_target",
-   "fieldtype": "Data",
-   "label": "Doctype Target",
-   "read_only": 1
+   "label": "Response"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2026-05-22 11:05:52.321776",
+ "modified": "2026-06-11 19:17:46.396451",
  "modified_by": "Administrator",
  "module": "Sap Integration",
- "name": "SAP Logs Transactional Invoices",
+ "name": "ERPNEXT Logs Transactional Sales Order",
  "naming_rule": "Expression",
  "owner": "Administrator",
  "permissions": [
