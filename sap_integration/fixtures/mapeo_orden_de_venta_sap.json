@@ -311,16 +311,6 @@
     "valor": "bost_Open"
    },
    {
-    "campo_erpnext": null,
-    "campo_sap": "DocNum",
-    "nivel": "Numero",
-    "parent": "Mapeo Orden De Venta SAP",
-    "parentfield": "datos",
-    "parenttype": "Mapeo Orden De Venta SAP",
-    "tipo": "filter",
-    "valor": "198728"
-   },
-   {
     "campo_erpnext": "ERPNEXT_Price",
     "campo_sap": "Price",
     "nivel": "DocumentLines",
@@ -343,7 +333,7 @@
   ],
   "docstatus": 0,
   "doctype": "Mapeo Orden De Venta SAP",
-  "modified": "2026-06-15 13:11:11.869027",
+  "modified": "2026-06-19 19:01:30.071864",
   "name": "Mapeo Orden De Venta SAP"
  }
 ]

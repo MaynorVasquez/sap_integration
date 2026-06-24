@@ -1,7 +1,7 @@
 {
  "charts": [],
  "content": "[{\"id\":\"0eEPkxeRf9\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\">SAP Integration</span>\",\"col\":12}},{\"id\":\"10tE37o8kY\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"UNzOXoj4D1\",\"type\":\"card\",\"data\":{\"card_name\":\"Configuraci\u00f3n\",\"col\":4}},{\"id\":\"aQLhGKJQ05\",\"type\":\"card\",\"data\":{\"card_name\":\"Sincronizacion de datos\",\"col\":4}},{\"id\":\"TnKYAo1z4m\",\"type\":\"card\",\"data\":{\"card_name\":\"Sincronizar datos maestros\",\"col\":4}},{\"id\":\"_kdfA6VaV3\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\"><b>                          Mapeo de datos para el funcionamiento del consumo de la API</b></span>\",\"col\":12}},{\"id\":\"ZJC_5u2EfM\",\"type\":\"card\",\"data\":{\"card_name\":\"Mapeo de datos iniciales\",\"col\":4}},{\"id\":\"Bn0A-g2C5s\",\"type\":\"card\",\"data\":{\"card_name\":\"Mapeo de datos maestros\",\"col\":4}},{\"id\":\"eKVZqezt5a\",\"type\":\"card\",\"data\":{\"card_name\":\"Mapeo datos transaccionales\",\"col\":4}},{\"id\":\"l1dnW91ReA\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\"><b>Historial de datos sincronizados desde SAP</b></span>\",\"col\":12}},{\"id\":\"Dz9dHk1pad\",\"type\":\"card\",\"data\":{\"card_name\":\"Datos maestros sincronizados\",\"col\":4}},{\"id\":\"4PgGpl7scu\",\"type\":\"card\",\"data\":{\"card_name\":\"Logs transaccionales\",\"col\":4}}]",
- "creation": "2026-05-17 20:21:47.045110",
+ "creation": "2026-06-16 08:21:06.852110",
  "custom_blocks": [],
  "docstatus": 0,
  "doctype": "Workspace",
@@ -162,8 +162,86 @@
   {
    "hidden": 0,
    "is_query_report": 0,
+   "label": "Configuraci\u00f3n",
+   "link_count": 3,
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Card Break"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "SAP Credentials",
+   "link_count": 0,
+   "link_to": "SAP Credentials",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Usuarios autorizados",
+   "link_count": 0,
+   "link_to": "Usuarios autorizados",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Horarios de carga de datos",
+   "link_count": 0,
+   "link_to": "Delta Load Transaccionales",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Logs transaccionales",
+   "link_count": 3,
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Card Break"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "SAP Logs Transactional Invoices",
+   "link_count": 0,
+   "link_to": "SAP Logs Transactional Invoices",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "SAP Logs Transactional Sales Order",
+   "link_count": 0,
+   "link_to": "SAP Logs Transactional Sales Order",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "ERPNEXT Logs Transactional Sales Order",
+   "link_count": 0,
+   "link_to": "ERPNEXT Logs Transactional Sales Order",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
    "label": "Mapeo de datos iniciales",
-   "link_count": 10,
+   "link_count": 11,
    "link_type": "DocType",
    "onboard": 0,
    "type": "Card Break"
@@ -271,8 +349,18 @@
   {
    "hidden": 0,
    "is_query_report": 0,
+   "label": "Mapeo Precios Especiales SN SAP",
+   "link_count": 0,
+   "link_to": "Mapeo Precios Especiales SN SAP",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
    "label": "Sincronizacion de datos",
-   "link_count": 7,
+   "link_count": 8,
    "link_type": "DocType",
    "onboard": 0,
    "type": "Card Break"
@@ -350,83 +438,15 @@
   {
    "hidden": 0,
    "is_query_report": 0,
-   "label": "Configuraci\u00f3n",
-   "link_count": 3,
-   "link_type": "DocType",
-   "onboard": 0,
-   "type": "Card Break"
-  },
-  {
-   "hidden": 0,
-   "is_query_report": 0,
-   "label": "SAP Credentials",
+   "label": "Sincronizacion Precios Especiales SN SAP",
    "link_count": 0,
-   "link_to": "SAP Credentials",
-   "link_type": "DocType",
-   "onboard": 0,
-   "type": "Link"
-  },
-  {
-   "hidden": 0,
-   "is_query_report": 0,
-   "label": "Usuarios autorizados",
-   "link_count": 0,
-   "link_to": "Usuarios autorizados",
-   "link_type": "DocType",
-   "onboard": 0,
-   "type": "Link"
-  },
-  {
-   "hidden": 0,
-   "is_query_report": 0,
-   "label": "Horarios de carga de datos",
-   "link_count": 0,
-   "link_to": "Delta Load Transaccionales",
-   "link_type": "DocType",
-   "onboard": 0,
-   "type": "Link"
-  },
-  {
-   "hidden": 0,
-   "is_query_report": 0,
-   "label": "Logs transaccionales",
-   "link_count": 3,
-   "link_type": "DocType",
-   "onboard": 0,
-   "type": "Card Break"
-  },
-  {
-   "hidden": 0,
-   "is_query_report": 0,
-   "label": "SAP Logs Transactional Invoices",
-   "link_count": 0,
-   "link_to": "SAP Logs Transactional Invoices",
-   "link_type": "DocType",
-   "onboard": 0,
-   "type": "Link"
-  },
-  {
-   "hidden": 0,
-   "is_query_report": 0,
-   "label": "SAP Logs Transactional Sales Order",
-   "link_count": 0,
-   "link_to": "SAP Logs Transactional Sales Order",
-   "link_type": "DocType",
-   "onboard": 0,
-   "type": "Link"
-  },
-  {
-   "hidden": 0,
-   "is_query_report": 0,
-   "label": "ERPNEXT Logs Transactional Sales Order",
-   "link_count": 0,
-   "link_to": "ERPNEXT Logs Transactional Sales Order",
+   "link_to": "Sincronizacion Precios Especiales SN SAP",
    "link_type": "DocType",
    "onboard": 0,
    "type": "Link"
   }
  ],
- "modified": "2026-06-12 12:55:57.140521",
+ "modified": "2026-06-24 11:45:21.438448",
  "modified_by": "Administrator",
  "module": "Sap Integration",
  "name": "SAP Integration",
