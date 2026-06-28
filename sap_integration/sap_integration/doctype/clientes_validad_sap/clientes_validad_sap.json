@@ -1,0 +1,44 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2026-06-25 12:54:57.766247",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "clientes_campos_validar"
+ ],
+ "fields": [
+  {
+   "fieldname": "clientes_campos_validar",
+   "fieldtype": "Table",
+   "label": "Clientes Validar SAP",
+   "options": "Campos Clientes documentos validar SAP"
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "issingle": 1,
+ "links": [],
+ "modified": "2026-06-27 15:23:13.582204",
+ "modified_by": "Administrator",
+ "module": "Sap Integration",
+ "name": "Clientes validad SAP",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "print": 1,
+   "read": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "rows_threshold_for_grid_search": 20,
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

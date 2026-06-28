@@ -7,7 +7,10 @@ from .blueprint import mapping_blueprint1
 from .usuarios_autorizados import verificar_autorizacion
 from sap_integration.utils.url_endpoint_post import url_endpoint_post
 from sap_integration.utils.logs_transactional import logs_transactional
+from sap_integration.utils.obtener_filtros_validacion_sap import obtener_filtros_validacion_sap
 import requests
+from frappe.utils import flt
+import json
 
 def enviar_ov(doc, method):
     debug_messages = []
@@ -32,30 +35,58 @@ def enviar_ov(doc, method):
         # 1. Login a SAP
         session = login_sap(company)
         if not session or not isinstance(session, requests.Session):
-            raise Exception("La sesión SAP no se creó correctamente")
-        debug_messages.append("✔ Autenticación exitosa")
+            print("La sesión SAP no se creó correctamente")
+        print("✔ Autenticación exitosa")
+
+        # Si ya tiene referencia SAP no hacer nada
+        if doc.custom_docnum:
+            print(
+                f"La OV {doc.name} ya tiene DocNum SAP: "
+                f"{doc.custom_docnum}"
+            )
+            return
 
         # 2. Obtener el mapeo del blueprint
         mapeo = mapping_blueprint1(doctype_mapeo,"DocEntry","DocEntry")
         if not mapeo or "sap_fields" not in mapeo:
             frappe.throw(_("No se pudo obtener el mapeo de campos desde el blueprint"))
+        print("Mapeo exitoso")
 
-        # 2b. Verificar si la orden ya existe en SAP (U_OrdenDeCompra = po_no y Cancelled = 'tNO')
-        filter_url = f"{url}?$filter=U_OrdenDeCompra eq '{doc.po_no}' and U_GLN eq '{doc.custom_gln}' and Cancelled eq 'tNO'"
-        check_resp = session.get(filter_url, timeout=30)
-        if check_resp.status_code == 200:
-            existing = check_resp.json().get("value", [])
-            if existing:
-                sap_docnum = existing[0].get("DocNum")
-                frappe.msgprint(_("La orden ya existe en SAP con DocNum: {0}").format(sap_docnum))
-                frappe.db.set_value("Sales Order", doc.name, "custom_docnum", sap_docnum)
-                frappe.db.commit()
-                return existing[0]  # No se envía POST nuevamente        
+        # =================================================================
+        # 2b. VALIDACIÓN DINÁMICA DE DUPLICADOS DESDE CONFIGURACIÓN UI
+        # =================================================================
+        filtros = ["Cancelled eq 'tNO'"]
+        ejecutar_validacion = False
+        ejecutar_validacion, filtros_dinamicos = obtener_filtros_validacion_sap(
+            doc.customer, 
+            doctype_actual, 
+            doc
+        )
+        # Ejecutar la petición a SAP solo si pasó los criterios dinámicos
+        print(f"Validacion es: {ejecutar_validacion}")
+        if ejecutar_validacion:
+            filtros.extend(filtros_dinamicos)
+            filter_url = f"{url}?$filter={' and '.join(filtros)}"
+            print(f"Validando duplicados en SAP con la URL: {filter_url}")
+
+            check_resp = session.get(filter_url, timeout=30)
+            if check_resp.status_code == 200:
+                existing = check_resp.json().get("value", [])
+                if existing:
+                    sap_docnum = existing[0].get("DocNum")
+                    frappe.msgprint(_("La orden ya existe en SAP con DocNum: {0}").format(sap_docnum))
+                    frappe.db.set_value("Sales Order", doc.name, "custom_docnum", sap_docnum)
+                    frappe.db.commit()
+                    return existing[0]  # Se detiene la ejecución, evita el POST duplicado
+        else:
+            print("Omitiendo validación: Cliente no configurado o campos de control vacíos.")
+
+
 
         # 3. Construir el payload usando el doc completo
         payload = construir_payload_sap(doc, mapeo)
-        debug_messages.append(f"✔ Payload construido: {payload}")
-
+        print(f"URL: {url}")
+        print(f"Datos: {json.dumps(payload, indent=2)}")
         # 5. Enviar a SAP
         response = session.post(
             url,
@@ -63,7 +94,7 @@ def enviar_ov(doc, method):
             headers={"Content-Type": "application/json"},
             timeout=30
         )
-
+        print(f"Respuesta SAP: {response}")
         # 6. Validar respuesta
         if response.status_code in (200, 201):
             data = response.json()
@@ -76,10 +107,6 @@ def enviar_ov(doc, method):
                 frappe.db.commit()
             logs_transactional(doctype_logs, doc, "Success" , payload, respuesta, doctype_mapeo,doctype_target)
             return data
-        else:
-            logs_transactional(doctype_logs, doc,"Error" ,payload, response.text, doctype_mapeo,doctype_target)
-            frappe.log_error(response.text, "Error al enviar OV a SAP")
-            frappe.throw(_("Error al enviar la factura a SAP: {0}").format(response.text))
 
     except Exception as e:
         frappe.log_error(frappe.get_traceback(), "Excepción enviando SAP")
@@ -92,95 +119,113 @@ def construir_payload_sap(doc, mapeo):
         "DocumentLines": []
     }
 
-    # === HEAD dinámico ===
-        # HEAD
+    # === HEAD DINÁMICO ===
     for campo_erp, campo_sap in mapeo["sap_fields"].get("head", {}).items():
+        # 1. Asignar por defecto el valor directo de ERPNext (ej: po_no)
+        valor = doc.get(campo_erp)
+        # 2. Interceptar solo si el campo requiere una transformación especial
         if campo_erp == "customer":
-            customer_code = doc.get("customer")
-            if customer_code:
-                customer_doc = frappe.get_doc("Customer", customer_code)
-                valor = customer_doc.get("custom_cardcode") or customer_code
-            else:
-                valor = None
+            if valor:
+                customer_doc = frappe.get_cached_doc("Customer", valor)
+                valor = customer_doc.get("custom_cardcode") or valor
+
         elif campo_erp == "custom_nit":
             customer_code = doc.get("customer")
             if customer_code:
-                customer_doc = frappe.get_doc("Customer", customer_code)
+                customer_doc = frappe.get_cached_doc("Customer", customer_code)
                 valor = customer_doc.get("custom_nit")
             else:
                 valor = None
+
         elif campo_erp == "currency":
-            moneda_erp = doc.get("currency")
-            valor = "QTZ" if moneda_erp == "GTQ" else moneda_erp
-        elif campo_erp == "U_Vendedor":  # ← nuevo campo que ya está mapeado
+            if valor == "GTQ":
+                valor = "QTZ"
+
+        # Evaluamos por campo_sap para asegurar la lógica del negocio de SAP
+        elif campo_sap == "U_Vendedor":
             sales_team = doc.get("sales_team") or []
-            if sales_team:
-                valor = sales_team[0].sales_person
-            else:
-                valor = None
-        elif campo_erp == "SalesPersonCode":  # ← nuevo campo que ya está mapeado
+            valor = sales_team[0].sales_person if sales_team else None
+
+        elif campo_sap == "SalesPersonCode":
             sales_team = doc.get("sales_team") or []
             if sales_team:
                 vendedor_code = sales_team[0].sales_person
-                vededor_doc = frappe.get_doc("Sales Person", vendedor_code)
-                valor = vededor_doc.get("custom_salesemployeecode") or vendedor_code
+                vendedor_doc = frappe.get_cached_doc("Sales Person", vendedor_code)
+                valor = vendedor_doc.get("custom_salesemployeecode") or vendedor_code
             else:
                 valor = None
+
         elif campo_erp == "shipping_address_name":
-            shiptocode = doc.get("shipping_address_name") or ""   # Si es None → ""
+            shiptocode = valor or ""
             if shiptocode and shiptocode.lower().endswith(("-envío", "-facturación", "-shipping", "-billing")):
                 shiptocode = shiptocode.rsplit("-", 1)[0].strip()
             valor = shiptocode
-        else:
-            valor = doc.get(campo_erp)
-            # Si es fecha, convertir a string YYYYMMDD
-            if isinstance(valor, date):
-                valor = valor.strftime("%Y%m%d")
 
+        # Formateo automático de fechas para cualquier campo mapeado del HEAD
+        if isinstance(valor, date):
+            valor = valor.strftime("%Y%m%d")
+
+        # 3. Guardar en el payload si el valor es válido
         if valor is not None:
             payload[campo_sap] = valor
-    # Obtener impuestos de la factura
+
+
+    # --- Procesamiento previo de Impuestos para el Detalle ---
     tax_code_sap = None
     plantilla_impuestos = doc.get("taxes_and_charges")
 
     if plantilla_impuestos:
-        # Buscamos el código de SAP directamente en el maestro de la plantilla
         tax_code_sap = frappe.get_cached_value(
             "Sales Taxes and Charges Template", 
             plantilla_impuestos, 
             "custom_taxcode"
         )
+        
+    iva_rate = 0
+    if doc.get("taxes"):
+        iva_rate = flt(doc.taxes[0].rate)
+    factor_iva = 1 + (iva_rate / 100)
 
-    # === DETALLE dinámico ===
+
+    # === DETALLE DINÁMICO (DocumentLines) ===
     for idx, item in enumerate(doc.get("items", [])):
         linea = {"LineNum": str(idx)}
-        # Obtenemos el item_doc una sola vez por cada línea para ahorrar recursos
-        item_code_original = item.get("item_code")
-        item_doc = frappe.get_cached_doc("Item", item_code_original) if item_code_original else None
-        item_code_limpio = item_doc.get("custom_itemcode") or item_code_original if item_doc else item_code_original
+        
         for campo_erp, campo_sap in mapeo["sap_fields"].get("DocumentLines", {}).items():
+            # 1. Asignar por defecto el valor de la línea de ERPNext
+            valor = item.get(campo_erp)
+
+            # 2. Interceptar transformaciones especiales de las líneas
             if campo_erp == "warehouse":
-                valor = None
-                warehouse_code = item.get("warehouse")
-                if warehouse_code:
-                    wh_doc = frappe.get_doc("Warehouse", warehouse_code)
-                    valor = wh_doc.get("custom_warehousecode") or warehouse_code
+                if valor:
+                    wh_doc = frappe.get_cached_doc("Warehouse", valor)
+                    valor = wh_doc.get("custom_warehousecode") or valor
+
             elif campo_erp == "uom":
-                valor = None
-                uom_name = item.get("uom")
-                if uom_name:
-                    uom_doc = frappe.get_doc("UOM", uom_name)
-                    valor = uom_doc.get("custom_absentry") or uom_name
+                if valor:
+                    uom_doc = frappe.get_cached_doc("UOM", valor)
+                    valor = uom_doc.get("custom_absentry") or valor
+
             elif campo_erp == "item_code":
-                valor = item_code_limpio
+                if valor:
+                    item_doc = frappe.get_cached_doc("Item", valor)
+                    valor = item_doc.get("custom_itemcode") or valor
+
             elif campo_erp == "account_head":
                 valor = tax_code_sap
-            else:
-                valor = item.get(campo_erp)
 
+            elif campo_erp == "net_rate":
+                descuento = flt(item.get("discount_amount"))  
+                if descuento > 0:
+                    valor = flt(valor or 0) + (descuento / factor_iva)
+            elif campo_erp == "custom_linenum":
+                valor = str(idx)
+
+            # 3. Guardar en la línea si el valor es válido
             if valor is not None:
                 linea[campo_sap] = valor
 
         payload["DocumentLines"].append(linea)
 
     return payload
+

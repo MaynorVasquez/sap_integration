@@ -131,16 +131,6 @@
     "valor": null
    },
    {
-    "campo_erpnext": "DocumentLines",
-    "campo_sap": "DocumentLines",
-    "nivel": "head",
-    "parent": "Mapeo Orden De Venta SAP",
-    "parentfield": "datos",
-    "parenttype": "Mapeo Orden De Venta SAP",
-    "tipo": "map",
-    "valor": null
-   },
-   {
     "campo_erpnext": "custom_docnum",
     "campo_sap": "DocNum",
     "nivel": "head",
@@ -193,6 +183,16 @@
    {
     "campo_erpnext": "UpdateTime",
     "campo_sap": "UpdateTime",
+    "nivel": "head",
+    "parent": "Mapeo Orden De Venta SAP",
+    "parentfield": "datos",
+    "parenttype": "Mapeo Orden De Venta SAP",
+    "tipo": "map",
+    "valor": null
+   },
+   {
+    "campo_erpnext": "DocumentLines",
+    "campo_sap": "DocumentLines",
     "nivel": "head",
     "parent": "Mapeo Orden De Venta SAP",
     "parentfield": "datos",
@@ -301,16 +301,6 @@
     "valor": null
    },
    {
-    "campo_erpnext": null,
-    "campo_sap": "DocumentStatus",
-    "nivel": "Texto",
-    "parent": "Mapeo Orden De Venta SAP",
-    "parentfield": "datos",
-    "parenttype": "Mapeo Orden De Venta SAP",
-    "tipo": "filter",
-    "valor": "bost_Open"
-   },
-   {
     "campo_erpnext": "ERPNEXT_Price",
     "campo_sap": "Price",
     "nivel": "DocumentLines",
@@ -329,11 +319,31 @@
     "parenttype": "Mapeo Orden De Venta SAP",
     "tipo": "map",
     "valor": null
+   },
+   {
+    "campo_erpnext": null,
+    "campo_sap": "DocumentStatus",
+    "nivel": "Texto",
+    "parent": "Mapeo Orden De Venta SAP",
+    "parentfield": "datos",
+    "parenttype": "Mapeo Orden De Venta SAP",
+    "tipo": "filter",
+    "valor": "bost_Open"
+   },
+   {
+    "campo_erpnext": "total_qty",
+    "campo_sap": "U_TotalQty",
+    "nivel": "head",
+    "parent": "Mapeo Orden De Venta SAP",
+    "parentfield": "datos",
+    "parenttype": "Mapeo Orden De Venta SAP",
+    "tipo": "map",
+    "valor": null
    }
   ],
   "docstatus": 0,
   "doctype": "Mapeo Orden De Venta SAP",
-  "modified": "2026-06-19 19:01:30.071864",
+  "modified": "2026-06-25 12:25:07.636174",
   "name": "Mapeo Orden De Venta SAP"
  }
 ]

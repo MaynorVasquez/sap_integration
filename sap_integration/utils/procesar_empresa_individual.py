@@ -87,7 +87,7 @@ def procesar_empresa_individual(config,
             #print(f"Datos: {json.dumps(data, indent=2)}")
 
             detalles.extend(lista_datos)
-            #print(f"Datos: {json.dumps( detalles, indent=2)}")           
+            #print(f"Datos: {json.dumps( detalles, indent=2)}")
 
             if not lista_datos or usa_paginacion == False:
                 break
