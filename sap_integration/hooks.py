@@ -47,9 +47,9 @@ fixtures = [
                 "Sales Order-custom_docnum",
                 "Sales Order-custom_comentarios",
                 "Sales Order Item-custom_linenum",
+                "Sales Order-custom_docduedate",
                 "Item-custom_ean",
                 "Item-custom_itemcode",
-                "Sales Order-custom_doc_due_date",  # <- nuevo
                 "Warehouse-custom_warehousecode",
                 "Item Group-custom_number",
                 "UOM Category-custom_absentry",
@@ -109,6 +109,12 @@ fixtures = [
     },
     {
         "dt": "Mapeo Orden De Venta SAP"
+    },
+    {
+        "dt": "Mapeo Precios Especiales SN SAP"
+    },
+    {
+        "dt": "Mapeo Numero de Catalogo Interno"
     },
     {
         "dt": "Workspace",

@@ -11,6 +11,7 @@ from sap_integration.utils.obtener_filtros_validacion_sap import obtener_filtros
 import requests
 from frappe.utils import flt
 import json
+from frappe.exceptions import ValidationError
 
 def enviar_ov(doc, method):
     debug_messages = []
@@ -107,10 +108,15 @@ def enviar_ov(doc, method):
                 frappe.db.commit()
             logs_transactional(doctype_logs, doc, "Success" , payload, respuesta, doctype_mapeo,doctype_target)
             return data
-
+        else: 
+            #logs_transactional(doctype_logs, doc,"Error" ,payload, response.text, doctype_mapeo,doctype_target)
+            frappe.log_error(response.text, "Error al enviar OV a SAP")
+            frappe.throw(_("Error al enviar OV SAP, Valide el sigueinte error: {0}").format(response.text))
+    except ValidationError:
+        raise
     except Exception as e:
-        frappe.log_error(frappe.get_traceback(), "Excepción enviando SAP")
-        frappe.throw(_("Error inesperado enviando la factura a SAP: {0}").format(str(e)))
+        #frappe.log_error(frappe.get_traceback(), "Excepción enviando SAP")
+        frappe.throw(_("Error SAP: {0}").format(str(e)))
 
 def construir_payload_sap(doc, mapeo):
     payload = {

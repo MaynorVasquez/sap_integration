@@ -7,8 +7,9 @@ from sap_integration.api import (
     sap_vendedores,
     sap_uom,
     sap_uom_categoria,
-    sap_uom_conversion
-
+    sap_uom_conversion,
+    sap_precios_especiales_sn,
+    sap_numero_catagolo_interno
 )
 
 def job_secuenciales():
@@ -22,6 +23,9 @@ def job_secuenciales():
         ("Grupo cliente", sap_clientes_grupos.sincronizar_lista_clientes_grupos),
         ("Lista de precios", sap_lista_precio.sincronizar_lista_precio),
         ("Vendedores", sap_vendedores.sincronizar_lista_vendedores),
+        ("Precios Especiales SN", sap_precios_especiales_sn.sincronizar_precios_especiales_sn),
+        ("Catalogo interno SN", sap_numero_catagolo_interno.sincronizar_numero_catalogo_interno),
+
     ]
 
     for nombre, funcion in ligeros:
