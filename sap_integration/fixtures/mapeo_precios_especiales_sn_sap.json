@@ -1,0 +1,119 @@
+[
+ {
+  "company_detalle": [
+   {
+    "company": "Productos Alimenticios YAESTA, S.A.",
+    "endpoint": "SpecialPrices",
+    "parent": "Mapeo Precios Especiales SN SAP",
+    "parentfield": "company_detalle",
+    "parenttype": "Mapeo Precios Especiales SN SAP"
+   }
+  ],
+  "docstatus": 0,
+  "doctype": "Mapeo Precios Especiales SN SAP",
+  "mapeo_precios_especiales_sn": [
+   {
+    "campo_erpnext": null,
+    "campo_sap": "CardCode",
+    "nivel": "Texto",
+    "parent": "Mapeo Precios Especiales SN SAP",
+    "parentfield": "mapeo_precios_especiales_sn",
+    "parenttype": "Mapeo Precios Especiales SN SAP",
+    "tipo": "filter",
+    "valor": "C00002"
+   },
+   {
+    "campo_erpnext": "ItemCode",
+    "campo_sap": "ItemCode",
+    "nivel": "head",
+    "parent": "Mapeo Precios Especiales SN SAP",
+    "parentfield": "mapeo_precios_especiales_sn",
+    "parenttype": "Mapeo Precios Especiales SN SAP",
+    "tipo": "map",
+    "valor": null
+   },
+   {
+    "campo_erpnext": "CardCode",
+    "campo_sap": "CardCode",
+    "nivel": "head",
+    "parent": "Mapeo Precios Especiales SN SAP",
+    "parentfield": "mapeo_precios_especiales_sn",
+    "parenttype": "Mapeo Precios Especiales SN SAP",
+    "tipo": "map",
+    "valor": null
+   },
+   {
+    "campo_erpnext": "SpecialPriceDataAreas",
+    "campo_sap": "SpecialPriceDataAreas",
+    "nivel": "head",
+    "parent": "Mapeo Precios Especiales SN SAP",
+    "parentfield": "mapeo_precios_especiales_sn",
+    "parenttype": "Mapeo Precios Especiales SN SAP",
+    "tipo": "map",
+    "valor": null
+   },
+   {
+    "campo_erpnext": "currency",
+    "campo_sap": "PriceCurrency",
+    "nivel": "DocumentLines",
+    "parent": "Mapeo Precios Especiales SN SAP",
+    "parentfield": "mapeo_precios_especiales_sn",
+    "parenttype": "Mapeo Precios Especiales SN SAP",
+    "tipo": "map",
+    "valor": null
+   },
+   {
+    "campo_erpnext": "valid_upto",
+    "campo_sap": "Dateto",
+    "nivel": "DocumentLines",
+    "parent": "Mapeo Precios Especiales SN SAP",
+    "parentfield": "mapeo_precios_especiales_sn",
+    "parenttype": "Mapeo Precios Especiales SN SAP",
+    "tipo": "map",
+    "valor": null
+   },
+   {
+    "campo_erpnext": "valid_from",
+    "campo_sap": "DateFrom",
+    "nivel": "DocumentLines",
+    "parent": "Mapeo Precios Especiales SN SAP",
+    "parentfield": "mapeo_precios_especiales_sn",
+    "parenttype": "Mapeo Precios Especiales SN SAP",
+    "tipo": "map",
+    "valor": null
+   },
+   {
+    "campo_erpnext": "item_code",
+    "campo_sap": "ItemNo",
+    "nivel": "DocumentLines",
+    "parent": "Mapeo Precios Especiales SN SAP",
+    "parentfield": "mapeo_precios_especiales_sn",
+    "parenttype": "Mapeo Precios Especiales SN SAP",
+    "tipo": "map",
+    "valor": null
+   },
+   {
+    "campo_erpnext": "customer",
+    "campo_sap": "BPCode",
+    "nivel": "DocumentLines",
+    "parent": "Mapeo Precios Especiales SN SAP",
+    "parentfield": "mapeo_precios_especiales_sn",
+    "parenttype": "Mapeo Precios Especiales SN SAP",
+    "tipo": "map",
+    "valor": null
+   },
+   {
+    "campo_erpnext": "discount_percentage",
+    "campo_sap": "Discount",
+    "nivel": "DocumentLines",
+    "parent": "Mapeo Precios Especiales SN SAP",
+    "parentfield": "mapeo_precios_especiales_sn",
+    "parenttype": "Mapeo Precios Especiales SN SAP",
+    "tipo": "map",
+    "valor": null
+   }
+  ],
+  "modified": "2026-06-23 22:36:06.157744",
+  "name": "Mapeo Precios Especiales SN SAP"
+ }
+]

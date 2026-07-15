@@ -186,16 +186,22 @@ def procesar_datos(registros_sap, mapeo_lista, doctype, company,debug_messages):
         wh_filter = tuple(warehouses_lista) if len(warehouses_lista) > 1 else f"('{warehouses_lista[0]}')"
 
         lotes_erp = frappe.db.sql(f"""
-            SELECT T0.item_code, T1.batch_no, T3.batch_qty, T0.warehouse
-            FROM `tabSerial and Batch Bundle` T0
-            JOIN `tabSerial and Batch Entry` T1 ON T1.parent = T0.name
-            JOIN `tabBatch` T3 ON T3.item = T0.item_code AND T3.batch_id = T1.batch_no
-            JOIN `tabItem` I ON I.name = T0.item_code
-            WHERE T0.docstatus = 1 
-              AND T3.batch_qty > 0 
-              AND I.disabled = 0
-              AND T0.warehouse IN {wh_filter}
-            GROUP BY T0.item_code, T0.warehouse, T1.batch_no
+            Select 
+                T0.item_code,
+                T2.batch_no,	  
+                sum(T0.actual_qty) batch_qty,
+                T0.warehouse
+            FROM `tabStock Ledger Entry` T0 
+            JOIN `tabSerial and Batch Bundle` T1 on T0.serial_and_batch_bundle = T1.name
+            JOIN `tabSerial and Batch Entry` T2 on T2.parent = T1.name
+            where T0.docstatus = 1
+            AND T0.warehouse IN {wh_filter}
+            group by 
+            T0.item_code,
+            T0.warehouse,
+            T2.batch_no
+            having 
+            sum(T0.actual_qty) > 0
         """, as_dict=True)
 
         for row in lotes_erp:
@@ -302,15 +308,19 @@ def get_stock_qty(item_code, warehouse, batch_no=None):
     try:
         if batch_no:
             query = """
-                SELECT T3.batch_qty AS qty
-                FROM `tabSerial and Batch Bundle` T0
-                JOIN `tabSerial and Batch Entry` T1 ON T1.parent = T0.name
-                join `tabBatch` T3 on T3.item = T0.item_code and T3.batch_id = T1.batch_no
-                WHERE T0.item_code = %s
-                  AND T0.warehouse = %s
-                  AND T1.batch_no = %s
-                  AND T0.docstatus = 1
-                GROUP BY T0.item_code, T0.warehouse, T1.batch_no
+                Select 
+                    sum(T0.actual_qty) as qty
+                FROM `tabStock Ledger Entry` T0 
+                JOIN `tabSerial and Batch Bundle` T1 on T0.serial_and_batch_bundle = T1.name
+                JOIN `tabSerial and Batch Entry` T2 on T2.parent = T1.name
+                where T0.item_code = %s
+                and T0.warehouse = %s
+                and T2.batch_no = %s
+                and T0.docstatus = 1
+                group by 
+                T0.item_code,
+                T0.warehouse,
+                T2.batch_no;
             """
             params = (item_code, warehouse, batch_no)
         else:

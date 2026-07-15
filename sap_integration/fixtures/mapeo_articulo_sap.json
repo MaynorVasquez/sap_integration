@@ -7,6 +7,13 @@
     "parent": "Mapeo Articulo SAP",
     "parentfield": "company_detalle",
     "parenttype": "Mapeo Articulo SAP"
+   },
+   {
+    "company": "Productos Alimenticios YAESTA, S.A.",
+    "endpoint": "Items",
+    "parent": "Mapeo Articulo SAP",
+    "parentfield": "company_detalle",
+    "parenttype": "Mapeo Articulo SAP"
    }
   ],
   "docstatus": 0,
@@ -203,7 +210,7 @@
     "valor": null
    }
   ],
-  "modified": "2026-05-22 17:57:04.174148",
+  "modified": "2026-07-15 11:35:12.578434",
   "name": "Mapeo Articulo SAP"
  }
 ]

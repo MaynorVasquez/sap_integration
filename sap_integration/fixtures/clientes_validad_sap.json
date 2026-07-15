@@ -1,0 +1,30 @@
+[
+ {
+  "clientes_campos_validar": [
+   {
+    "campo_erpnext": "po_no",
+    "campo_sap": "U_OrdenDeCompra",
+    "customer": "CLI00001",
+    "customer_name": "Operadora de Tiendas, S.A.",
+    "doc_type": "Sales Order",
+    "parent": "Clientes validad SAP",
+    "parentfield": "clientes_campos_validar",
+    "parenttype": "Clientes validad SAP"
+   },
+   {
+    "campo_erpnext": "custom_gln",
+    "campo_sap": "U_GLN",
+    "customer": "CLI00001",
+    "customer_name": "Operadora de Tiendas, S.A.",
+    "doc_type": "Sales Order",
+    "parent": "Clientes validad SAP",
+    "parentfield": "clientes_campos_validar",
+    "parenttype": "Clientes validad SAP"
+   }
+  ],
+  "docstatus": 0,
+  "doctype": "Clientes validad SAP",
+  "modified": "2026-06-27 15:36:40.522685",
+  "name": "Clientes validad SAP"
+ }
+]

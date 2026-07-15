@@ -1,0 +1,49 @@
+[
+ {
+  "company_detalle": [
+   {
+    "company": "Productos Alimenticios YAESTA, S.A.",
+    "endpoint": "AlternateCatNum",
+    "parent": "Mapeo Numero de Catalogo Interno",
+    "parentfield": "company_detalle",
+    "parenttype": "Mapeo Numero de Catalogo Interno"
+   }
+  ],
+  "docstatus": 0,
+  "doctype": "Mapeo Numero de Catalogo Interno",
+  "mapeo_numero_catalogo": [
+   {
+    "campo_erpnext": "item_code",
+    "campo_sap": "ItemCode",
+    "nivel": "head",
+    "parent": "Mapeo Numero de Catalogo Interno",
+    "parentfield": "mapeo_numero_catalogo",
+    "parenttype": "Mapeo Numero de Catalogo Interno",
+    "tipo": "map",
+    "valor": null
+   },
+   {
+    "campo_erpnext": "customer_name",
+    "campo_sap": "CardCode",
+    "nivel": "head",
+    "parent": "Mapeo Numero de Catalogo Interno",
+    "parentfield": "mapeo_numero_catalogo",
+    "parenttype": "Mapeo Numero de Catalogo Interno",
+    "tipo": "map",
+    "valor": null
+   },
+   {
+    "campo_erpnext": "ref_code",
+    "campo_sap": "Substitute",
+    "nivel": "head",
+    "parent": "Mapeo Numero de Catalogo Interno",
+    "parentfield": "mapeo_numero_catalogo",
+    "parenttype": "Mapeo Numero de Catalogo Interno",
+    "tipo": "map",
+    "valor": null
+   }
+  ],
+  "modified": "2026-05-15 10:47:00.335909",
+  "name": "Mapeo Numero de Catalogo Interno"
+ }
+]

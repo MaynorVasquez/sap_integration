@@ -117,6 +117,9 @@ fixtures = [
         "dt": "Mapeo Numero de Catalogo Interno"
     },
     {
+        "dt": "Clientes validad SAP"
+    },
+    {
         "dt": "Workspace",
         "filters": [
             ["name", "in", ["SAP Integration"]]
