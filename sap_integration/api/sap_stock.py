@@ -190,7 +190,7 @@ def procesar_datos(registros_sap, mapeo_lista, doctype, company,debug_messages):
                 T0.item_code,
                 T1.batch_no,
                 T0.warehouse,
-                sum(T0.total_qty) qty
+                sum(T1.qty) qty
             from `tabSerial and Batch Bundle` T0
             JOIN `tabSerial and Batch Entry` T1 on T1.parent = T0.name
             WHERE T0.warehouse IN {wh_filter}
@@ -200,7 +200,7 @@ def procesar_datos(registros_sap, mapeo_lista, doctype, company,debug_messages):
             T0.warehouse,
             T1.batch_no
             having 
-            sum(T0.total_qty) > 0
+            sum(T1.qty) > 0
             ;
         """, as_dict=True)
    
@@ -329,7 +329,7 @@ def get_stock_qty(item_code, warehouse, batch_no=None):
         if batch_no:
             query = """
                 Select 
-                    sum(T0.total_qty) qty
+                    sum(T1.qty) qty
                 from `tabSerial and Batch Bundle` T0
                 JOIN `tabSerial and Batch Entry` T1 on T1.parent = T0.name
                 where T0.item_code = %s
