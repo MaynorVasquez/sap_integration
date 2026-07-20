@@ -125,13 +125,14 @@ def procesar_datos(registros_sap, mapeo_lista, doctype, company,debug_messages):
             if abs(diferencia) < 0.000001:
                 print(f"🚫 Se omite {item_code} ya que no hay diferencia")
                 continue
-            print(f"sigue el proceso porque si hay diferena de {diferencia}")
+            print(f"✅ sigue el proceso porque si hay diferena de {diferencia}")
             clave_unica = f"{item_code}|{batch}|{warehouse}|{diferencia}"
             if clave_unica in registros_unicos:
                 debug_messages.append(f"🔁 Registro duplicado ignorado: {clave_unica}")
                 continue
 
             registros_unicos.add(clave_unica)
+            print(f"valores de registro unicos: {registros_unicos}")
 
             # Crear lote si no existe
             if batch:
@@ -161,6 +162,7 @@ def procesar_datos(registros_sap, mapeo_lista, doctype, company,debug_messages):
                 "warehouse": warehouse,
                 "valuation_rate": valuation_rate
             }
+            print(f"Movimiento a realizar: {movimiento}")
 
             if batch:
                 movimiento["batch_no"] = batch
@@ -176,34 +178,32 @@ def procesar_datos(registros_sap, mapeo_lista, doctype, company,debug_messages):
             frappe.log_error(frappe.get_traceback(), "Error en procesar_registro_con_lote")
             debug_messages.append(f"✗ Error procesando registro SAP: {e} | Registro: {registro_sap}")
 
-    try:
-        # Ya no construimos lotes_sap aquí porque lo hicimos arriba
-        
+    try:        
         # Filtramos almacenes involucrados (esto se puede quedar parecido)
         warehouses_lista = list({item[2] for item in lotes_vistos_en_sap})
         if not warehouses_lista: return None, None
         
         wh_filter = tuple(warehouses_lista) if len(warehouses_lista) > 1 else f"('{warehouses_lista[0]}')"
-
+        print(f"almacen {wh_filter}")
         lotes_erp = frappe.db.sql(f"""
             Select 
                 T0.item_code,
-                T2.batch_no,	  
-                sum(T0.actual_qty) batch_qty,
-                T0.warehouse
-            FROM `tabStock Ledger Entry` T0 
-            JOIN `tabSerial and Batch Bundle` T1 on T0.serial_and_batch_bundle = T1.name
-            JOIN `tabSerial and Batch Entry` T2 on T2.parent = T1.name
-            where T0.docstatus = 1
-            AND T0.warehouse IN {wh_filter}
+                T1.batch_no,
+                T0.warehouse,
+                sum(T0.total_qty) qty
+            from `tabSerial and Batch Bundle` T0
+            JOIN `tabSerial and Batch Entry` T1 on T1.parent = T0.name
+            WHERE T0.warehouse IN {wh_filter}
+            and T0.docstatus = 1
             group by 
             T0.item_code,
             T0.warehouse,
-            T2.batch_no
+            T1.batch_no
             having 
-            sum(T0.actual_qty) > 0
+            sum(T0.total_qty) > 0
+            ;
         """, as_dict=True)
-
+   
         for row in lotes_erp:
             clave_erp = (row.item_code, row.batch_no, row.warehouse)
             
@@ -211,13 +211,14 @@ def procesar_datos(registros_sap, mapeo_lista, doctype, company,debug_messages):
             if clave_erp not in lotes_vistos_en_sap:
                 movimiento = {
                     "item_code": row.item_code,
-                    "qty": row.batch_qty,
+                    "qty": row.qty,
                     "warehouse": row.warehouse,
                     "valuation_rate": 0,
                     "batch_no": row.batch_no
                 }
                 items_out.append(movimiento)
-                print(f"🗑️ Limpieza: {row.item_code} lote {row.batch_no} no está en SAP, se retira.")
+                print(f"🗑️ Limpieza: {row.item_code} lote {row.batch_no}  QTY: {row.qty} no está en SAP, se retira.")
+                debug_messages.append(f"🗑️ Limpieza: {row.item_code} lote {row.batch_no} QTY: {row.qty} no está en SAP, se retira.")
     except Exception as e:
         debug_messages.append(f"⚠ Error detectando lotes faltantes: {e}")
 
@@ -273,20 +274,32 @@ def crear_stock_entry_multiple(items, tipo="In", debug_messages=None):
                 se.append("items", item_data)
 
                 if debug_messages is not None:
-                    debug_messages.append(f"✅ Ítem #{idx} agregado al Stock Entry")
+                    debug_messages.append(f"✅ {tipo_entrada} -- Ítem #{idx} agregado al Stock Entry -- {batch_no} -- {qty} -- {warehouse}")
 
             except Exception as item_error:
-                mensaje_error = f"⚠ Error con ítem #{idx} (Item: {item.get('item_code')}, Lote: {item.get('batch_no')}): {item_error}"
+                mensaje = (
+                    f"Error en ítem #{idx}\n"
+                    f"Item: {item_code}\n"
+                    f"Lote: {batch_no}\n"
+                    f"Cantidad: {qty}\n"
+                    f"Bodega: {warehouse}\n"
+                    f"Detalle: {str(item_error)}"
+                )
+
+                frappe.log_error(frappe.get_traceback(), mensaje)
+
                 if debug_messages is not None:
-                    debug_messages.append(mensaje_error)
-                frappe.log_error(frappe.get_traceback(), mensaje_error)
+                    debug_messages.append("❌ " + mensaje)
+
+                # Detiene todo el proceso
+                raise
 
         if not se.items:
             if debug_messages is not None:
                 debug_messages.append("✗ No se agregó ningún ítem válido al Stock Entry.")
             return
 
-        se.flags.ignore_mandatory = True
+        #se.flags.ignore_mandatory = True
         se.flags.ignore_permissions = True
         se.insert(ignore_permissions=True)
         se.submit()
@@ -298,10 +311,17 @@ def crear_stock_entry_multiple(items, tipo="In", debug_messages=None):
         print(f"✅ 🚚 Stock Entry creado y enviado: {se.name} ({tipo_entrada}) con {len(se.items)} ítems.")
 
     except Exception as e:
-        frappe.log_error(frappe.get_traceback(), "Error en crear stock_entry multiple")
+        frappe.db.rollback()
+
+        mensaje = f"Error creando Stock Entry ({tipo_entrada}): {str(e)}"
+
+        frappe.log_error(frappe.get_traceback(), mensaje)
+
         if debug_messages is not None:
-            debug_messages.append(f"✗ Error general creando Stock Entry ({tipo_entrada}): {e}")
-        print(f"✗ Error creando Stock Entry: {e}")
+            debug_messages.append("❌ " + mensaje)
+
+        # Reenviar el error a la API
+        raise
 
 
 def get_stock_qty(item_code, warehouse, batch_no=None):
@@ -309,18 +329,17 @@ def get_stock_qty(item_code, warehouse, batch_no=None):
         if batch_no:
             query = """
                 Select 
-                    sum(T0.actual_qty) as qty
-                FROM `tabStock Ledger Entry` T0 
-                JOIN `tabSerial and Batch Bundle` T1 on T0.serial_and_batch_bundle = T1.name
-                JOIN `tabSerial and Batch Entry` T2 on T2.parent = T1.name
+                    sum(T0.total_qty) qty
+                from `tabSerial and Batch Bundle` T0
+                JOIN `tabSerial and Batch Entry` T1 on T1.parent = T0.name
                 where T0.item_code = %s
                 and T0.warehouse = %s
-                and T2.batch_no = %s
+                and T1.batch_no = %s
                 and T0.docstatus = 1
                 group by 
                 T0.item_code,
                 T0.warehouse,
-                T2.batch_no;
+                T1.batch_no;
             """
             params = (item_code, warehouse, batch_no)
         else:

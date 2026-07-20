@@ -63,7 +63,7 @@
     "valor": null
    },
    {
-    "campo_erpnext": "Quantity",
+    "campo_erpnext": "qty",
     "campo_sap": "Quantity",
     "nivel": "head",
     "parent": "Mapeo Inventario SAP",
@@ -83,7 +83,7 @@
     "valor": null
    }
   ],
-  "modified": "2026-04-30 22:48:05.905485",
+  "modified": "2026-07-19 18:18:56.179719",
   "name": "Mapeo Inventario SAP"
  }
 ]
