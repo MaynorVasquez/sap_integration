@@ -45,6 +45,7 @@ fixtures = [
                 "Address-custom_rownum",
                 "Address-custom_company",
                 "Sales Order-custom_docnum",
+                "Sales Order-custom_docentry",
                 "Sales Order-custom_comentarios",
                 "Sales Order Item-custom_linenum",
                 "Sales Order-custom_docduedate",
@@ -63,8 +64,18 @@ fixtures = [
                 "POS Profile-custom_establecimiento_fel",
                 "POS Profile-custom_serie_sap",
                 "Sales Invoice-custom_docnum",
+                "Sales Invoice-custom_docentry",
+                "Sales Invoice Item-custom_linenum",
                 "Batch-custom_batchnum",
-                "Price List-custom_company"
+                "Price List-custom_company",
+                "Sales Taxes and Charges Template-custom_taxcode",
+                "Delivery Note Item-custom_linenum",
+                "Delivery Note-custom_docnum",
+                "Delivery Note-custom_docnum",
+                "Delivery Note-custom_docentry",
+                "Delivery Note Item-custom_linenum"
+                
+
             ]]
         ]
     },

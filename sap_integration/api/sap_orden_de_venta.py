@@ -75,8 +75,9 @@ def enviar_ov(doc, method):
                 existing = check_resp.json().get("value", [])
                 if existing:
                     sap_docnum = existing[0].get("DocNum")
+                    sap_docentry = existing[0].get("DocEntry")
                     frappe.msgprint(_("La orden ya existe en SAP con DocNum: {0}").format(sap_docnum))
-                    frappe.db.set_value("Sales Order", doc.name, "custom_docnum", sap_docnum)
+                    frappe.db.set_value(doctype_target, doc.name, {"custom_docnum" : sap_docnum, "custom_docentry" : sap_docentry})
                     frappe.db.commit()
                     return existing[0]  # Se detiene la ejecución, evita el POST duplicado
         else:
@@ -100,11 +101,12 @@ def enviar_ov(doc, method):
         if response.status_code in (200, 201):
             data = response.json()
             sap_docnum = data.get("DocNum")
+            sap_docentry = data.get("DocEntry")
             frappe.msgprint(f"Orden de venta enviada correctamente a SAP: {sap_docnum}")
             # 6. Capturar DocNum de la respuesta y actualizar en ERPNext  
             respuesta = f"Factura enviada éxito, referencia SAP: {sap_docnum}"          
             if sap_docnum:
-                frappe.db.set_value("Sales Order", doc.name, "custom_docnum", sap_docnum)
+                frappe.db.set_value("Sales Order", doc.name,  {"custom_docnum" : sap_docnum, "custom_docentry" : sap_docentry})
                 frappe.db.commit()
             logs_transactional(doctype_logs, doc, "Success" , payload, respuesta, doctype_mapeo,doctype_target)
             return data

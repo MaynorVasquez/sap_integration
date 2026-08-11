@@ -261,6 +261,9 @@ def procesar_datos(registros_sap, mapeo_lista, doctype, company, debug_messages)
                 
                 if fecha_final_entrega:
                     item_data["delivery_date"] = fecha_final_entrega
+
+                item_data["included_in_print_rate"] = 1
+                
                     
                 items.append(item_data)
             

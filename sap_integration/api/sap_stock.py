@@ -4,7 +4,7 @@ import json
 import traceback  # Importación añadida
 from datetime import datetime
 from sap_integration.utils.procesar_empresa_individual import procesar_empresa_individual
-from frappe.utils import nowdate, nowtime, getdate, today
+from frappe.utils import nowdate, nowtime, getdate, today, getdate, nowdate, add_days
 from frappe.utils import flt
 import time
 
@@ -106,7 +106,9 @@ def procesar_datos(registros_sap, mapeo_lista, doctype, company,debug_messages):
 
             # Verifica lote vencido y ajusta la fecha si es necesario
             if fecha_exp and getdate(fecha_exp) < getdate(today()):
-                fecha_exp = today()
+                hoy = getdate(nowdate())
+                fecha_exp = add_days(hoy, 5)
+                print(f"⚠ Lote vencido detectado para {item_code} lote {batch}. Fecha ajustada a {fecha_exp}.")
 
             if not item_code or not warehouse or not batch:
                 debug_messages.append(f"✗ Registro incompleto: {registro_sap}")

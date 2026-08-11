@@ -1,0 +1,51 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2026-08-03 13:45:34.459639",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "datos",
+  "company_detalle"
+ ],
+ "fields": [
+  {
+   "fieldname": "datos",
+   "fieldtype": "Table",
+   "label": "datos",
+   "options": "Mapeo campos"
+  },
+  {
+   "fieldname": "company_detalle",
+   "fieldtype": "Table",
+   "label": "company_detalle",
+   "options": "Campos empresas autorizadas"
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "issingle": 1,
+ "links": [],
+ "modified": "2026-08-03 13:46:25.371876",
+ "modified_by": "Administrator",
+ "module": "Sap Integration",
+ "name": "Mapeo Nota de Entrega SAP",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "print": 1,
+   "read": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "rows_threshold_for_grid_search": 20,
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

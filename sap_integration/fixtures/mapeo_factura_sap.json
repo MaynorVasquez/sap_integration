@@ -164,7 +164,7 @@
    },
    {
     "campo_erpnext": "item_name",
-    "campo_sap": "ItemName",
+    "campo_sap": "ItemDescription",
     "nivel": "DocumentLines",
     "parent": "Mapeo Factura SAP",
     "parentfield": "mapeo_factura",
@@ -223,8 +223,28 @@
     "valor": null
    },
    {
+    "campo_erpnext": "rate",
+    "campo_sap": "PriceAfterVAT",
+    "nivel": "DocumentLines",
+    "parent": "Mapeo Factura SAP",
+    "parentfield": "mapeo_factura",
+    "parenttype": "Mapeo Factura SAP",
+    "tipo": "map",
+    "valor": null
+   },
+   {
     "campo_erpnext": "warehouse",
     "campo_sap": "WarehouseCode",
+    "nivel": "DocumentLines",
+    "parent": "Mapeo Factura SAP",
+    "parentfield": "mapeo_factura",
+    "parenttype": "Mapeo Factura SAP",
+    "tipo": "map",
+    "valor": null
+   },
+   {
+    "campo_erpnext": "custom_linenum",
+    "campo_sap": "LineNum",
     "nivel": "DocumentLines",
     "parent": "Mapeo Factura SAP",
     "parentfield": "mapeo_factura",
@@ -271,9 +291,99 @@
     "parenttype": "Mapeo Factura SAP",
     "tipo": "map",
     "valor": null
+   },
+   {
+    "campo_erpnext": "DocumentLines",
+    "campo_sap": "DocumentLines",
+    "nivel": "head",
+    "parent": "Mapeo Factura SAP",
+    "parentfield": "mapeo_factura",
+    "parenttype": "Mapeo Factura SAP",
+    "tipo": "map",
+    "valor": null
+   },
+   {
+    "campo_erpnext": "DocEntry",
+    "campo_sap": "DocEntry",
+    "nivel": "head",
+    "parent": "Mapeo Factura SAP",
+    "parentfield": "mapeo_factura",
+    "parenttype": "Mapeo Factura SAP",
+    "tipo": "map",
+    "valor": null
+   },
+   {
+    "campo_erpnext": "DocumentReferences",
+    "campo_sap": "DocumentReferences",
+    "nivel": "head",
+    "parent": "Mapeo Factura SAP",
+    "parentfield": "mapeo_factura",
+    "parenttype": "Mapeo Factura SAP",
+    "tipo": "map",
+    "valor": null
+   },
+   {
+    "campo_erpnext": "ReserveInvoice",
+    "campo_sap": "ReserveInvoice",
+    "nivel": "head",
+    "parent": "Mapeo Factura SAP",
+    "parentfield": "mapeo_factura",
+    "parenttype": "Mapeo Factura SAP",
+    "tipo": "map",
+    "valor": null
+   },
+   {
+    "campo_erpnext": "custom_docnum",
+    "campo_sap": "DocNum",
+    "nivel": "head",
+    "parent": "Mapeo Factura SAP",
+    "parentfield": "mapeo_factura",
+    "parenttype": "Mapeo Factura SAP",
+    "tipo": "map",
+    "valor": null
+   },
+   {
+    "campo_erpnext": "custom_docentry",
+    "campo_sap": "DocEntry",
+    "nivel": "head",
+    "parent": "Mapeo Factura SAP",
+    "parentfield": "mapeo_factura",
+    "parenttype": "Mapeo Factura SAP",
+    "tipo": "map",
+    "valor": null
+   },
+   {
+    "campo_erpnext": "custom_salesemployeecode",
+    "campo_sap": "SalesPersonCode",
+    "nivel": "head",
+    "parent": "Mapeo Factura SAP",
+    "parentfield": "mapeo_factura",
+    "parenttype": "Mapeo Factura SAP",
+    "tipo": "map",
+    "valor": null
+   },
+   {
+    "campo_erpnext": null,
+    "campo_sap": "DocNum",
+    "nivel": "Numero",
+    "parent": "Mapeo Factura SAP",
+    "parentfield": "mapeo_factura",
+    "parenttype": "Mapeo Factura SAP",
+    "tipo": "filter",
+    "valor": "11083606"
+   },
+   {
+    "campo_erpnext": "posting_time",
+    "campo_sap": "DocTime",
+    "nivel": "head",
+    "parent": "Mapeo Factura SAP",
+    "parentfield": "mapeo_factura",
+    "parenttype": "Mapeo Factura SAP",
+    "tipo": "map",
+    "valor": null
    }
   ],
-  "modified": "2026-05-02 12:15:36.427279",
+  "modified": "2026-08-10 21:28:54.052303",
   "name": "Mapeo Factura SAP"
  }
 ]

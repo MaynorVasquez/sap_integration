@@ -35,8 +35,11 @@ def factura_deudores(docname):
             existing = check_resp.json().get("value", [])
             if existing:
                 sap_docnum = existing[0].get("DocNum")
+                sap_docentry = existing[0].get("DocEntry")
                 frappe.msgprint(f"Factura ya exite en SAP B1 con folio No. {sap_docnum}")
-                frappe.db.set_value(doctype_target, docname, "custom_docnum", sap_docnum)
+                frappe.db.set_value(doctype_target, docname, 
+                                    {"custom_docnum" : sap_docnum,
+                                     "custom_docentry" : sap_docentry})
                 frappe.db.commit()
                 return existing[0]  # No se envía POST nuevamente
 
