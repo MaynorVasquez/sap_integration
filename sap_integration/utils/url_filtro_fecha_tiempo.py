@@ -38,25 +38,83 @@ def construir_filtro_tiempo(ultima_sync, campos_delta):
     
     return None
 
+
+
 def inyectar_filtro_a_url(url_original, filtro_delta):
     """
-    Descompone la URL, anexa el filtro delta al $filter existente (si hay) y la reconstruye con espacios.
+    Agrega el filtro delta y garantiza que $top y $skip
+    queden siempre al final de la query.
     """
+
     if not filtro_delta:
         return url_original
 
     partes_url = urlparse(url_original)
-    query_params = parse_qs(partes_url.query)
 
-    if '$filter' in query_params:
-        filtro_existente = query_params['$filter'][0]
-        nuevo_filtro_completo = f"({filtro_existente}) and {filtro_delta}"
-        query_params['$filter'] = [nuevo_filtro_completo]
+    query_params = parse_qs(
+        partes_url.query,
+        keep_blank_values=True
+    )
+
+    # --------------------------------------------------
+    # 1. Agregar / combinar $filter
+    # --------------------------------------------------
+
+    if "$filter" in query_params:
+
+        filtro_existente = query_params["$filter"][0]
+
+        nuevo_filtro_completo = (
+            f"({filtro_existente}) and ({filtro_delta})"
+        )
+
+        query_params["$filter"] = [
+            nuevo_filtro_completo
+        ]
+
     else:
-        query_params['$filter'] = [filtro_delta]
 
-    # Aquí Python mete los '+' en lugar de espacios
-    nueva_query = urlencode(query_params, doseq=True)
+        query_params["$filter"] = [
+            filtro_delta
+        ]
+
+    # --------------------------------------------------
+    # 2. Separar $top y $skip
+    # --------------------------------------------------
+
+    top = query_params.pop("$top", None)
+    skip = query_params.pop("$skip", None)
+
+    # --------------------------------------------------
+    # 3. Construir parámetros normales
+    # --------------------------------------------------
+
+    parametros = []
+
+    for key, values in query_params.items():
+        for value in values:
+            parametros.append((key, value))
+
+    # --------------------------------------------------
+    # 4. Agregar $top y $skip AL FINAL
+    # --------------------------------------------------
+
+    if top is not None:
+        for value in top:
+            parametros.append(("$top", value))
+
+    if skip is not None:
+        for value in skip:
+            parametros.append(("$skip", value))
+
+    # --------------------------------------------------
+    # 5. Reconstruir URL
+    # --------------------------------------------------
+
+    nueva_query = urlencode(
+        parametros,
+        doseq=True
+    )
 
     url_final_codificada = urlunparse((
         partes_url.scheme,
@@ -67,7 +125,38 @@ def inyectar_filtro_a_url(url_original, filtro_delta):
         partes_url.fragment
     ))
 
-    # 2. MAGIA: unquote_plus limpia la cadena y transforma los '+' en espacios literales
-    url_final_limpia = unquote_plus(url_final_codificada)
+    # Convertir + nuevamente a espacios
+    return unquote_plus(url_final_codificada)
+# def inyectar_filtro_a_url(url_original, filtro_delta):
+#     """
+#     Descompone la URL, anexa el filtro delta al $filter existente (si hay) y la reconstruye con espacios.
+#     """
+#     if not filtro_delta:
+#         return url_original
 
-    return url_final_limpia
+#     partes_url = urlparse(url_original)
+#     query_params = parse_qs(partes_url.query)
+
+#     if '$filter' in query_params:
+#         filtro_existente = query_params['$filter'][0]
+#         nuevo_filtro_completo = f"({filtro_existente}) and {filtro_delta}"
+#         query_params['$filter'] = [nuevo_filtro_completo]
+#     else:
+#         query_params['$filter'] = [filtro_delta]
+
+#     # Aquí Python mete los '+' en lugar de espacios
+#     nueva_query = urlencode(query_params, doseq=True)
+
+#     url_final_codificada = urlunparse((
+#         partes_url.scheme,
+#         partes_url.netloc,
+#         partes_url.path,
+#         partes_url.params,
+#         nueva_query,
+#         partes_url.fragment
+#     ))
+
+#     # 2. MAGIA: unquote_plus limpia la cadena y transforma los '+' en espacios literales
+#     url_final_limpia = unquote_plus(url_final_codificada)
+
+#     return url_final_limpia

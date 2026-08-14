@@ -5,7 +5,7 @@ from collections import defaultdict
 from .sap_auth import get_credentials
 
 
-def construir_url_sap(mapeo_lista: dict, empresa,endpoint, usa_paginacion=True, almacen = None,top: int = 20, skip: int = 0):
+def construir_url_sap(mapeo_lista: dict, empresa,endpoint, usa_paginacion=True, almacen = None, top: int = 20, skip: int = 0):
     """
     Construye la URL final a consumir desde SAP Service Layer usando el mapeo proporcionado.
     """
@@ -33,7 +33,7 @@ def construir_url_sap(mapeo_lista: dict, empresa,endpoint, usa_paginacion=True, 
             params.append(f"$select={select_fields}")
 
         if usa_paginacion:
-            params.append(f"$top={top}")
+            params.append(f"$skip={top}")
             params.append(f"$skip={skip}")
 
         url_final = f"{base_url}?" + "&".join(params)

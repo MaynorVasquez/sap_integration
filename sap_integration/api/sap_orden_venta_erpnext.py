@@ -499,7 +499,9 @@ def procesar_datos(registros_sap, mapeo_lista, doctype, company, debug_messages)
                     "items": items
                 }
                 print(f"Datos: {json.dumps(doc_data, indent=2, default=str)}")
+                
                 doc = frappe.get_doc(doc_data)
+                doc.flags.sap_sales_order_sync = True
                 doc.flags.ignore_permissions = True 
                 doc.insert()
                 frappe.db.commit()
@@ -508,6 +510,7 @@ def procesar_datos(registros_sap, mapeo_lista, doctype, company, debug_messages)
                                    sap_id, "Success" , doc_data, respuesta, 
                                    "Mapeo Orden De Venta SAP",
                                    "Sales Order")
+                print(f"Orden de venta creada con exito....")
                 
         except Exception as e:
             frappe.log_error(

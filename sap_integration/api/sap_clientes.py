@@ -14,6 +14,12 @@ def sincronizar_clientes_desde_sap(docname=None):
     doctype_mapeo = "Mapeo Cliente"
     key_erpnext = "custom_cardcode"
     key_sap = "CardCode"
+    campos_delta = {
+            "create_date": "CreateDate", # Nombre del campo en SAP para fecha de creación
+            "create_time": "CreateTime",      # Nombre del campo en SAP para hora de creación
+            "update_date": "UpdateDate",   # Nombre del campo en SAP para fecha de actualización
+            "update_time": "UpdateTime"    # Nombre del campo en SAP para hora de actualización
+        }
 
     config = frappe.get_doc(doctype_mapeo, docname)
 
@@ -28,7 +34,8 @@ def sincronizar_clientes_desde_sap(docname=None):
                                                 doctype_target,
                                                 doctype_mapeo,
                                                 key_sap,
-                                                key_erpnext
+                                                key_erpnext,
+                                                campos_delta = campos_delta
                                                 )
 
         resultados.append({
@@ -146,23 +153,23 @@ def procesar_datos(registros_sap, mapeo_lista, doctype, company,debug_messages):
             #print(f"✔ Mapeo de campos exitoso : {json.dumps(dato_lista, indent=2)}")
 
             if dato_existente:
-                print(f"Cliente existe, se procede a intentar actualizar {dato_existente}")
-                cardcode_erpnext = dato_existente[0]["name"]
-                data_synctracker = sync_tracker(doctype_synctracker,doctype_syncrecord,cardcode_erpnext, company)
-                success = data_synctracker.get("success", False)
-                if not success:
-                    print(f"no existe en la tabla, se actualiza los valores")
-                else:
-                    data = data_synctracker.get("data") or {}
-                    code = data.get("code")
-                    last_sync = data.get("last_sync")
+                # print(f"Cliente existe, se procede a intentar actualizar {dato_existente}")
+                #cardcode_erpnext = dato_existente[0]["name"]
+                # data_synctracker = sync_tracker(doctype_synctracker,doctype_syncrecord,cardcode_erpnext, company)
+                # success = data_synctracker.get("success", False)
+                # if not success:
+                #     print(f"no existe en la tabla, se actualiza los valores")
+                # else:
+                #     data = data_synctracker.get("data") or {}
+                #     code = data.get("code")
+                #     last_sync = data.get("last_sync")
 
-                    if last_sync:
-                        last_sync = datetime.strptime(last_sync, "%Y-%m-%d %H:%M:%S")
+                #     if last_sync:
+                #         last_sync = datetime.strptime(last_sync, "%Y-%m-%d %H:%M:%S")
 
-                        if update_datetime <= last_sync:
-                            print(f"Code: {code} ---- last_sync: {last_sync} Sin Cambios")
-                            continue
+                #         if update_datetime <= last_sync:
+                #             print(f"Code: {code} ---- last_sync: {last_sync} Sin Cambios")
+                #             continue
 
                 doc = frappe.get_doc(doctype, dato_existente[0].name)
                 for campo, valor in dato_lista.items():
@@ -193,7 +200,7 @@ def procesar_datos(registros_sap, mapeo_lista, doctype, company,debug_messages):
                 doc.flags.ignore_permissions = True 
                 doc.save()
                 frappe.db.commit()
-                sync_tracker_update(doctype_synctracker, cardcode_erpnext, company,update_datetime)
+                # sync_tracker_update(doctype_synctracker, cardcode_erpnext, company,update_datetime)
                 procesar_direcciones(lista_mapeo,mapeo_lista, doctype, company,debug_messages)
             else:
                 doc_data = {
@@ -221,7 +228,7 @@ def procesar_datos(registros_sap, mapeo_lista, doctype, company,debug_messages):
                     },
                     fieldname="name"
                 )
-                sync_tracker_update(doctype_synctracker, cardcode_erpnext, company,update_datetime)
+                # sync_tracker_update(doctype_synctracker, cardcode_erpnext, company,update_datetime)
         except Exception as e:
             frappe.log_error(
                 title=f"Error al procesar dato {sap_id}: {str(e)}" 

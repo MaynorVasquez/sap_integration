@@ -16,6 +16,11 @@ from frappe.exceptions import ValidationError
 def enviar_ov(doc, method):
     debug_messages = []
     try:
+        # Ignorar documentos creados por la integración/API
+        if doc.flags.get("sap_sales_order_sync"):
+            print(f"Documento {doc.name} creado por integración SAP. No se enviará nuevamente a SAP.")
+            return
+        
         doctype_target = "Sales Order"
         sales_order = frappe.get_doc(doctype_target, doc)
         company = sales_order.company

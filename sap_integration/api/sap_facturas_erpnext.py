@@ -108,6 +108,27 @@ def procesar_datos(registros_sap, mapeo_lista, doctype, company, debug_messages)
                     doc_name = frappe.db.get_value(doctype_erp, {"custom_docnum": doc_num, "company": company}, "name")
                     print(f"Documento encontrado: {doctype_erp} ---- {doc_name}")
                     if doc_name:
+                        if doctype_erp == "Sales Order":
+                            print(f"Verificando estado de Orden de Venta {doc_name}")
+                            so = frappe.get_doc("Sales Order", doc_name)
+                            print(f"SO {so.name} - Docstatus actual: {so.docstatus}")
+                            if so.docstatus == 0:
+                                print(f"Sometiendo Orden de Venta {so.name}...")
+                                so.flags.sap_sales_order_sync = True
+                                so.submit()
+                                print(f"Orden de Venta {so.name} sometida correctamente.")
+                            elif so.docstatus == 1:
+                                print(f"Orden de Venta {so.name} ya estaba sometida.")
+                            elif so.docstatus == 2:
+                                frappe.throw(
+                                    f"La Orden de Venta {so.name} "
+                                    f"está cancelada y no puede utilizarse "
+                                    f"para crear la Delivery Note.")
+                            else:
+                                frappe.throw(
+                                    f"La Orden de Venta {so.name} "
+                                    f"tiene un DocStatus no válido: "
+                                    f"{so.docstatus}")
                         erpnext_ref_names[base_entry] = doc_name
                     else:
                         print(f"{doctype_erp} SAP {doc_num} no existe en ERPNext", f"Error {doctype_erp} Consolidada")
@@ -187,7 +208,9 @@ def procesar_datos(registros_sap, mapeo_lista, doctype, company, debug_messages)
                         })
 
                 elif doctype_erp == "Delivery Note" and erp_doc_name:
-                    print(f"El documento Base de la factura es: {doctype_erp}")
+                    print(f"El documento Base de la factura es: {doctype_erp} --- {erp_doc_name}")
+                    print(f"Filtros: Docname: {erp_doc_name} ----- ItemCode: {item_code} ---- BaseLine: {BaseLine}")
+                    print(f"Base entry: {base_entry} ------ DocNum: {doc_num} -- ItemCode: {ItemCode_SAP}")
                     dn_item = frappe.get_all("Delivery Note Item", 
                         filters={"parent": erp_doc_name, "item_code": item_code, "custom_linenum": BaseLine},
                         fields=["name", "rate", "uom", "stock_uom", "conversion_factor", "warehouse", "against_sales_order", "so_detail"], limit=1)
@@ -206,6 +229,7 @@ def procesar_datos(registros_sap, mapeo_lista, doctype, company, debug_messages)
                             "stock_uom": dn_item[0].stock_uom,
                             "conversion_factor": dn_item[0].conversion_factor,
                             "warehouse": dn_item[0].warehouse,
+                            "custom_linenum": linea_sap.get("LineNum"),
                             "use_serial_batch_fields": 0,
                             "batch_no": None,
                             "serial_no": None
@@ -213,10 +237,11 @@ def procesar_datos(registros_sap, mapeo_lista, doctype, company, debug_messages)
                 # Si logramos armar la línea, la agregamos
                 if nueva_entrada:
                     print(f"\n--- Agregando Línea al Delivery Note ---")
-                    #print(json.dumps(nueva_entrada, indent=4))
+                    print(json.dumps(nueva_entrada, indent=4))
                     doc.append("items", nueva_entrada)
 
             # --- 6. Inserción Inicial ---
+           
             doc.insert()
             si_name = doc.name
             doc.reload()
@@ -232,6 +257,8 @@ def procesar_datos(registros_sap, mapeo_lista, doctype, company, debug_messages)
                         lote["_LineNum"] = line_num
                         lote["Quantity"] = lote.get("Quantity", 0) 
                         todos_lotes.append(lote)
+                print(f"Todos los obtenidos de SAP: ")
+                print(json.dumps( todos_lotes, indent=4))
                         
                 for item in doc.items:
                     line_num_erp = item.custom_linenum
@@ -250,6 +277,7 @@ def procesar_datos(registros_sap, mapeo_lista, doctype, company, debug_messages)
                         item.serial_and_batch_bundle = bundle_id
 
             # --- 8. Guardado y Sometido Final ---
+            doc.flags.sap_sales_invoice = True
             doc.save()
             doc.submit()
             frappe.db.commit()
@@ -524,6 +552,7 @@ def crear_factura_directa(lista_mapeo, mapeo_lista, doctype, company):
 
         
     # --- 9. Guardado Final ---
+    doc.flags.sap_sales_invoice = True
     doc.save()
     doc.submit()
     frappe.db.commit()

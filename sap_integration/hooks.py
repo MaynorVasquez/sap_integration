@@ -14,7 +14,11 @@ scheduler_events = {
         # Job que corre de lunes a sábado de 07:00 a 19:00, cada hora exacta
         "0 7-19 * * 1-6": [
             "sap_integration.job.sap_procesar_facturas_pendientes.procesar_facturas_pendientes"
+        ],
+        "*/30 * * * *": [
+            "sap_integration.api.sap_clientes.sincronizar_clientes_desde_sap"
         ]
+
     }
 }
 

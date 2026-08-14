@@ -68,14 +68,17 @@ def procesar_empresa_individual(config,
 
         # 🔁 PAGINACIÓN (tu código actual)
         top = 20
-        page, skip = 1, 0
+        skip = 0
+
+        url_final = None
 
         filtro_tiempo = construir_filtro_tiempo(ultima_sync, campos_delta)
+        print(f"Filtro de tiempo: {filtro_tiempo}")
 
         while True:
+            print(f"Valor de Skip: {skip}")
             url_base = construir_url_sap(mapeo_lista, empresa.company, empresa.endpoint, usa_paginacion, almacen, top=top, skip=skip)
             url_final = inyectar_filtro_a_url(url_base, filtro_tiempo)
-            #url_final = construir_url_sap(mapeo_lista, empresa.company, empresa.endpoint, usa_paginacion, almacen, top=top, skip=skip)
             
             print(f"✔ URL: {url_final}")
             response = session.get(url_final)
@@ -86,6 +89,11 @@ def procesar_empresa_individual(config,
             lista_datos = data.get("value", [])
             #print(f"Datos: {json.dumps(data, indent=2)}")
 
+            # Si SAP no devuelve datos, salir de la función inmediatamente
+            # if not lista_datos:
+            #     print("⚠ SAP no devolvió datos. No hay nada que procesar.")
+            #     return
+            
             detalles.extend(lista_datos)
             #print(f"Datos: {json.dumps( detalles, indent=2)}")
 
@@ -93,8 +101,6 @@ def procesar_empresa_individual(config,
                 break
 
             skip += top
-            page += 1
-
 
         # 🏭 Procesar datos
         if detalles:
@@ -106,12 +112,12 @@ def procesar_empresa_individual(config,
                 debug_messages
             )
             total_procesados = len(resultados)
-        if fila_id:
-            frappe.db.set_value("Campos Delta Load", fila_id, "date_time", hora_exacta)
-            frappe.db.commit()
-            print(f"se actualizo la hora {hora_exacta}")
-        else:
-            debug_messages.append("⚠ No hay datos para procesar")
+            if fila_id:
+                frappe.db.set_value("Campos Delta Load", fila_id, "date_time", hora_exacta)
+                frappe.db.commit()
+                print(f"se actualizo la hora {hora_exacta}")
+            else:
+                debug_messages.append("⚠ No hay datos para procesar")
 
     except Exception as e:
         frappe.log_error(
