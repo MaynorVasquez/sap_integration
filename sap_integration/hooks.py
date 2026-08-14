@@ -15,8 +15,25 @@ scheduler_events = {
         "0 7-19 * * 1-6": [
             "sap_integration.job.sap_procesar_facturas_pendientes.procesar_facturas_pendientes"
         ],
+        #job que se ejecuta todos los días para sincronizar los clientes y proveedores todo los días
         "*/30 * * * *": [
             "sap_integration.api.sap_clientes.sincronizar_clientes_desde_sap"
+        ],
+        #job que sincroniza todos los articulos todos los días
+        "*/30 * * * *": [
+            "sap_integration.api.sap_articulos.sincronizar_lista_articulos"
+        ],
+        #Job que se actualiza a cada 5 minutos, para buscar las nuevas ordenes de venta en sap
+        "*/5 * * * *": [
+            "sap_integration.api.sap_orden_venta_erpnext.sincronizar_orden_venta_erpnext"
+        ],
+        #Job que se actualiza a cada 5 minutos, para buscar las nuevas notas de entrega en sap
+        "*/5 * * * *": [
+            "sap_integration.api.sap_notas_entregas_erpnext.sincronizar_notas_entregas_erpnext"
+        ],
+        #Job que se actualiza a cada 5 minutos, para buscar las nuevas facturas en sap
+        "*/5 * * * *": [
+            "sap_integration.api.sap_facturas_erpnext.sincronizar_facturas_erpnext"
         ]
 
     }
