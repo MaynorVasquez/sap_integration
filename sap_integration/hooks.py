@@ -152,6 +152,9 @@ fixtures = [
         "dt": "Clientes validad SAP"
     },
     {
+        "dt": "Mapeo Nota de Entrega SAP"
+    },
+    {
         "dt": "Workspace",
         "filters": [
             ["name", "in", ["SAP Integration"]]

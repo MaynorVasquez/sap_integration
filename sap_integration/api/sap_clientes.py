@@ -145,6 +145,10 @@ def procesar_datos(registros_sap, mapeo_lista, doctype, company,debug_messages):
                 elif erp_field == "default_currency":
                     if valor == "QTZ":
                         valor = "GTQ"
+                    # SAP indica que el cliente puede trabajar
+                    # con cualquier moneda
+                    elif valor in ["ALL", "##"]:
+                        valor = "USD"
                 
                 dato_lista[erp_field] = valor
 

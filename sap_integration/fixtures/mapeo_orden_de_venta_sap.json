@@ -339,21 +339,11 @@
     "parenttype": "Mapeo Orden De Venta SAP",
     "tipo": "map",
     "valor": null
-   },
-   {
-    "campo_erpnext": null,
-    "campo_sap": "DocNum",
-    "nivel": "Numero",
-    "parent": "Mapeo Orden De Venta SAP",
-    "parentfield": "datos",
-    "parenttype": "Mapeo Orden De Venta SAP",
-    "tipo": "filter",
-    "valor": "198776"
    }
   ],
   "docstatus": 0,
   "doctype": "Mapeo Orden De Venta SAP",
-  "modified": "2026-08-08 17:48:27.529113",
+  "modified": "2026-08-16 11:20:54.505654",
   "name": "Mapeo Orden De Venta SAP"
  }
 ]

@@ -363,16 +363,6 @@
     "valor": null
    },
    {
-    "campo_erpnext": null,
-    "campo_sap": "DocNum",
-    "nivel": "Numero",
-    "parent": "Mapeo Factura SAP",
-    "parentfield": "mapeo_factura",
-    "parenttype": "Mapeo Factura SAP",
-    "tipo": "filter",
-    "valor": "11083606"
-   },
-   {
     "campo_erpnext": "posting_time",
     "campo_sap": "DocTime",
     "nivel": "head",
@@ -383,7 +373,7 @@
     "valor": null
    }
   ],
-  "modified": "2026-08-10 21:28:54.052303",
+  "modified": "2026-08-16 11:21:10.126649",
   "name": "Mapeo Factura SAP"
  }
 ]

@@ -1,0 +1,259 @@
+[
+ {
+  "company_detalle": [
+   {
+    "company": "Productos Alimenticios YAESTA, S.A.",
+    "endpoint": "DeliveryNotes",
+    "parent": "Mapeo Nota de Entrega SAP",
+    "parentfield": "company_detalle",
+    "parenttype": "Mapeo Nota de Entrega SAP"
+   }
+  ],
+  "datos": [
+   {
+    "campo_erpnext": "customer_name",
+    "campo_sap": "CardName",
+    "nivel": "head",
+    "parent": "Mapeo Nota de Entrega SAP",
+    "parentfield": "datos",
+    "parenttype": "Mapeo Nota de Entrega SAP",
+    "tipo": "map",
+    "valor": null
+   },
+   {
+    "campo_erpnext": "customer",
+    "campo_sap": "CardCode",
+    "nivel": "head",
+    "parent": "Mapeo Nota de Entrega SAP",
+    "parentfield": "datos",
+    "parenttype": "Mapeo Nota de Entrega SAP",
+    "tipo": "map",
+    "valor": null
+   },
+   {
+    "campo_erpnext": "po_date",
+    "campo_sap": "DocDate",
+    "nivel": "head",
+    "parent": "Mapeo Nota de Entrega SAP",
+    "parentfield": "datos",
+    "parenttype": "Mapeo Nota de Entrega SAP",
+    "tipo": "map",
+    "valor": null
+   },
+   {
+    "campo_erpnext": "currency",
+    "campo_sap": "DocCurrency",
+    "nivel": "head",
+    "parent": "Mapeo Nota de Entrega SAP",
+    "parentfield": "datos",
+    "parenttype": "Mapeo Nota de Entrega SAP",
+    "tipo": "map",
+    "valor": null
+   },
+   {
+    "campo_erpnext": "SalesPersonCode",
+    "campo_sap": "SalesPersonCode",
+    "nivel": "head",
+    "parent": "Mapeo Nota de Entrega SAP",
+    "parentfield": "datos",
+    "parenttype": "Mapeo Nota de Entrega SAP",
+    "tipo": "map",
+    "valor": null
+   },
+   {
+    "campo_erpnext": "custom_docnum",
+    "campo_sap": "DocNum",
+    "nivel": "head",
+    "parent": "Mapeo Nota de Entrega SAP",
+    "parentfield": "datos",
+    "parenttype": "Mapeo Nota de Entrega SAP",
+    "tipo": "map",
+    "valor": null
+   },
+   {
+    "campo_erpnext": "CreationDate",
+    "campo_sap": "CreationDate",
+    "nivel": "head",
+    "parent": "Mapeo Nota de Entrega SAP",
+    "parentfield": "datos",
+    "parenttype": "Mapeo Nota de Entrega SAP",
+    "tipo": "map",
+    "valor": null
+   },
+   {
+    "campo_erpnext": "DocTime",
+    "campo_sap": "DocTime",
+    "nivel": "head",
+    "parent": "Mapeo Nota de Entrega SAP",
+    "parentfield": "datos",
+    "parenttype": "Mapeo Nota de Entrega SAP",
+    "tipo": "map",
+    "valor": null
+   },
+   {
+    "campo_erpnext": "UpdateDate",
+    "campo_sap": "UpdateDate",
+    "nivel": "head",
+    "parent": "Mapeo Nota de Entrega SAP",
+    "parentfield": "datos",
+    "parenttype": "Mapeo Nota de Entrega SAP",
+    "tipo": "map",
+    "valor": null
+   },
+   {
+    "campo_erpnext": "UpdateTime",
+    "campo_sap": "UpdateTime",
+    "nivel": "head",
+    "parent": "Mapeo Nota de Entrega SAP",
+    "parentfield": "datos",
+    "parenttype": "Mapeo Nota de Entrega SAP",
+    "tipo": "map",
+    "valor": null
+   },
+   {
+    "campo_erpnext": "DocumentLines",
+    "campo_sap": "DocumentLines",
+    "nivel": "head",
+    "parent": "Mapeo Nota de Entrega SAP",
+    "parentfield": "datos",
+    "parenttype": "Mapeo Nota de Entrega SAP",
+    "tipo": "map",
+    "valor": null
+   },
+   {
+    "campo_erpnext": "item_code",
+    "campo_sap": "ItemCode",
+    "nivel": "DocumentLines",
+    "parent": "Mapeo Nota de Entrega SAP",
+    "parentfield": "datos",
+    "parenttype": "Mapeo Nota de Entrega SAP",
+    "tipo": "map",
+    "valor": null
+   },
+   {
+    "campo_erpnext": "item_name",
+    "campo_sap": "ItemDescription",
+    "nivel": "DocumentLines",
+    "parent": "Mapeo Nota de Entrega SAP",
+    "parentfield": "datos",
+    "parenttype": "Mapeo Nota de Entrega SAP",
+    "tipo": "map",
+    "valor": null
+   },
+   {
+    "campo_erpnext": "qty",
+    "campo_sap": "Quantity",
+    "nivel": "DocumentLines",
+    "parent": "Mapeo Nota de Entrega SAP",
+    "parentfield": "datos",
+    "parenttype": "Mapeo Nota de Entrega SAP",
+    "tipo": "map",
+    "valor": null
+   },
+   {
+    "campo_erpnext": "uom",
+    "campo_sap": "UoMEntry",
+    "nivel": "DocumentLines",
+    "parent": "Mapeo Nota de Entrega SAP",
+    "parentfield": "datos",
+    "parenttype": "Mapeo Nota de Entrega SAP",
+    "tipo": "map",
+    "valor": null
+   },
+   {
+    "campo_erpnext": "custom_linenum",
+    "campo_sap": "LineNum",
+    "nivel": "DocumentLines",
+    "parent": "Mapeo Nota de Entrega SAP",
+    "parentfield": "datos",
+    "parenttype": "Mapeo Nota de Entrega SAP",
+    "tipo": "map",
+    "valor": null
+   },
+   {
+    "campo_erpnext": "warehouse",
+    "campo_sap": "WarehouseCode",
+    "nivel": "DocumentLines",
+    "parent": "Mapeo Nota de Entrega SAP",
+    "parentfield": "datos",
+    "parenttype": "Mapeo Nota de Entrega SAP",
+    "tipo": "map",
+    "valor": null
+   },
+   {
+    "campo_erpnext": "BatchNumbers",
+    "campo_sap": "BatchNumbers",
+    "nivel": "DocumentLines",
+    "parent": "Mapeo Nota de Entrega SAP",
+    "parentfield": "datos",
+    "parenttype": "Mapeo Nota de Entrega SAP",
+    "tipo": "map",
+    "valor": null
+   },
+   {
+    "campo_erpnext": "BatchNumber",
+    "campo_sap": "BatchNumber",
+    "nivel": "BatchNumbers",
+    "parent": "Mapeo Nota de Entrega SAP",
+    "parentfield": "datos",
+    "parenttype": "Mapeo Nota de Entrega SAP",
+    "tipo": "map",
+    "valor": null
+   },
+   {
+    "campo_erpnext": "Quantity",
+    "campo_sap": "Quantity",
+    "nivel": "BatchNumbers",
+    "parent": "Mapeo Nota de Entrega SAP",
+    "parentfield": "datos",
+    "parenttype": "Mapeo Nota de Entrega SAP",
+    "tipo": "map",
+    "valor": null
+   },
+   {
+    "campo_erpnext": "BaseLineNumber",
+    "campo_sap": "BaseLineNumber",
+    "nivel": "BatchNumbers",
+    "parent": "Mapeo Nota de Entrega SAP",
+    "parentfield": "datos",
+    "parenttype": "Mapeo Nota de Entrega SAP",
+    "tipo": "map",
+    "valor": null
+   },
+   {
+    "campo_erpnext": "ItemCode",
+    "campo_sap": "ItemCode",
+    "nivel": "BatchNumbers",
+    "parent": "Mapeo Nota de Entrega SAP",
+    "parentfield": "datos",
+    "parenttype": "Mapeo Nota de Entrega SAP",
+    "tipo": "map",
+    "valor": null
+   },
+   {
+    "campo_erpnext": "custom_docentry",
+    "campo_sap": "DocEntry",
+    "nivel": "head",
+    "parent": "Mapeo Nota de Entrega SAP",
+    "parentfield": "datos",
+    "parenttype": "Mapeo Nota de Entrega SAP",
+    "tipo": "map",
+    "valor": null
+   },
+   {
+    "campo_erpnext": "DocumentReferences",
+    "campo_sap": "DocumentReferences",
+    "nivel": "head",
+    "parent": "Mapeo Nota de Entrega SAP",
+    "parentfield": "datos",
+    "parenttype": "Mapeo Nota de Entrega SAP",
+    "tipo": "map",
+    "valor": null
+   }
+  ],
+  "docstatus": 0,
+  "doctype": "Mapeo Nota de Entrega SAP",
+  "modified": "2026-08-14 17:03:58.725494",
+  "name": "Mapeo Nota de Entrega SAP"
+ }
+]
