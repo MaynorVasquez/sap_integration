@@ -374,6 +374,7 @@ def procesar_datos(registros_sap, mapeo_lista, doctype, company, debug_messages)
                                             "Sales Order")
 
                 elif doc.docstatus == 1:
+                    continue
                     #ESTADO ENVIADO:se usa función nativa de erpnext 
                     try:
                         trans_items = []
