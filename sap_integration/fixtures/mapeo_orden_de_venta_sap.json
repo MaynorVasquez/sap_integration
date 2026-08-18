@@ -327,7 +327,7 @@
     "parent": "Mapeo Orden De Venta SAP",
     "parentfield": "datos",
     "parenttype": "Mapeo Orden De Venta SAP",
-    "tipo": "filter",
+    "tipo": "map",
     "valor": "bost_Open"
    },
    {
@@ -343,7 +343,7 @@
   ],
   "docstatus": 0,
   "doctype": "Mapeo Orden De Venta SAP",
-  "modified": "2026-08-16 11:20:54.505654",
+  "modified": "2026-08-18 10:45:40.783729",
   "name": "Mapeo Orden De Venta SAP"
  }
 ]

@@ -13,16 +13,6 @@
   "doctype": "Mapeo Inventario SAP",
   "mapeo_inventario_sap": [
    {
-    "campo_erpnext": null,
-    "campo_sap": "WhsCode",
-    "nivel": "head",
-    "parent": "Mapeo Inventario SAP",
-    "parentfield": "mapeo_inventario_sap",
-    "parenttype": "Mapeo Inventario SAP",
-    "tipo": "filter",
-    "valor": "29"
-   },
-   {
     "campo_erpnext": "custom_itemcode",
     "campo_sap": "ItemCode",
     "nivel": "head",
@@ -81,9 +71,49 @@
     "parenttype": "Mapeo Inventario SAP",
     "tipo": "map",
     "valor": null
+   },
+   {
+    "campo_erpnext": null,
+    "campo_sap": "WhsCode",
+    "nivel": "head",
+    "parent": "Mapeo Inventario SAP",
+    "parentfield": "mapeo_inventario_sap",
+    "parenttype": "Mapeo Inventario SAP",
+    "tipo": "filter",
+    "valor": "65"
+   },
+   {
+    "campo_erpnext": null,
+    "campo_sap": "WhsCode",
+    "nivel": "head",
+    "parent": "Mapeo Inventario SAP",
+    "parentfield": "mapeo_inventario_sap",
+    "parenttype": "Mapeo Inventario SAP",
+    "tipo": "filter",
+    "valor": "64"
+   },
+   {
+    "campo_erpnext": null,
+    "campo_sap": "WhsCode",
+    "nivel": "head",
+    "parent": "Mapeo Inventario SAP",
+    "parentfield": "mapeo_inventario_sap",
+    "parenttype": "Mapeo Inventario SAP",
+    "tipo": "filter",
+    "valor": "33"
+   },
+   {
+    "campo_erpnext": null,
+    "campo_sap": "WhsCode",
+    "nivel": "head",
+    "parent": "Mapeo Inventario SAP",
+    "parentfield": "mapeo_inventario_sap",
+    "parenttype": "Mapeo Inventario SAP",
+    "tipo": "filter",
+    "valor": "29"
    }
   ],
-  "modified": "2026-08-04 16:42:40.117319",
+  "modified": "2026-08-18 11:59:19.946303",
   "name": "Mapeo Inventario SAP"
  }
 ]

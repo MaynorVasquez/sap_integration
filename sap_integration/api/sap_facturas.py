@@ -67,7 +67,9 @@ def factura_deudores(docname):
             frappe.msgprint(_(f"Factura enviada exitosamente a SAP {sap_docnum}"))
             respuesta = f"Factura enviada éxito, referencia SAP: {sap_docnum}"
             if sap_docnum:
-                frappe.db.set_value(doctype_target, docname, "custom_docnum", sap_docnum)
+                frappe.db.set_value(doctype_target, docname, 
+                                                    {"custom_docnum" : sap_docnum,
+                                                     "custom_docentry" : sap_docentry})
                 frappe.db.commit()
             logs_transactional(doctype_logs, docname, "Success" , payload, respuesta, doctype_mapeo,doctype_target)
             return data
@@ -139,15 +141,28 @@ def construir_payload_sap(doc, mapeo):
 
         elif campo_erp == "shipping_address_name":
             shiptocode = doc.get("shipping_address_name") or ""
-            if shiptocode.lower().endswith(("-envío", "-facturación", "-shipping", "-billing", "-Shipping")):
-                shiptocode = shiptocode.rsplit("-", 1)[0].strip()
 
             # Validación adicional para un cliente específico
             print(f"Verificando CardCode: {custom_cardcode}")
             if custom_cardcode == "C02683":
                 shiptocode = "Tienda B2"
 
-            valor = shiptocode
+            # Buscar directamente la dirección por cliente + ShipToCode
+            valor = frappe.db.get_value(
+                "Address",
+                {
+                    "custom_cardcode": custom_cardcode,
+                    "name": shiptocode
+                },
+                "address_title"
+            )
+
+            if not valor:
+                print(
+                    f"No se encontró dirección para "
+                    f"CardCode={custom_cardcode}, ShipToCode={shiptocode}"
+                )
+                valor = ""
 
         else:
             valor = doc.get(campo_erp)

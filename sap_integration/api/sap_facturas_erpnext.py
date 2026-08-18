@@ -60,8 +60,7 @@ def procesar_datos(registros_sap, mapeo_lista, doctype, company, debug_messages)
             DocNum = lista_mapeo.get("DocNum")
 
             factura = frappe.db.get_value(doctype, 
-                                {"custom_docnum": DocNum, 
-                                 "custom_docentry" : DocEntry,
+                                {"custom_docnum": DocNum,
                                  "company": company,
                                  "docstatus": 1}, 
                                  "name")
@@ -285,7 +284,7 @@ def procesar_datos(registros_sap, mapeo_lista, doctype, company, debug_messages)
 
         except Exception as e:
             frappe.db.rollback()
-            frappe.log_error(message=frappe.get_traceback(), title=f"Error al procesar Sales Invoice SAP {DocEntry}")
+            frappe.log_error(message=frappe.get_traceback(), title=f"Error Sales Invoice: DocNum {DocNum} -- DocEntry {DocEntry}")
             frappe.db.commit() 
             continue
 
