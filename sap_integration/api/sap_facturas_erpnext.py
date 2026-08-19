@@ -163,7 +163,10 @@ def procesar_datos(registros_sap, mapeo_lista, doctype, company, debug_messages)
 
             doc.custom_docnum = lista_mapeo.get("DocNum")
             doc.custom_docentry = lista_mapeo.get("DocEntry")
-            
+            doc.custom_uuid = lista_mapeo.get("U_CAE")
+            doc.custom_numero = lista_mapeo.get("U_DocNum")
+            doc.custom_serie = lista_mapeo.get("U_DocSerie")
+            doc.custom_fecha = lista_mapeo.get("U_Fac_FechaC")
             # Asignación del flag update_stock a nivel de documento ERPNext
             doc.update_stock = descarga_stock 
 

@@ -76,9 +76,12 @@ def procesar_empresa_individual(config,
         print(f"Filtro de tiempo: {filtro_tiempo}")
 
         while True:
-            print(f"Valor de Skip: {skip}")
+    
             url_base = construir_url_sap(mapeo_lista, empresa.company, empresa.endpoint, usa_paginacion, almacen, top=top, skip=skip)
-            url_final = inyectar_filtro_a_url(url_base, filtro_tiempo)
+            if filtro_tiempo:
+                url_final = inyectar_filtro_a_url(url_base, filtro_tiempo)
+            else:
+                url_final = url_base
             
             print(f"✔ URL: {url_final}")
             response = session.get(url_final)

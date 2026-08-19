@@ -63,6 +63,7 @@ def factura_deudores(docname):
         if response.status_code in (200, 201):
             data = response.json()
             sap_docnum = data.get("DocNum")
+            sap_docentry = data.get("DocEntry")
             print(f"Factura SAP: {sap_docnum}")
             frappe.msgprint(_(f"Factura enviada exitosamente a SAP {sap_docnum}"))
             respuesta = f"Factura enviada éxito, referencia SAP: {sap_docnum}"

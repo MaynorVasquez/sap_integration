@@ -86,14 +86,15 @@ fixtures = [
                 "POS Profile-custom_serie_sap",
                 "Sales Invoice-custom_docnum",
                 "Sales Invoice-custom_docentry",
+                "Sales Invoice-custom_comments",
                 "Sales Invoice Item-custom_linenum",
                 "Batch-custom_batchnum",
                 "Price List-custom_company",
                 "Sales Taxes and Charges Template-custom_taxcode",
                 "Delivery Note Item-custom_linenum",
                 "Delivery Note-custom_docnum",
-                "Delivery Note-custom_docnum",
                 "Delivery Note-custom_docentry",
+                "Delivery Note-custom_comments",
                 "Delivery Note Item-custom_linenum"
                 
 
