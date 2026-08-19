@@ -58,6 +58,11 @@ def procesar_datos(registros_sap, mapeo_lista, doctype, company, debug_messages)
             sap_id = lista_mapeo.get(sap_key_field)
             DocEntry = lista_mapeo.get("DocEntry")
             DocNum = lista_mapeo.get("DocNum")
+            Series = lista_mapeo.get("Series")
+
+            if Series == 306:
+                print(f"Factura {DocNum} pertenece a facturas de tienda. Se omite la sincronización.")
+                continue
 
             factura = frappe.db.get_value(doctype, 
                                 {"custom_docnum": DocNum,
