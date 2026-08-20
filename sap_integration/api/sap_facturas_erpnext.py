@@ -4,7 +4,7 @@ import json
 import traceback  # Importación añadida
 from datetime import datetime
 from frappe.utils import flt, cint
-from frappe.utils import getdate, nowdate
+from frappe.utils import getdate, nowdate,get_datetime
 from sap_integration.utils.procesar_empresa_individual import procesar_empresa_individual
 from sap_integration.utils.logs_transactional import logs_transactional
 from erpnext.selling.doctype.sales_order.sales_order import make_sales_invoice as make_invoice_from_so
@@ -166,7 +166,9 @@ def procesar_datos(registros_sap, mapeo_lista, doctype, company, debug_messages)
             doc.custom_uuid = lista_mapeo.get("U_CAE")
             doc.custom_numero = lista_mapeo.get("U_DocNum")
             doc.custom_serie = lista_mapeo.get("U_DocSerie")
-            doc.custom_fecha = lista_mapeo.get("U_Fac_FechaC")
+            fecha_sap = lista_mapeo.get("U_Fac_FechaC")
+            if fecha_sap:
+                doc.custom_fecha = get_datetime(fecha_sap)
             # Asignación del flag update_stock a nivel de documento ERPNext
             doc.update_stock = descarga_stock 
 

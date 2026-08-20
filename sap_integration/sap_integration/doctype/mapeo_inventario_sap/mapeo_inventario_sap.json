@@ -7,7 +7,8 @@
  "field_order": [
   "mapeo_inventario",
   "mapeo_inventario_sap",
-  "company_detalle"
+  "company_detalle",
+  "almacenes_autorizados"
  ],
  "fields": [
   {
@@ -26,13 +27,19 @@
    "fieldtype": "Table",
    "label": "Compa\u00f1ias Autorizadas",
    "options": "Campos empresas autorizadas"
+  },
+  {
+   "fieldname": "almacenes_autorizados",
+   "fieldtype": "Table",
+   "label": "Almacenes Autorizados",
+   "options": "Almacenes Stock"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "issingle": 1,
  "links": [],
- "modified": "2026-04-30 08:38:34.065597",
+ "modified": "2026-08-19 18:51:31.438416",
  "modified_by": "Administrator",
  "module": "Sap Integration",
  "name": "Mapeo Inventario SAP",

@@ -1,0 +1,55 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2026-08-19 18:48:46.326598",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "almacen",
+  "whscode",
+  "company",
+  "enable"
+ ],
+ "fields": [
+  {
+   "fieldname": "almacen",
+   "fieldtype": "Link",
+   "label": "Almacen",
+   "options": "Warehouse"
+  },
+  {
+   "fetch_from": "almacen.custom_warehousecode",
+   "fieldname": "whscode",
+   "fieldtype": "Data",
+   "label": "C\u00f3digo Almacen"
+  },
+  {
+   "default": "0",
+   "fieldname": "enable",
+   "fieldtype": "Check",
+   "label": "Enable"
+  },
+  {
+   "fetch_from": "almacen.company",
+   "fieldname": "company",
+   "fieldtype": "Data",
+   "label": "Compa\u00f1ia"
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "istable": 1,
+ "links": [],
+ "modified": "2026-08-19 20:40:32.777630",
+ "modified_by": "Administrator",
+ "module": "Sap Integration",
+ "name": "Almacenes Stock",
+ "owner": "Administrator",
+ "permissions": [],
+ "row_format": "Dynamic",
+ "rows_threshold_for_grid_search": 20,
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}
