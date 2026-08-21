@@ -3,13 +3,13 @@ from frappe import _
 import json
 import traceback  # Importación añadida
 from datetime import datetime
-from frappe.utils import flt, cint
-from frappe.utils import getdate, nowdate,get_datetime
+from frappe.utils import getdate, nowdate,get_datetime,add_days,today,flt, cint
 from sap_integration.utils.procesar_empresa_individual import procesar_empresa_individual
 from sap_integration.utils.logs_transactional import logs_transactional
 from erpnext.selling.doctype.sales_order.sales_order import make_sales_invoice as make_invoice_from_so
 from erpnext.stock.doctype.delivery_note.delivery_note import make_sales_invoice as make_invoice_from_dn
 from sap_integration.api.sap_auth import login_sap
+from erpnext.stock.doctype.batch.batch import get_batch_qty
 
 @frappe.whitelist()
 def sincronizar_facturas_erpnext(docname=None):
@@ -168,7 +168,9 @@ def procesar_datos(registros_sap, mapeo_lista, doctype, company, debug_messages)
             doc.custom_serie = lista_mapeo.get("U_DocSerie")
             fecha_sap = lista_mapeo.get("U_Fac_FechaC")
             if fecha_sap:
-                doc.custom_fecha = get_datetime(fecha_sap)
+                # Parsear ISO 8601
+                fecha_obj = datetime.fromisoformat(fecha_sap)
+                doc.custom_fecha = fecha_obj.strftime("%Y-%m-%d %H:%M:%S")
             # Asignación del flag update_stock a nivel de documento ERPNext
             doc.update_stock = descarga_stock 
 
@@ -410,7 +412,14 @@ def crear_factura_directa(lista_mapeo, mapeo_lista, doctype, company):
         elif erp_field == "customer":
             valor = cardcode_erpnext
         elif erp_field == "custom_fecha":
-            valor = None
+            if valor:
+                fecha_iso = valor
+                # Parsear ISO 8601
+                fecha_obj = datetime.fromisoformat(fecha_iso)
+                # Convertir a formato compatible con ERPNext
+                valor = fecha_obj.strftime("%Y-%m-%d %H:%M:%S")
+            else:
+                valor = None
 
         dato_lista[erp_field] = valor
 
@@ -595,28 +604,28 @@ def crear_paquete_de_lotes(item_code, warehouse, lotes_sap, voucher_type, vouche
     for lote in lotes_sap:
         sap_batch_number = lote["BatchNumber"]
         qty = lote["Quantity"]
+        ExpiryDate = lote.get("ExpiryDate")
+        custom_batchnum = lote.get("BatchNumber")  # Usamos el BatchNumber de SAP como custom_batchnum
 
-        # Buscar el lote real en ERPNext usando custom_batchnum
-        batch_name = frappe.get_value(
-            "Batch",
-            {"custom_batchnum": sap_batch_number, "item": item_code},
-            "name"
-        )
+        batch_name = obtener_o_crear_batch( item_code, ExpiryDate, custom_batchnum)
 
         if not batch_name:
             frappe.throw(
                 f"Sincronización abortada: No se encontró el lote '{sap_batch_number}' "
                 f"para el artículo '{item_code}' en ERPNext."
             )
+        qty_batch_disponible = obtener_stock_lote(item_code, warehouse, batch_name)
+        print(f"Stock disponible para lote {batch_name} en almacén {warehouse}: {qty_batch_disponible}")
 
         print(f"Lote mapeado: SAP({sap_batch_number}) -> ERPNext({batch_name}). Qty: {qty}")
+
+        if qty > qty_batch_disponible:
+            print(f"⚠️ Advertencia: La cantidad solicitada ({qty}) para el lote {batch_name} "
+                    f"excede el stock disponible ({qty_batch_disponible}). Ajustando a stock disponible.")
+            Material_Receipt = crear_stock_entry_entrada(item_code, qty, batch_name, warehouse)
+            print(f"Material Receipt creado: {Material_Receipt}")
         
-        # En v15/v16 para Outward la cantidad se mantiene positiva en la tabla entries
-        # bundle.append("entries", {
-        #     "batch_no": batch_name,
-        #     "qty": qty, 
-        #     "warehouse": warehouse
-        # })
+
         nueva_entrada_lote = {
             "batch_no": batch_name,
             "qty": qty, 
@@ -635,6 +644,164 @@ def crear_paquete_de_lotes(item_code, warehouse, lotes_sap, voucher_type, vouche
     bundle.insert(ignore_permissions=True)
 
     return bundle.name
+
+
+def obtener_stock_lote(item_code, warehouse, batch_no):
+    """
+    Obtiene el stock disponible de un lote específico
+    para un artículo y almacén.
+
+    Retorna float.
+    """
+
+    try:
+        stock = get_batch_qty(
+            batch_no=batch_no,
+            warehouse=warehouse,
+            item_code=item_code,
+            for_stock_levels=True
+        )
+
+        return flt(stock or 0)
+
+    except Exception:
+        frappe.log_error(
+            message=frappe.get_traceback(),
+            title=f"Error consultando stock lote {batch_no}"
+        )
+        raise
+
+def obtener_o_crear_batch( item_code, expiry_date=None, custom_batchnum=None):
+    if not custom_batchnum:
+        return None
+
+    # Buscar lote existente
+    batch_name = frappe.db.get_value(
+        "Batch",
+        {
+            "custom_batchnum": custom_batchnum,
+            "item": item_code
+        },
+        "name"
+    )
+    
+
+    if batch_name:
+        print(f"✅ Lote existente encontrado: {batch_name} para item {item_code} con custom_batchnum {custom_batchnum}")
+        return batch_name
+
+    print(f"No se encontró lote existente para item {item_code} con custom_batchnum {custom_batchnum}. Creando nuevo lote...")
+
+    batch_no = f"{item_code}-{custom_batchnum}"
+
+    # Verifica lote vencido y ajusta la fecha si es necesario
+    expiry_date = str(expiry_date).strip()
+    # Eliminar la parte de hora/timezone
+    if "T" in expiry_date:
+        expiry_date = expiry_date.split("T")[0]
+    if expiry_date and getdate(expiry_date) < getdate(today()):
+        hoy = getdate(nowdate())
+        expiry_date = add_days(hoy, 5)
+        print(f"⚠ Lote vencido detectado para {item_code} lote {batch_no}. Fecha ajustada a {expiry_date}.")
+
+    # Crear lote
+    batch_doc = frappe.get_doc({
+        "doctype": "Batch",
+        "batch_id": batch_no,
+        "item": item_code,
+        "expiry_date": expiry_date,
+        "custom_batchnum": custom_batchnum
+    })
+
+    batch_doc.insert(ignore_permissions=True)
+
+    print(f"✅ Lote creado-----: {batch_doc.name} para item {item_code} con custom_batchnum {custom_batchnum}")
+
+    return batch_doc.name
+
+def crear_stock_entry_entrada(item_code, qty, batch_no, warehouse, valuation_rate=1):
+
+    try:
+        if not item_code:
+            raise ValueError("No se indicó item_code.")
+
+        if not qty or qty <= 0:
+            raise ValueError(
+                f"Cantidad inválida para {item_code}: {qty}"
+            )
+
+        if not warehouse:
+            raise ValueError(
+                f"No se indicó bodega para {item_code}."
+            )
+
+        # ==================================================
+        # Crear Stock Entry
+        # ==================================================
+
+        se = frappe.new_doc("Stock Entry")
+
+        se.stock_entry_type = "Material Receipt"
+        se.purpose = "Material Receipt"
+
+        item_data = {
+            "item_code": item_code,
+            "qty": qty,
+            "basic_rate": valuation_rate,
+            "valuation_rate": valuation_rate,
+            "t_warehouse": warehouse
+        }
+
+        # Asignar lote
+        if batch_no:
+            item_data["batch_no"] = batch_no
+            item_data["use_serial_batch_fields"] = 1
+
+        se.append("items", item_data)
+
+        print(
+            f"📦 Material Receipt preparado: "
+            f"{item_code} | Lote: {batch_no or 'N/A'} | "
+            f"Cantidad: {qty} | Bodega: {warehouse} | "
+            f"Costo: {valuation_rate}"
+        )
+
+        # ==================================================
+        # Insertar y enviar
+        # ==================================================
+
+        se.flags.ignore_permissions = True
+
+        se.insert(ignore_permissions=True)
+        se.submit()
+
+        frappe.db.commit()
+
+        mensaje = (
+            f"🚚 Stock Entry creado y enviado: {se.name} | "
+            f"{item_code} | Lote: {batch_no or 'N/A'} | "
+            f"Cantidad: {qty} | Bodega: {warehouse}"
+        )
+
+        print(mensaje)
+
+        return se.name
+
+    except Exception as e:
+        frappe.db.rollback()
+        mensaje = (
+            f"Error creando Material Receipt: "
+            f"Item={item_code}, "
+            f"Lote={batch_no}, "
+            f"Cantidad={qty}, "
+            f"Bodega={warehouse}: {str(e)}"
+        )
+        frappe.log_error(
+            frappe.get_traceback(),
+            mensaje
+        )
+        raise
+
 
 def obtener_documento_completo_sap(docentry, company):
     session = login_sap(company)
