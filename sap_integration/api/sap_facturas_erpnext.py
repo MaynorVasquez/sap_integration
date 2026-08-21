@@ -409,6 +409,8 @@ def crear_factura_directa(lista_mapeo, mapeo_lista, doctype, company):
             valor = direccion_envio
         elif erp_field == "customer":
             valor = cardcode_erpnext
+        elif erp_field == "custom_fecha":
+            valor = None
 
         dato_lista[erp_field] = valor
 
@@ -567,8 +569,6 @@ def crear_factura_directa(lista_mapeo, mapeo_lista, doctype, company):
     frappe.db.commit()
     print(f"Sales Invoice Directa {doc.name} creada exitosamente.")
 
-
-
 def crear_paquete_de_lotes(item_code, warehouse, lotes_sap, voucher_type, voucher_no, voucher_detail_no, company ):
     # 1. Determinar el tipo de transacción
     if voucher_type == "Sales Invoice":
@@ -635,7 +635,6 @@ def crear_paquete_de_lotes(item_code, warehouse, lotes_sap, voucher_type, vouche
     bundle.insert(ignore_permissions=True)
 
     return bundle.name
-
 
 def obtener_documento_completo_sap(docentry, company):
     session = login_sap(company)
