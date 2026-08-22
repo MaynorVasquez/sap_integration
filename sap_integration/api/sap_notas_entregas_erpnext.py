@@ -60,6 +60,8 @@ def procesar_datos(registros_sap, mapeo_lista, doctype, company, debug_messages)
         sap_id = lista_mapeo.get(sap_key_field)
         DocEntry = lista_mapeo.get("DocEntry")
         DocNum = lista_mapeo.get("DocNum")
+        cancel_status = lista_mapeo.get("CancelStatus")
+        print(f"Valor de cancelación {cancel_status}")
 
         if not DocEntry:
             continue
@@ -69,6 +71,37 @@ def procesar_datos(registros_sap, mapeo_lista, doctype, company, debug_messages)
             # 1. OBTENER DELIVERY NOTE COMPLETA DESDE SAP
             # ============================================================
             full_data = obtener_delivery_note_completo(DocEntry, company)
+            cancel_status = full_data.get("CancelStatus")
+            if cancel_status == "csCancellation":
+                # Obtener las líneas del documento SAP
+                document_lines = full_data.get("DocumentLines", [])
+                print(f"Se inicia proceso de cancelación de Nota de entrega")
+
+                if document_lines:
+                    # DocEntry del documento original
+                    base_entry = document_lines[0].get("BaseEntry")
+                    if base_entry:
+                        # Buscar la factura original en ERPNext
+                        # usando el custom_docentry que guardaste desde SAP
+                        print(f"Delivery Note que se anulara es: {base_entry}")
+                        facturas = frappe.get_all(
+                            "Delivery Note",
+                            filters={
+                                "custom_docentry": base_entry
+                            },
+                            fields=["name", "docstatus"]
+                        )
+                        if facturas:
+                            factura = frappe.get_doc(
+                                "Delivery Note",
+                                facturas[0].name
+                            )
+                            if factura.docstatus == 1:
+                                factura.flags.ignore_links = True
+                                factura.cancel()
+                                frappe.db.commit()
+                                print(f"¡Éxito! La Nota de entrega {factura} ha sido cancelada.")
+                                continue
 
             DeliveryNote = frappe.db.get_value(
                 doctype,
