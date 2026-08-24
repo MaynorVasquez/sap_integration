@@ -321,16 +321,6 @@
     "valor": null
    },
    {
-    "campo_erpnext": null,
-    "campo_sap": "DocumentStatus",
-    "nivel": "Texto",
-    "parent": "Mapeo Orden De Venta SAP",
-    "parentfield": "datos",
-    "parenttype": "Mapeo Orden De Venta SAP",
-    "tipo": "map",
-    "valor": "bost_Open"
-   },
-   {
     "campo_erpnext": "custom_docentry",
     "campo_sap": "DocEntry",
     "nivel": "head",
@@ -343,7 +333,7 @@
   ],
   "docstatus": 0,
   "doctype": "Mapeo Orden De Venta SAP",
-  "modified": "2026-08-18 10:45:40.783729",
+  "modified": "2026-08-24 15:56:29.399939",
   "name": "Mapeo Orden De Venta SAP"
  }
 ]

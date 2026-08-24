@@ -261,9 +261,19 @@
     "parenttype": "Mapeo Cliente",
     "tipo": "map",
     "valor": null
+   },
+   {
+    "campo_erpnext": "payment_terms",
+    "campo_sap": "PayTermsGrpCod",
+    "nivel": "head",
+    "parent": "Mapeo Cliente",
+    "parentfield": "mapeo_cliente",
+    "parenttype": "Mapeo Cliente",
+    "tipo": "map",
+    "valor": null
    }
   ],
-  "modified": "2026-08-14 13:43:45.756777",
+  "modified": "2026-08-24 13:00:06.574723",
   "name": "Mapeo Cliente"
  }
 ]

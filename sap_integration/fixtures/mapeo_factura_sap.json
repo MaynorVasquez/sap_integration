@@ -371,9 +371,19 @@
     "parenttype": "Mapeo Factura SAP",
     "tipo": "map",
     "valor": null
+   },
+   {
+    "campo_erpnext": "CancelStatus",
+    "campo_sap": "CancelStatus",
+    "nivel": "head",
+    "parent": "Mapeo Factura SAP",
+    "parentfield": "mapeo_factura",
+    "parenttype": "Mapeo Factura SAP",
+    "tipo": "map",
+    "valor": null
    }
   ],
-  "modified": "2026-08-17 15:25:58.971246",
+  "modified": "2026-08-24 15:56:37.005501",
   "name": "Mapeo Factura SAP"
  }
 ]

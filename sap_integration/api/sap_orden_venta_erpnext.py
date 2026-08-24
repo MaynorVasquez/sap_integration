@@ -268,7 +268,7 @@ def procesar_datos(registros_sap, mapeo_lista, doctype, company, debug_messages)
                 items.append(item_data)
             
             dato_lista["custom_company"] = company
-            dato_lista["disable_rounded_total"] = 1
+            dato_lista["disable_rounded_total"] = 0
             dato_lista["selling_price_list"] = price_list_erpnext
             
             doc_data = {}
