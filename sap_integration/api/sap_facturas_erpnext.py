@@ -288,7 +288,7 @@ def procesar_datos(registros_sap, mapeo_lista, doctype, company, debug_messages)
                     doc.append("items", nueva_entrada)
 
             # --- 6. Inserción Inicial ---
-           
+            doc.ignore_pricing_rule = 1
             doc.insert()
             si_name = doc.name
             doc.reload()
@@ -555,6 +555,7 @@ def crear_factura_directa(lista_mapeo, mapeo_lista, doctype, company):
     print(f"Datos: {json.dumps(doc_data, indent=2, default=str)}")
     doc = frappe.get_doc(doc_data)
     doc.flags.ignore_permissions = True 
+    doc.ignore_pricing_rule = 1
     doc.insert()
     si_name = doc.name
 
