@@ -583,7 +583,9 @@ def procesar_datos(registros_sap, mapeo_lista, doctype, company, debug_messages)
             # ============================================================
 
             doc.flags.sap_delivery_note_sync = True
+            doc.ignore_pricing_rule = 1
             doc.insert()
+            
             #doc.flags.sap_delivery_note_sync = True
             dn_name = doc.name
 
