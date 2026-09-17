@@ -264,7 +264,7 @@
    },
    {
     "campo_erpnext": "payment_terms",
-    "campo_sap": "PayTermsGrpCod",
+    "campo_sap": "PayTermsGrpCode",
     "nivel": "head",
     "parent": "Mapeo Cliente",
     "parentfield": "mapeo_cliente",
@@ -273,7 +273,7 @@
     "valor": null
    }
   ],
-  "modified": "2026-08-24 13:00:06.574723",
+  "modified": "2026-09-09 16:48:48.765098",
   "name": "Mapeo Cliente"
  }
 ]

@@ -63,7 +63,8 @@ def procesar_datos(registros_sap, mapeo_lista, doctype, company, debug_messages)
                 doctype,
                 filters={
                     erp_key_field: sap_id,
-                    "company": company
+                    "company": company,
+                    "docstatus": ["!=", 2]
                 },
                 fields=["name"],
                 limit=1

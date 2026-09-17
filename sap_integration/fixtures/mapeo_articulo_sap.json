@@ -20,16 +20,6 @@
   "doctype": "Mapeo Articulo SAP",
   "mapeo_articulo_sap": [
    {
-    "campo_erpnext": null,
-    "campo_sap": "U_smart_art",
-    "nivel": "Texto",
-    "parent": "Mapeo Articulo SAP",
-    "parentfield": "mapeo_articulo_sap",
-    "parenttype": "Mapeo Articulo SAP",
-    "tipo": "filter",
-    "valor": "1"
-   },
-   {
     "campo_erpnext": "custom_itemcode",
     "campo_sap": "ItemCode",
     "nivel": "head",
@@ -210,7 +200,7 @@
     "valor": null
    }
   ],
-  "modified": "2026-07-15 11:35:12.578434",
+  "modified": "2026-09-10 08:59:17.152671",
   "name": "Mapeo Articulo SAP"
  }
 ]
