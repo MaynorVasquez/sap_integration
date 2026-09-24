@@ -6,6 +6,12 @@ app_email = "informatica@yaesta.com.gt"
 app_license = "mit"
 
 
+# tu_app/hooks.py
+override_doctype_class = {
+    "Stock Entry": "sap_integration.utils.validate_expired_batches.CustomStockEntry",
+    "Sales Invoice" : "sap_integration.utils.validate_expired_date.CustomSalesInvoice"
+}
+
 scheduler_events = {
     "cron": {
         "0 2 * * *": [
