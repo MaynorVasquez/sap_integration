@@ -307,13 +307,13 @@ def procesar_datos(registros_sap, mapeo_lista, doctype, company, debug_messages)
                 # Igual que con SO, tu función actual genera la cabecera
                 # desde un documento base único.
                 # --------------------------------------------------------
-                if len(entradas_si) > 1:
-                    frappe.throw(
-                        f"La Delivery Note SAP {DocNum} contiene "
-                        f"varias Facturas como documento base: "
-                        f"{entradas_si}. "
-                        f"El proceso actual espera una sola Factura."
-                    )
+                # if len(entradas_si) > 1:
+                #     frappe.throw(
+                #         f"La Delivery Note SAP {DocNum} contiene "
+                #         f"varias Facturas como documento base: "
+                #         f"{entradas_si}. "
+                #         f"El proceso actual espera una sola Factura."
+                #     )
 
                 erpnext_si_names = {}
 

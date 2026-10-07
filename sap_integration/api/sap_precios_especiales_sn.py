@@ -49,6 +49,8 @@ def procesar_datos(registros_sap, mapeo_lista, doctype, company,debug_messages):
         try:
             ItemCode_SAP = lista_mapeo.get("ItemCode")
             CardCode_SAP = lista_mapeo.get("CardCode")
+            PriceListNum_SAP = lista_mapeo.get("PriceListNum")
+            print(f"Procesando ItemCode: {ItemCode_SAP}, CardCode: {CardCode_SAP}, PriceListNum: {PriceListNum_SAP} para la empresa {company}")
             #campos = mapeo_lista.get("sap_fields", {}).get("head", {})
             titulo = f"{CardCode_SAP}-{ItemCode_SAP}"
             SpecialPriceDataAreas = lista_mapeo.get("SpecialPriceDataAreas", [])
@@ -88,15 +90,15 @@ def procesar_datos(registros_sap, mapeo_lista, doctype, company,debug_messages):
 
                 print(f"Fecha de vencimiento: {fecha_vencimiento}")
                 print(f"ItemCode_erpnext: {ItemCode_erpnext}")
-
-                dato_existe = frappe.get_value(
-                    doctype,
-                    {
-                        "title": titulo,
-                        "company": company
+                pricelistanum_erpnext = frappe.get_value(
+                    "Price List",
+                    filters={
+                        "custom_pricelistno": PriceListNum_SAP,
+                        "custom_company": company
                     },
-                    "name"
+                    fieldname="name"
                 )
+                print(f"pricelistanum_erpnext: {pricelistanum_erpnext}--{PriceListNum_SAP}")
                 cardcode_erpnext = frappe.get_value(
                     "Customer",
                     {
@@ -106,7 +108,17 @@ def procesar_datos(registros_sap, mapeo_lista, doctype, company,debug_messages):
                     "name"
                 )
                 if not cardcode_erpnext:
-                    continue
+                    titulo = f"{pricelistanum_erpnext}-{ItemCode_SAP}"
+                    print(f"nuevo titulo: {titulo}")
+
+                dato_existe = frappe.get_value(
+                    doctype,
+                    {
+                        "title": titulo,
+                        "company": company
+                    },
+                    "name"
+                )
 
                 campos = mapeo_lista.get("sap_fields", {}).get("DocumentLines", {})
                 dato_lista = {}
@@ -129,10 +141,15 @@ def procesar_datos(registros_sap, mapeo_lista, doctype, company,debug_messages):
                 
                 dato_lista["company"] = company
                 dato_lista["selling"] = 1
+                dato_lista["buying"] = 1
+
                 dato_lista["title"] = titulo
                 dato_lista["price_or_product_discount"] = "Price"
                 dato_lista["apply_on"] =  "Item Code"
-                dato_lista["applicable_for"] =  "Customer"
+                if cardcode_erpnext:
+                    dato_lista["applicable_for"] =  "Customer"
+                if not cardcode_erpnext:
+                    dato_lista["for_price_list"] =  pricelistanum_erpnext
             
                 if dato_existe:
                     # =====================

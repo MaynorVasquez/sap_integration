@@ -13,16 +13,6 @@
   "doctype": "Mapeo Precios Especiales SN SAP",
   "mapeo_precios_especiales_sn": [
    {
-    "campo_erpnext": null,
-    "campo_sap": "CardCode",
-    "nivel": "Texto",
-    "parent": "Mapeo Precios Especiales SN SAP",
-    "parentfield": "mapeo_precios_especiales_sn",
-    "parenttype": "Mapeo Precios Especiales SN SAP",
-    "tipo": "filter",
-    "valor": "C00002"
-   },
-   {
     "campo_erpnext": "ItemCode",
     "campo_sap": "ItemCode",
     "nivel": "head",
@@ -45,6 +35,16 @@
    {
     "campo_erpnext": "SpecialPriceDataAreas",
     "campo_sap": "SpecialPriceDataAreas",
+    "nivel": "head",
+    "parent": "Mapeo Precios Especiales SN SAP",
+    "parentfield": "mapeo_precios_especiales_sn",
+    "parenttype": "Mapeo Precios Especiales SN SAP",
+    "tipo": "map",
+    "valor": null
+   },
+   {
+    "campo_erpnext": "for_price_list",
+    "campo_sap": "PriceListNum",
     "nivel": "head",
     "parent": "Mapeo Precios Especiales SN SAP",
     "parentfield": "mapeo_precios_especiales_sn",
@@ -113,7 +113,7 @@
     "valor": null
    }
   ],
-  "modified": "2026-06-23 22:36:06.157744",
+  "modified": "2026-10-07 10:22:48.134802",
   "name": "Mapeo Precios Especiales SN SAP"
  }
 ]
