@@ -65,6 +65,7 @@ def sincronizar_lista_stock(docname=None, doctype_logs=None, almacen=None):
 def procesar_datos(registros_sap, mapeo_lista, doctype, company,debug_messages):
     items_in = []
     items_out = []
+    processing_errors = 0
 
     registros_unicos = set()
     lotes_vistos_en_sap = set()
@@ -82,12 +83,9 @@ def procesar_datos(registros_sap, mapeo_lista, doctype, company,debug_messages):
                 LIMIT 1
             """, (codigo_sap, company), as_dict=True)
             if not item_data:
+                processing_errors += 1
                 debug_messages.append(f"❌ Omitido: El código SAP {codigo_sap} no existe en ERPNext.")
                 print(f"❌ Omitido: El código SAP {codigo_sap} no existe en ERPNext.")
-                continue
-            if item_data[0].disabled:
-                debug_messages.append(f"🚫 Omitido: El producto {item_data[0].name} ({codigo_sap}) está deshabilitado.")
-                print(f"🚫 Omitido: El producto {item_data[0].name} ({codigo_sap}) está deshabilitado.")
                 continue
             item_code = item_data[0]["name"]
             whs_code = registro_sap.get("WhsCode")
@@ -100,6 +98,21 @@ def procesar_datos(registros_sap, mapeo_lista, doctype, company,debug_messages):
             raw_batch = (registro_sap.get("BatchNum") or "").strip()
             custom_batchnum = (registro_sap.get("BatchNum") or "").strip()
             batch = f"{item_code}-{raw_batch}"
+
+            if not warehouse or not raw_batch:
+                processing_errors += 1
+                debug_messages.append(f"✗ Registro incompleto: {registro_sap}")
+                continue
+
+            # Registrar presencia antes de cualquier omisión o lectura de saldo.
+            # Un artículo deshabilitado sigue estando presente en la respuesta SAP.
+            lotes_vistos_en_sap.add((item_code, batch, warehouse))
+
+            if item_data[0].disabled:
+                debug_messages.append(f"🚫 Omitido: El producto {item_data[0].name} ({codigo_sap}) está deshabilitado.")
+                print(f"🚫 Omitido: El producto {item_data[0].name} ({codigo_sap}) está deshabilitado.")
+                continue
+
             cantidad_sap = flt(registro_sap.get("Quantity") or 0)
             fecha_exp = registro_sap.get("ExpDate")
             valuation_rate = flt(registro_sap.get("AvgPrice") or 0)
@@ -110,10 +123,6 @@ def procesar_datos(registros_sap, mapeo_lista, doctype, company,debug_messages):
                 fecha_exp = add_days(hoy, 5)
                 print(f"⚠ Lote vencido detectado para {item_code} lote {batch}. Fecha ajustada a {fecha_exp}.")
 
-            if not item_code or not warehouse or not batch:
-                debug_messages.append(f"✗ Registro incompleto: {registro_sap}")
-                continue
-
             cantidad_erp = flt(get_stock_qty(item_code, warehouse, batch))
             cantidad_erp_corregida = max(cantidad_erp, 0)  # evita negativos
             diferencia = round(cantidad_sap - cantidad_erp_corregida, 6)
@@ -122,7 +131,6 @@ def procesar_datos(registros_sap, mapeo_lista, doctype, company,debug_messages):
                 f"📦 {item_code} | Lote: {batch or 'SIN LOTE'} | Almacén: {warehouse} | SAP: {cantidad_sap} | ERP: {cantidad_erp} (corr: {cantidad_erp_corregida}) | Dif: {diferencia}"
             )
             print(f"📦 {item_code} | Lote: {batch or 'SIN LOTE'} | Almacén: {warehouse} | SAP: {cantidad_sap} | ERP: {cantidad_erp} (corr: {cantidad_erp_corregida}) | Dif: {diferencia}")
-            lotes_vistos_en_sap.add((item_code, batch, warehouse))
             # Si no hay diferencia, se omite
             if abs(diferencia) < 0.000001:
                 print(f"🚫 Se omite {item_code} ya que no hay diferencia")
@@ -177,16 +185,23 @@ def procesar_datos(registros_sap, mapeo_lista, doctype, company,debug_messages):
                 debug_messages.append(f"✔ Preparado para salida: -{abs(diferencia)} del lote {batch or 'SIN LOTE'}")
 
         except Exception as e:
+            processing_errors += 1
             frappe.log_error(frappe.get_traceback(), "Error en procesar_registro_con_lote")
             debug_messages.append(f"✗ Error procesando registro SAP: {e} | Registro: {registro_sap}")
+
+    if processing_errors:
+        debug_messages.append(
+            f"❌ Conciliación cancelada: {processing_errors} registro(s) no pudieron validarse."
+        )
+        return {"processed": 0, "failed": processing_errors, "complete": False}
 
     try:        
         # Filtramos almacenes involucrados (esto se puede quedar parecido)
         warehouses_lista = list({item[2] for item in lotes_vistos_en_sap})
-        if not warehouses_lista: return None, None
+        if not warehouses_lista:
+            return {"processed": 0, "failed": 0, "complete": True}
         
-        wh_filter = tuple(warehouses_lista) if len(warehouses_lista) > 1 else f"('{warehouses_lista[0]}')"
-        print(f"almacen {wh_filter}")
+        placeholders = ", ".join(["%s"] * len(warehouses_lista))
         lotes_erp = frappe.db.sql(f"""
             Select 
                 T0.item_code,
@@ -195,7 +210,7 @@ def procesar_datos(registros_sap, mapeo_lista, doctype, company,debug_messages):
                 sum(T1.qty) qty
             from `tabSerial and Batch Bundle` T0
             JOIN `tabSerial and Batch Entry` T1 on T1.parent = T0.name
-            WHERE T0.warehouse IN {wh_filter}
+            WHERE T0.warehouse IN ({placeholders})
             and T0.docstatus = 1
             group by 
             T0.item_code,
@@ -204,7 +219,7 @@ def procesar_datos(registros_sap, mapeo_lista, doctype, company,debug_messages):
             having 
             sum(T1.qty) > 0
             ;
-        """, as_dict=True)
+        """, tuple(warehouses_lista), as_dict=True)
    
         for row in lotes_erp:
             clave_erp = (row.item_code, row.batch_no, row.warehouse)
@@ -223,13 +238,19 @@ def procesar_datos(registros_sap, mapeo_lista, doctype, company,debug_messages):
                 debug_messages.append(f"🗑️ Limpieza: {row.item_code} lote {row.batch_no} QTY: {row.qty} no está en SAP, se retira.")
     except Exception as e:
         debug_messages.append(f"⚠ Error detectando lotes faltantes: {e}")
+        frappe.log_error(frappe.get_traceback(), "Error detectando lotes faltantes en SAP")
+        return {"processed": 0, "failed": 1, "complete": False}
 
     # Crear los Stock Entry si hay datos
     if items_in:
         crear_stock_entry_multiple(items_in, tipo="In", debug_messages=debug_messages)
     if items_out:
         crear_stock_entry_multiple(items_out, tipo="Out", debug_messages=debug_messages)
-    return None, None
+    return {
+        "processed": len(items_in) + len(items_out),
+        "failed": 0,
+        "complete": True,
+    }
 
 
 def crear_stock_entry_multiple(items, tipo="In", debug_messages=None):
@@ -364,4 +385,4 @@ def get_stock_qty(item_code, warehouse, batch_no=None):
 
     except Exception as e:
         frappe.log_error(f"Error obteniendo qty de stock desde Serial and Batch: {e}", "Stock Sync")
-        return 0.0
+        raise

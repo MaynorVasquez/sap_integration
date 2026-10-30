@@ -1,5 +1,6 @@
 import frappe
 from frappe import _
+import hashlib
 import traceback  # Importación añadida
 import json
 from sap_integration.api.logs import log_sincronizacion
@@ -25,6 +26,7 @@ def procesar_empresa_individual(config,
     total_procesados = 0
     session = None
     detalles = []
+    sync_failed = False
     try:
 
         # 1. Obtienes la hora actual (Ej: 2026-06-11 11:50:53)
@@ -69,6 +71,9 @@ def procesar_empresa_individual(config,
         # 🔁 PAGINACIÓN (tu código actual)
         top = 20
         skip = 0
+        page_count = 0
+        seen_pages = set()
+        max_pages = int(frappe.conf.get("sap_max_pages") or 10000)
 
         url_final = None
 
@@ -84,12 +89,31 @@ def procesar_empresa_individual(config,
                 url_final = url_base
             
             print(f"✔ URL: {url_final}")
-            response = session.get(url_final)
+            timeout = float(frappe.conf.get("sap_request_timeout") or 60)
+            response = session.get(url_final, timeout=(10, timeout))
             response.raise_for_status()
             #print(f"Respuesta servidor: {response}")
 
             data = response.json()
             lista_datos = data.get("value", [])
+            page_count += 1
+
+            if lista_datos and usa_paginacion:
+                page_fingerprint = hashlib.sha256(
+                    json.dumps(lista_datos, sort_keys=True, default=str).encode("utf-8")
+                ).hexdigest()
+                if page_fingerprint in seen_pages:
+                    raise RuntimeError(
+                        f"SAP repitió una página para {empresa.company}; "
+                        "se detuvo la sincronización sin avanzar el delta."
+                    )
+                seen_pages.add(page_fingerprint)
+
+            if page_count > max_pages:
+                raise RuntimeError(
+                    f"La sincronización superó el límite de {max_pages} páginas; "
+                    "se detuvo sin avanzar el delta."
+                )
             #print(f"Datos: {json.dumps(data, indent=2)}")
 
             # Si SAP no devuelve datos, salir de la función inmediatamente
@@ -114,15 +138,30 @@ def procesar_empresa_individual(config,
                 empresa.company,
                 debug_messages
             )
-            total_procesados = len(resultados)
-            if fila_id:
+            processing_complete = True
+            processing_failures = 0
+            if isinstance(resultados, dict) and "processed" in resultados:
+                total_procesados = int(resultados.get("processed") or 0)
+                processing_failures = int(resultados.get("failed") or 0)
+                processing_complete = bool(resultados.get("complete", processing_failures == 0))
+            else:
+                # Contrato heredado: conservarlo hasta migrar cada procesador.
+                total_procesados = len(resultados)
+
+            if fila_id and processing_complete:
                 frappe.db.set_value("Campos Delta Load", fila_id, "date_time", hora_exacta)
                 frappe.db.commit()
                 print(f"se actualizo la hora {hora_exacta}")
-            else:
+            elif not processing_complete:
+                raise RuntimeError(
+                    f"Procesamiento incompleto ({processing_failures} errores); "
+                    "no se avanzó el delta."
+                )
+            elif not fila_id:
                 debug_messages.append("⚠ No hay datos para procesar")
 
     except Exception as e:
+        sync_failed = True
         frappe.log_error(
             title=f"Error empresa {empresa.company}",
             message=frappe.get_traceback()
@@ -141,6 +180,7 @@ def procesar_empresa_individual(config,
     finally:
         if session:
             session.close()
+        if not sync_failed:
             log_sincronizacion(
                 doctype=doctype_logs,
                 docname=docname,
@@ -153,6 +193,6 @@ def procesar_empresa_individual(config,
     return {
         "empresa": empresa.company,
         "total": total_procesados,
-        "status": "success" if total_procesados > 0 else "warning",
+        "status": "error" if sync_failed else ("success" if total_procesados > 0 else "warning"),
         "debug": debug_messages
     }

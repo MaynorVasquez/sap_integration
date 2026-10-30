@@ -7,9 +7,26 @@ from sap_integration.utils.url_endpoint_post import url_endpoint_post
 
 @frappe.whitelist()
 def procesar_log_request(doctype, docname):
+    allowed_log_doctypes = {"SAP Logs Transactional Invoices"}
+    if doctype not in allowed_log_doctypes:
+        frappe.throw(_("Tipo de log no permitido."), frappe.PermissionError)
+
+    session = None
     try:
         doc = frappe.get_doc(doctype, docname)
+        doc.check_permission("write")
+
+        if doc.doctype_mapeo != "Mapeo Factura SAP" or doc.doctype_target != "Sales Invoice":
+            frappe.throw(_("La configuración del log no es válida para reenvío."))
+
+        target_name = doc.docnum
+        target_doc = frappe.get_doc("Sales Invoice", target_name)
+        target_doc.check_permission("write")
+
         company = doc.company
+        if target_doc.company != company:
+            frappe.throw(_("La empresa del log no coincide con la factura."))
+
         doctype_mapeo = doc.doctype_mapeo
         doctype_target = doc.doctype_target
         
@@ -41,7 +58,7 @@ def procesar_log_request(doctype, docname):
                 })
 
                 if sap_docnum:
-                    frappe.db.set_value(doctype_target, docname, "custom_docnum", sap_docnum)
+                    frappe.db.set_value(doctype_target, target_name, "custom_docnum", sap_docnum)
                     frappe.msgprint(_(f"Éxito: Documento {sap_docnum} creado en SAP"), indicator='green')
                 
                 frappe.db.commit()
@@ -59,7 +76,12 @@ def procesar_log_request(doctype, docname):
         except requests.exceptions.RequestException as e:
             frappe.throw(_(f"Error de red/conexión: {str(e)}"))
 
+    except frappe.PermissionError:
+        raise
     except Exception as e:
         # Esto captura errores de lógica del script
         frappe.log_error(frappe.get_traceback(), _("Error en procesar_log_request"))
         frappe.throw(_(f"Error interno en el script: {str(e)}"))
+    finally:
+        if session:
+            session.close()

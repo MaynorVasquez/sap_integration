@@ -45,6 +45,8 @@ def sincronizar_precios_especiales_sn(docname=None):
 def procesar_datos(registros_sap, mapeo_lista, doctype, company,debug_messages):
     sap_key_field = mapeo_lista["key_field"]
     erp_key_field = mapeo_lista["erp_key_field"]
+    processed = 0
+    failed = 0
     for lista_mapeo in registros_sap:
         try:
             ItemCode_SAP = lista_mapeo.get("ItemCode")
@@ -66,7 +68,11 @@ def procesar_datos(registros_sap, mapeo_lista, doctype, company,debug_messages):
             #print(f"ItemCode_erpnext: {ItemCode_erpnext}--{ItemCode_SAP}")
 
             if not ItemCode_erpnext:
-                #print(f"Código de articulo no encontrado: {ItemCode_SAP}--{company}")
+                failed += 1
+                debug_messages.append(
+                    f"Precio omitido: el artículo SAP {ItemCode_SAP} "
+                    f"no existe en ERPNext para {company}."
+                )
                 continue
             ItemCode_erpnext = ItemCode_erpnext[0]["name"]
             
@@ -90,14 +96,16 @@ def procesar_datos(registros_sap, mapeo_lista, doctype, company,debug_messages):
 
                 print(f"Fecha de vencimiento: {fecha_vencimiento}")
                 print(f"ItemCode_erpnext: {ItemCode_erpnext}")
-                pricelistanum_erpnext = frappe.get_value(
+                price_list = frappe.db.get_value(
                     "Price List",
                     filters={
                         "custom_pricelistno": PriceListNum_SAP,
                         "custom_company": company
                     },
-                    fieldname="name"
+                    fieldname=["name", "selling", "buying"],
+                    as_dict=True,
                 )
+                pricelistanum_erpnext = price_list.name if price_list else None
                 print(f"pricelistanum_erpnext: {pricelistanum_erpnext}--{PriceListNum_SAP}")
                 cardcode_erpnext = frappe.get_value(
                     "Customer",
@@ -107,7 +115,24 @@ def procesar_datos(registros_sap, mapeo_lista, doctype, company,debug_messages):
                     },
                     "name"
                 )
-                if not cardcode_erpnext:
+                if CardCode_SAP and not cardcode_erpnext:
+                    failed += 1
+                    debug_messages.append(
+                        f"Precio especial omitido: el cliente SAP {CardCode_SAP} "
+                        f"no existe en ERPNext para {company}."
+                    )
+                    continue
+
+                if not cardcode_erpnext and not pricelistanum_erpnext:
+                    failed += 1
+                    debug_messages.append(
+                        f"Precio general omitido: la lista SAP {PriceListNum_SAP} "
+                        f"no existe en ERPNext para {company}."
+                    )
+                    continue
+
+                # SAP define CardCode vacío como una regla para todos los socios.
+                if not CardCode_SAP:
                     titulo = f"{pricelistanum_erpnext}-{ItemCode_SAP}"
                     print(f"nuevo titulo: {titulo}")
 
@@ -133,22 +158,23 @@ def procesar_datos(registros_sap, mapeo_lista, doctype, company,debug_messages):
                     elif erp_field == "valid_upto":
                         valor = fecha_vencimiento
                     elif erp_field == "valid_from":
-                        valor = datetime.strptime(
-                            DateFrom,
-                            "%Y-%m-%dT%H:%M:%SZ"
-                        ).date()
+                        valor = (
+                            datetime.strptime(DateFrom, "%Y-%m-%dT%H:%M:%SZ").date()
+                            if DateFrom
+                            else None
+                        )
                     dato_lista[erp_field] = valor
                 
                 dato_lista["company"] = company
-                dato_lista["selling"] = 1
-                dato_lista["buying"] = 1
+                dato_lista["selling"] = 1 if cardcode_erpnext else int(price_list.selling or 0)
+                dato_lista["buying"] = 0 if cardcode_erpnext else int(price_list.buying or 0)
 
                 dato_lista["title"] = titulo
                 dato_lista["price_or_product_discount"] = "Price"
                 dato_lista["apply_on"] =  "Item Code"
                 if cardcode_erpnext:
                     dato_lista["applicable_for"] =  "Customer"
-                if not cardcode_erpnext:
+                if not CardCode_SAP:
                     dato_lista["for_price_list"] =  pricelistanum_erpnext
             
                 if dato_existe:
@@ -171,6 +197,7 @@ def procesar_datos(registros_sap, mapeo_lista, doctype, company,debug_messages):
                     doc.flags.ignore_permissions = True
                     doc.save()
                     frappe.db.commit()
+                    processed += 1
                     print(f"Regla de precio especial actualizada: {titulo} para la empresa {company}")
                 else: 
                     # =====================
@@ -189,11 +216,17 @@ def procesar_datos(registros_sap, mapeo_lista, doctype, company,debug_messages):
                     doc.flags.ignore_permissions = True 
                     doc.insert()
                     frappe.db.commit()  # ✅ commit después de insertar
+                    processed += 1
                     print(f"Regla de precio especial creada: {titulo} para la empresa {company}")
 
         except Exception as e:
+            failed += 1
             frappe.log_error(
                 f"Error al procesar datos {ItemCode_SAP}: {str(e)}\n{traceback.format_exc()}"
             )
-            return None, None
-    return None, None 
+            continue
+    return {
+        "processed": processed,
+        "failed": failed,
+        "complete": failed == 0,
+    }

@@ -10,7 +10,12 @@ from sap_integration.utils.logs_transactional import logs_transactional
 # Importamos ambas funciones con un alias para evitar conflictos
 from erpnext.selling.doctype.sales_order.sales_order import make_delivery_note as make_dn_from_so
 from erpnext.accounts.doctype.sales_invoice.sales_invoice import make_delivery_note as make_dn_from_si
-from sap_integration.api.sap_auth import login_sap
+from sap_integration.api.sap_auth import get_credentials, login_sap
+from sap_integration.utils.sync_safety import (
+    calculate_stock_shortfall,
+    is_cancelled_source_document,
+    is_cancellation_document,
+)
 from erpnext.stock.doctype.batch.batch import get_batch_qty
 
 
@@ -55,6 +60,8 @@ def sincronizar_notas_entregas_erpnext(docname=None):
 def procesar_datos(registros_sap, mapeo_lista, doctype, company, debug_messages):
     sap_key_field = mapeo_lista["key_field"]   # "DocNum"
     erp_key_field = mapeo_lista["erp_key_field"]
+    processed = 0
+    failed = 0
 
     for lista_mapeo in registros_sap:
         sap_id = lista_mapeo.get(sap_key_field)
@@ -64,6 +71,7 @@ def procesar_datos(registros_sap, mapeo_lista, doctype, company, debug_messages)
         print(f"Valor de cancelación {cancel_status}")
 
         if not DocEntry:
+            failed += 1
             continue
 
         try:
@@ -72,36 +80,85 @@ def procesar_datos(registros_sap, mapeo_lista, doctype, company, debug_messages)
             # ============================================================
             full_data = obtener_delivery_note_completo(DocEntry, company)
             cancel_status = full_data.get("CancelStatus")
-            if cancel_status == "csCancellation":
-                # Obtener las líneas del documento SAP
+            if is_cancellation_document(cancel_status):
                 document_lines = full_data.get("DocumentLines", [])
-                print(f"Se inicia proceso de cancelación de Nota de entrega")
+                base_entries = {
+                    line.get("BaseEntry")
+                    for line in document_lines
+                    if line.get("BaseEntry")
+                }
+                print("Se inicia proceso de cancelación de Nota de entrega")
 
-                if document_lines:
-                    # DocEntry del documento original
-                    base_entry = document_lines[0].get("BaseEntry")
-                    if base_entry:
-                        # Buscar la factura original en ERPNext
-                        # usando el custom_docentry que guardaste desde SAP
-                        print(f"Delivery Note que se anulara es: {base_entry}")
-                        facturas = frappe.get_all(
-                            "Delivery Note",
-                            filters={
-                                "custom_docentry": base_entry
-                            },
-                            fields=["name", "docstatus"]
+                if not base_entries:
+                    failed += 1
+                    frappe.log_error(
+                        message=(
+                            f"La cancelación SAP DocEntry {DocEntry} no contiene "
+                            "un BaseEntry; no se creará como Delivery Note normal."
+                        ),
+                        title=f"Cancelación SAP sin entrega base: {DocNum}",
+                    )
+                    continue
+
+                if len(base_entries) > 1:
+                    failed += 1
+                    frappe.log_error(
+                        message=(
+                            f"La cancelación SAP DocEntry {DocEntry} referencia "
+                            f"múltiples entregas base: {sorted(base_entries)}."
+                        ),
+                        title=f"Cancelación SAP ambigua: {DocNum}",
+                    )
+                    continue
+
+                for base_entry in base_entries:
+                    delivery_note_name = frappe.db.get_value(
+                        "Delivery Note",
+                        {
+                            "custom_docentry": base_entry,
+                            "company": company,
+                        },
+                        "name",
+                    )
+                    if not delivery_note_name:
+                        failed += 1
+                        frappe.log_error(
+                            message=(
+                                f"No se encontró Delivery Note de {company} con "
+                                f"custom_docentry={base_entry}."
+                            ),
+                            title=f"Cancelación SAP no conciliada: {DocNum}",
                         )
-                        if facturas:
-                            factura = frappe.get_doc(
-                                "Delivery Note",
-                                facturas[0].name
-                            )
-                            if factura.docstatus == 1:
-                                factura.flags.ignore_links = True
-                                factura.cancel()
-                                frappe.db.commit()
-                                print(f"¡Éxito! La Nota de entrega {factura} ha sido cancelada.")
-                                continue
+                        continue
+
+                    delivery_note = frappe.get_doc("Delivery Note", delivery_note_name)
+                    if delivery_note.docstatus == 1:
+                        delivery_note.cancel()
+                        frappe.db.commit()
+                        print(
+                            f"¡Éxito! La Nota de entrega "
+                            f"{delivery_note.name} ha sido cancelada."
+                        )
+                        processed += 1
+                    elif delivery_note.docstatus == 2:
+                        processed += 1
+                    else:
+                        failed += 1
+                        frappe.log_error(
+                            message=(
+                                f"La Delivery Note {delivery_note.name} está en borrador "
+                                "y no puede cancelarse."
+                            ),
+                            title=f"Cancelación SAP no aplicada: {DocNum}",
+                        )
+
+                # Una cancelación nunca debe caer al flujo de creación normal.
+                continue
+
+            if is_cancelled_source_document(cancel_status):
+                print(f"Nota de entrega SAP cancelada omitida: {DocNum}")
+                processed += 1
+                continue
 
             DeliveryNote = frappe.db.get_value(
                 doctype,
@@ -118,6 +175,7 @@ def procesar_datos(registros_sap, mapeo_lista, doctype, company, debug_messages)
                     f"La DeliveryNote ya existe "
                     f"DocEntry: {DocEntry} -- DocNum: {DocNum}"
                 )
+                processed += 1
                 continue
 
             # ============================================================
@@ -735,8 +793,10 @@ def procesar_datos(registros_sap, mapeo_lista, doctype, company, debug_messages)
                 f"Delivery Note {doc.name} "
                 f"sometida exitosamente."
             )
+            processed += 1
 
         except Exception as e:
+            failed += 1
 
             frappe.db.rollback()
 
@@ -749,7 +809,11 @@ def procesar_datos(registros_sap, mapeo_lista, doctype, company, debug_messages)
 
             continue
 
-    return None, None
+    return {
+        "processed": processed,
+        "failed": failed,
+        "complete": failed == 0,
+    }
 
 
 
@@ -799,10 +863,14 @@ def crear_paquete_de_lotes(item_code, warehouse, lotes_sap, voucher_type, vouche
 
         print(f"Lote mapeado: SAP({sap_batch_number}) -> ERPNext({batch_name}). Qty: {qty}")
 
-        if qty > qty_batch_disponible:
+        stock_shortfall = calculate_stock_shortfall(qty, qty_batch_disponible)
+        if stock_shortfall > 0:
             print(f"⚠️ Advertencia: La cantidad solicitada ({qty}) para el lote {batch_name} "
-                  f"excede el stock disponible ({qty_batch_disponible}). Ajustando a stock disponible.")
-            Material_Receipt = crear_stock_entry_entrada(item_code, qty, batch_name, warehouse)
+                  f"excede el stock disponible ({qty_batch_disponible}). "
+                  f"Creando entrada solo por el faltante ({stock_shortfall}).")
+            Material_Receipt = crear_stock_entry_entrada(
+                item_code, stock_shortfall, batch_name, warehouse
+            )
             print(f"Material Receipt creado: {Material_Receipt}")
 
         nueva_entrada_lote = {
@@ -982,9 +1050,13 @@ def crear_stock_entry_entrada(item_code, qty, batch_no, warehouse, valuation_rat
 
 def obtener_delivery_note_completo(docentry, company):
     session = login_sap(company)
-    url = f"https://apisap.yaesta.com.gt/b1s/v2/DeliveryNotes({docentry})"
-    response = session.get(url)
-    print(f"Inicio de sesión exitoso para DocEntry {docentry}")
-    response.raise_for_status()
-    return response.json()
+    try:
+        _credentials, sap_url, _login_endpoint = get_credentials(company)
+        url = f"{sap_url.rstrip('/')}/DeliveryNotes({docentry})"
+        response = session.get(url, timeout=(10, 60))
+        print(f"Inicio de sesión exitoso para DocEntry {docentry}")
+        response.raise_for_status()
+        return response.json()
+    finally:
+        session.close()
 

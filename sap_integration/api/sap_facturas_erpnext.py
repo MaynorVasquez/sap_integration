@@ -8,7 +8,12 @@ from sap_integration.utils.procesar_empresa_individual import procesar_empresa_i
 from sap_integration.utils.logs_transactional import logs_transactional
 from erpnext.selling.doctype.sales_order.sales_order import make_sales_invoice as make_invoice_from_so
 from erpnext.stock.doctype.delivery_note.delivery_note import make_sales_invoice as make_invoice_from_dn
-from sap_integration.api.sap_auth import login_sap
+from sap_integration.api.sap_auth import get_credentials, login_sap
+from sap_integration.utils.sync_safety import (
+    calculate_stock_shortfall,
+    is_cancelled_source_document,
+    is_cancellation_document,
+)
 from erpnext.stock.doctype.batch.batch import get_batch_qty
 
 @frappe.whitelist()
@@ -52,6 +57,8 @@ def sincronizar_facturas_erpnext(docname=None):
 def procesar_datos(registros_sap, mapeo_lista, doctype, company, debug_messages):
     sap_key_field = mapeo_lista["key_field"]   # "DocNum"
     erp_key_field = mapeo_lista["erp_key_field"]
+    processed = 0
+    failed = 0
 
     for lista_mapeo in registros_sap:
         try:
@@ -62,42 +69,83 @@ def procesar_datos(registros_sap, mapeo_lista, doctype, company, debug_messages)
             cancel_status = lista_mapeo.get("CancelStatus")
             print(f"Valor de cancelación {cancel_status}")
 
-            if cancel_status == "csCancellation":
-                # Obtener las líneas del documento SAP
+            if is_cancellation_document(cancel_status):
                 document_lines = lista_mapeo.get("DocumentLines", [])
-                print(f"Se inicia proceso de cancelación de facturas")
+                base_entries = {
+                    line.get("BaseEntry")
+                    for line in document_lines
+                    if line.get("BaseEntry")
+                }
+                print("Se inicia proceso de cancelación de facturas")
 
-                if document_lines:
-                    # DocEntry del documento original
-                    base_entry = document_lines[0].get("BaseEntry")
+                if not base_entries:
+                    failed += 1
+                    frappe.log_error(
+                        message=(
+                            f"La cancelación SAP DocEntry {DocEntry} no contiene "
+                            "un BaseEntry; no se creará como factura normal."
+                        ),
+                        title=f"Cancelación SAP sin factura base: {DocNum}",
+                    )
+                    continue
 
-                    if base_entry:
-                        # Buscar la factura original en ERPNext
-                        # usando el custom_docentry que guardaste desde SAP
-                        print(f"Factura que se anulara es: {base_entry}")
-                        facturas = frappe.get_all(
-                            "Sales Invoice",
-                            filters={
-                                "custom_docentry": base_entry
-                            },
-                            fields=["name", "docstatus"]
+                if len(base_entries) > 1:
+                    failed += 1
+                    frappe.log_error(
+                        message=(
+                            f"La cancelación SAP DocEntry {DocEntry} referencia "
+                            f"múltiples facturas base: {sorted(base_entries)}."
+                        ),
+                        title=f"Cancelación SAP ambigua: {DocNum}",
+                    )
+                    continue
+
+                for base_entry in base_entries:
+                    invoice_name = frappe.db.get_value(
+                        "Sales Invoice",
+                        {
+                            "custom_docentry": base_entry,
+                            "company": company,
+                        },
+                        "name",
+                    )
+                    if not invoice_name:
+                        failed += 1
+                        frappe.log_error(
+                            message=(
+                                f"No se encontró Sales Invoice de {company} con "
+                                f"custom_docentry={base_entry}."
+                            ),
+                            title=f"Cancelación SAP no conciliada: {DocNum}",
+                        )
+                        continue
+
+                    factura = frappe.get_doc("Sales Invoice", invoice_name)
+                    if factura.docstatus == 1:
+                        factura.cancel()
+                        frappe.db.commit()
+                        print(f"¡Éxito! La factura {factura.name} ha sido cancelada.")
+                        processed += 1
+                    elif factura.docstatus == 2:
+                        processed += 1
+                    else:
+                        failed += 1
+                        frappe.log_error(
+                            message=f"La factura {factura.name} está en borrador y no puede cancelarse.",
+                            title=f"Cancelación SAP no aplicada: {DocNum}",
                         )
 
-                        if facturas:
-                            factura = frappe.get_doc(
-                                "Sales Invoice",
-                                facturas[0].name
-                            )
+                # Una cancelación nunca debe caer al flujo de creación normal.
+                continue
 
-                            if factura.docstatus == 1:
-                                factura.flags.ignore_links = True
-                                factura.cancel()
-                                frappe.db.commit()
-                                print(f"¡Éxito! La factura {factura} ha sido cancelada.")
-                                continue
+            if is_cancelled_source_document(cancel_status):
+                print(f"Factura SAP cancelada omitida: {DocNum}")
+                processed += 1
+                continue
 
             if Series == 306:
                 print(f"Factura {DocNum} pertenece a facturas de tienda. Se omite la sincronización.")
+                processed += 1
                 continue
 
             factura = frappe.db.get_value(doctype, 
@@ -107,6 +155,7 @@ def procesar_datos(registros_sap, mapeo_lista, doctype, company, debug_messages)
                                  "name")
             if factura:
                 print(f"La factura ya existe DocEntry: {DocEntry} -- DocNum: {DocNum}")
+                processed += 1
                 continue
 
             DocumentReferences = lista_mapeo.get("DocumentReferences", [])
@@ -178,6 +227,7 @@ def procesar_datos(registros_sap, mapeo_lista, doctype, company, debug_messages)
             if not erpnext_ref_names:
                 # Factura Directa (Sin Referencias)
                 crear_factura_directa(lista_mapeo, mapeo_lista, doctype, company)
+                processed += 1
                 continue 
 
             # --- 4. Flujo para Facturas CON Documento Base (SO o DN) ---
@@ -289,6 +339,7 @@ def procesar_datos(registros_sap, mapeo_lista, doctype, company, debug_messages)
 
             # --- 6. Inserción Inicial ---
             doc.ignore_pricing_rule = 1
+            doc.flags.sap_sales_invoice = True
             doc.insert()
             si_name = doc.name
             doc.reload()
@@ -329,14 +380,20 @@ def procesar_datos(registros_sap, mapeo_lista, doctype, company, debug_messages)
             doc.submit()
             frappe.db.commit()
             print(f"Sales Invoice Referenciada {doc.name} creada exitosamente.")
+            processed += 1
 
         except Exception as e:
+            failed += 1
             frappe.db.rollback()
             frappe.log_error(message=frappe.get_traceback(), title=f"Error Sales Invoice: DocNum {DocNum} -- DocEntry {DocEntry}")
             frappe.db.commit() 
             continue
 
-    return None, None
+    return {
+        "processed": processed,
+        "failed": failed,
+        "complete": failed == 0,
+    }
 
 def crear_factura_directa(lista_mapeo, mapeo_lista, doctype, company):
     """
@@ -555,6 +612,7 @@ def crear_factura_directa(lista_mapeo, mapeo_lista, doctype, company):
     print(f"Datos: {json.dumps(doc_data, indent=2, default=str)}")
     doc = frappe.get_doc(doc_data)
     doc.flags.ignore_permissions = True 
+    doc.flags.sap_sales_invoice = True
     doc.ignore_pricing_rule = 1
     doc.insert()
     si_name = doc.name
@@ -656,10 +714,14 @@ def crear_paquete_de_lotes(item_code, warehouse, lotes_sap, voucher_type, vouche
 
         print(f"Lote mapeado: SAP({sap_batch_number}) -> ERPNext({batch_name}). Qty: {qty}")
 
-        if qty > qty_batch_disponible:
+        stock_shortfall = calculate_stock_shortfall(qty, qty_batch_disponible)
+        if stock_shortfall > 0:
             print(f"⚠️ Advertencia: La cantidad solicitada ({qty}) para el lote {batch_name} "
-                    f"excede el stock disponible ({qty_batch_disponible}). Ajustando a stock disponible.")
-            Material_Receipt = crear_stock_entry_entrada(item_code, qty, batch_name, warehouse)
+                    f"excede el stock disponible ({qty_batch_disponible}). "
+                    f"Creando entrada solo por el faltante ({stock_shortfall}).")
+            Material_Receipt = crear_stock_entry_entrada(
+                item_code, stock_shortfall, batch_name, warehouse
+            )
             print(f"Material Receipt creado: {Material_Receipt}")
         
 
@@ -842,8 +904,12 @@ def crear_stock_entry_entrada(item_code, qty, batch_no, warehouse, valuation_rat
 
 def obtener_documento_completo_sap(docentry, company):
     session = login_sap(company)
-    url = f"https://apisap.yaesta.com.gt/b1s/v2/Invoices({docentry})"
-    response = session.get(url)
-    print(f"Inicio de sesión exitoso para DocEntry {docentry}")
-    response.raise_for_status()
-    return response.json()
+    try:
+        _credentials, sap_url, _login_endpoint = get_credentials(company)
+        url = f"{sap_url.rstrip('/')}/Invoices({docentry})"
+        response = session.get(url, timeout=(10, 60))
+        print(f"Inicio de sesión exitoso para DocEntry {docentry}")
+        response.raise_for_status()
+        return response.json()
+    finally:
+        session.close()

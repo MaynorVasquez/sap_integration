@@ -7,7 +7,6 @@ app_license = "mit"
 
 
 override_doctype_class = {
-    "Stock Entry": "sap_integration.utils.validate_expired_batches.CustomStockEntry",
     "Sales Invoice" : "sap_integration.utils.validate_expired_date.CustomSalesInvoice"
 }
 

@@ -6,6 +6,10 @@ from datetime import datetime
 from frappe.utils import flt
 from frappe.utils import getdate, nowdate
 from sap_integration.utils.procesar_empresa_individual import procesar_empresa_individual
+from sap_integration.utils.sync_safety import (
+    is_cancelled_source_document,
+    is_cancellation_document,
+)
 from erpnext.controllers.accounts_controller import update_child_qty_rate
 from sap_integration.utils.logs_transactional import logs_transactional
 
@@ -51,20 +55,29 @@ def procesar_datos(registros_sap, mapeo_lista, doctype, company, debug_messages)
 
     sap_key_field = mapeo_lista["key_field"]
     erp_key_field = mapeo_lista["erp_key_field"]
+    processed = 0
+    failed = 0
 
     for lista_mapeo in registros_sap:
+        sap_id = None
+        doc_data = {}
         try:
             sap_id = lista_mapeo.get(sap_key_field)
             SalesPersonCode = lista_mapeo.get("SalesPersonCode")
             shiptocode = lista_mapeo.get("ShipToCode")
             CardCode = lista_mapeo.get("CardCode")
+            cancel_status = lista_mapeo.get("CancelStatus")
+
+            if is_cancellation_document(cancel_status) or is_cancelled_source_document(cancel_status):
+                print(f"Orden de venta SAP cancelada omitida: {sap_id}")
+                processed += 1
+                continue
             
             dato_existente = frappe.get_all(
                 doctype,
                 filters={
                     erp_key_field: sap_id,
-                    "company": company,
-                    "docstatus": ["!=", 2]
+                    "company": company
                 },
                 fields=["name"],
                 limit=1
@@ -363,9 +376,11 @@ def procesar_datos(registros_sap, mapeo_lista, doctype, company, debug_messages)
                                             sap_id, "Success" ,doc_json_limpio, respuesta, 
                                             "Mapeo Orden De Venta SAP",
                                             "Sales Order")
+                        processed += 1
 
                         
                     except Exception as e:
+                        failed += 1
                         frappe.db.rollback()
                         frappe.log_error(title=f"Error en actualización Borrador {docname}", message=frappe.get_traceback())
                         respuesta = f"Error al actualizar Borrador Orden de venta: {frappe.get_traceback()}"
@@ -373,8 +388,10 @@ def procesar_datos(registros_sap, mapeo_lista, doctype, company, debug_messages)
                                             sap_id, "Error" ,doc, respuesta, 
                                             "Mapeo Orden De Venta SAP",
                                             "Sales Order")
+                        continue
 
                 elif doc.docstatus == 1:
+                    processed += 1
                     continue
                     #ESTADO ENVIADO:se usa función nativa de erpnext 
                     try:
@@ -484,6 +501,7 @@ def procesar_datos(registros_sap, mapeo_lista, doctype, company, debug_messages)
                             print(f"OV Enviada {doc.name} se encuentra idéntica a SAP. No requiere actualización.")
 
                     except Exception as e:
+                        failed += 1
                         frappe.db.rollback()
                         frappe.log_error(title=f"Error en actualización quirúrgica OV {doc.name}", message=frappe.get_traceback())
                         respuesta = f"Error al actualizar los articulos: {frappe.get_traceback()}"
@@ -491,6 +509,7 @@ def procesar_datos(registros_sap, mapeo_lista, doctype, company, debug_messages)
                                             sap_id, "Error" , trans_items, respuesta, 
                                             "Mapeo Orden De Venta SAP",
                                             "Sales Order")
+                        continue
 
             else:
                 # CREACIÓN DE DOCUMENTO NUEVO
@@ -512,9 +531,11 @@ def procesar_datos(registros_sap, mapeo_lista, doctype, company, debug_messages)
                                    sap_id, "Success" , doc_data, respuesta, 
                                    "Mapeo Orden De Venta SAP",
                                    "Sales Order")
+                processed += 1
                 print(f"Orden de venta creada con exito....")
                 
         except Exception as e:
+            failed += 1
             frappe.log_error(
                 message=frappe.get_traceback(),
                 title=f"Error al procesar dato {sap_id}"
@@ -526,4 +547,8 @@ def procesar_datos(registros_sap, mapeo_lista, doctype, company, debug_messages)
                                    "Sales Order")
             continue
 
-    return None, None
+    return {
+        "processed": processed,
+        "failed": failed,
+        "complete": failed == 0,
+    }

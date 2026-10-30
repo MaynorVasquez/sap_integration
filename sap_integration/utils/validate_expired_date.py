@@ -5,18 +5,26 @@ from frappe.utils import getdate
 
 class CustomSalesInvoice(SalesInvoice):
     def validate_due_date(self):
-        # Omitimos la validación de fecha de vencimiento anterior
-        # al posting date para permitir integraciones con fechas pasadas.
-        # Log opcional para auditoría:
+        """Allow a past due date only for invoices imported from SAP.
+
+        All invoices created by users or other integrations keep ERPNext's
+        standard validation, including payment-term validation.
+        """
         due_date = getdate(self.due_date) if self.due_date else None
         posting_date = getdate(self.posting_date) if self.posting_date else None
 
-        if due_date and posting_date and due_date < posting_date:
-            frappe.log_error(
-                f"Factura {self.name or 'NUEVA'}: Due Date {due_date} "
-                f"anterior a Posting Date {posting_date} — permitido por override",
-                "DEBUG DUE DATE OVERRIDE"
+        if (
+            self.flags.get("sap_sales_invoice")
+            and due_date
+            and posting_date
+            and due_date < posting_date
+        ):
+            frappe.logger("sap_integration").warning(
+                "SAP invoice %s has due date %s before posting date %s",
+                self.name or "NEW",
+                due_date,
+                posting_date,
             )
-        
-        # No llamamos a super() ni a la función de party.py
-        pass
+            return
+
+        return super().validate_due_date()
