@@ -12,6 +12,11 @@ bench get-app $URL_OF_THIS_REPO --branch develop
 bench install-app sap_integration
 ```
 
+### Actualización 15.6.15
+
+Para desplegar, configurar y revertir la actualización de forma controlada,
+consulta [README_ACTUALIZACION_15.6.15.md](README_ACTUALIZACION_15.6.15.md).
+
 ### Contributing
 
 This app uses `pre-commit` for code formatting and linting. Please [install pre-commit](https://pre-commit.com/#installation) and enable it for this repository:
