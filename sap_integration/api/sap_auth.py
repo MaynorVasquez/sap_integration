@@ -29,6 +29,7 @@ def login_sap(company):
     """
     Realiza login al SAP Service Layer y retorna un objeto requests.Session configurado.
     """
+    session = None
     try:
         sap_credentials, sap_url, endpoint = get_credentials(company)
         login_url = f"{sap_url.rstrip('/')}/{endpoint.strip('/')}"
@@ -54,7 +55,13 @@ def login_sap(company):
         return session
 
     except requests.exceptions.RequestException as e:
+        if session:
+            session.close()
         frappe.throw(f"Error al autenticar con SAP: {str(e)}")
+    except Exception:
+        if session:
+            session.close()
+        raise
 
 
 @frappe.whitelist()

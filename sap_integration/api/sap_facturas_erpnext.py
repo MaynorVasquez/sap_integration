@@ -148,11 +148,11 @@ def procesar_datos(registros_sap, mapeo_lista, doctype, company, debug_messages)
                 processed += 1
                 continue
 
-            factura = frappe.db.get_value(doctype, 
-                                {"custom_docnum": DocNum,
-                                 "company": company,
-                                 "docstatus": 1}, 
-                                 "name")
+            factura = frappe.db.get_value(
+                doctype,
+                {"custom_docnum": DocNum, "company": company},
+                "name",
+            )
             if factura:
                 print(f"La factura ya existe DocEntry: {DocEntry} -- DocNum: {DocNum}")
                 processed += 1
@@ -424,7 +424,11 @@ def crear_factura_directa(lista_mapeo, mapeo_lista, doctype, company):
             frappe.throw(f"Error al obtener el detalle completo de SAP para el DocEntry {DocEntry}: {str(e)}")
 
     # --- Validación de existencia ---
-    if frappe.get_all(doctype, filters={erp_key_field: sap_id, "company": company , "docstatus" : 1}, limit=1):
+    if frappe.get_all(
+        doctype,
+        filters={erp_key_field: sap_id, "company": company},
+        limit=1,
+    ):
         print(f"El documento SAP {sap_id} ya existe en ERPNext. Omitiendo...")
         return
 
@@ -873,8 +877,6 @@ def crear_stock_entry_entrada(item_code, qty, batch_no, warehouse, valuation_rat
 
         se.insert(ignore_permissions=True)
         se.submit()
-
-        frappe.db.commit()
 
         mensaje = (
             f"🚚 Stock Entry creado y enviado: {se.name} | "

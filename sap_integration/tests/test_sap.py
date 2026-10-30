@@ -3,7 +3,12 @@ from datetime import datetime
 from types import SimpleNamespace
 from unittest.mock import Mock, patch
 
-from sap_integration.api import sap_stock
+from sap_integration.api import (
+    sap_auth,
+    sap_facturas_erpnext,
+    sap_notas_entregas_erpnext,
+    sap_stock,
+)
 from sap_integration.utils import procesar_empresa_individual as company_processor
 from sap_integration.utils.validate_expired_date import CustomSalesInvoice
 from sap_integration.utils.sync_safety import (
@@ -39,6 +44,79 @@ class TestSyncSafety(unittest.TestCase):
             self.assertRaises(RuntimeError),
         ):
             sap_stock.get_stock_qty("ITEM-1", "WAREHOUSE-1", "BATCH-1")
+
+    def test_failed_sap_login_closes_session(self):
+        session = Mock()
+        session.post.side_effect = sap_auth.requests.exceptions.Timeout("timeout")
+
+        with (
+            patch.object(
+                sap_auth,
+                "get_credentials",
+                return_value=(
+                    {"CompanyDB": "TEST", "UserName": "user", "Password": "secret"},
+                    "https://sap.example",
+                    "Login",
+                ),
+            ),
+            patch.object(sap_auth.requests, "Session", return_value=session),
+            patch.object(sap_auth.frappe, "conf", {}),
+            patch.object(sap_auth.frappe, "throw", side_effect=RuntimeError("login failed")),
+            self.assertRaises(RuntimeError),
+        ):
+            sap_auth.login_sap("TEST COMPANY")
+
+        session.close.assert_called_once_with()
+
+    def test_document_stock_receipts_do_not_commit_parent_transaction(self):
+        for module in (sap_facturas_erpnext, sap_notas_entregas_erpnext):
+            with self.subTest(module=module.__name__):
+                stock_entry = Mock()
+                stock_entry.name = "STE-TEST"
+                database = Mock()
+
+                with (
+                    patch.object(module.frappe, "new_doc", return_value=stock_entry),
+                    patch.object(module.frappe, "db", database),
+                    patch("builtins.print"),
+                ):
+                    result = module.crear_stock_entry_entrada(
+                        "ITEM-1", 2, "BATCH-1", "WAREHOUSE-1"
+                    )
+
+                self.assertEqual(result, "STE-TEST")
+                database.commit.assert_not_called()
+                stock_entry.insert.assert_called_once_with(ignore_permissions=True)
+                stock_entry.submit.assert_called_once_with()
+
+    def test_stock_entry_helper_leaves_commit_to_full_reconciliation(self):
+        stock_entry = Mock()
+        stock_entry.name = "STE-STOCK-TEST"
+        stock_entry.items = [Mock()]
+        database = Mock()
+
+        with (
+            patch.object(sap_stock.frappe, "new_doc", return_value=stock_entry),
+            patch.object(sap_stock.frappe, "get_value", return_value=True),
+            patch.object(sap_stock.frappe, "db", database),
+            patch("builtins.print"),
+        ):
+            sap_stock.crear_stock_entry_multiple(
+                [
+                    {
+                        "item_code": "ITEM-1",
+                        "qty": 2,
+                        "batch_no": "BATCH-1",
+                        "warehouse": "WAREHOUSE-1",
+                        "valuation_rate": 1,
+                    }
+                ],
+                tipo="In",
+            )
+
+        database.commit.assert_not_called()
+        stock_entry.insert.assert_called_once_with(ignore_permissions=True)
+        stock_entry.submit.assert_called_once_with()
 
     def test_due_date_override_keeps_standard_validation_for_manual_invoice(self):
         invoice = object.__new__(CustomSalesInvoice)

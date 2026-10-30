@@ -164,8 +164,7 @@ def procesar_datos(registros_sap, mapeo_lista, doctype, company, debug_messages)
                 doctype,
                 {
                     "custom_docnum": DocNum,
-                    "company": company,
-                    "docstatus": 1
+                    "company": company
                 },
                 "name"
             )
@@ -1020,8 +1019,6 @@ def crear_stock_entry_entrada(item_code, qty, batch_no, warehouse, valuation_rat
 
         se.insert(ignore_permissions=True)
         se.submit()
-
-        frappe.db.commit()
 
         mensaje = (
             f"🚚 Stock Entry creado y enviado: {se.name} | "

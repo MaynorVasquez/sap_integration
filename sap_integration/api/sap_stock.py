@@ -246,6 +246,11 @@ def procesar_datos(registros_sap, mapeo_lista, doctype, company,debug_messages):
         crear_stock_entry_multiple(items_in, tipo="In", debug_messages=debug_messages)
     if items_out:
         crear_stock_entry_multiple(items_out, tipo="Out", debug_messages=debug_messages)
+    if items_in or items_out:
+        # Confirmar la conciliación completa como una sola unidad. Si la salida
+        # falla después de crear la entrada, el rollback de la función auxiliar
+        # revierte ambos movimientos.
+        frappe.db.commit()
     return {
         "processed": len(items_in) + len(items_out),
         "failed": 0,
@@ -326,7 +331,6 @@ def crear_stock_entry_multiple(items, tipo="In", debug_messages=None):
         se.flags.ignore_permissions = True
         se.insert(ignore_permissions=True)
         se.submit()
-        frappe.db.commit()
         if debug_messages is not None:
             debug_messages.append(
                 f"🚚 Stock Entry creado y enviado: {se.name} ({tipo_entrada}) con {len(se.items)} ítems."
