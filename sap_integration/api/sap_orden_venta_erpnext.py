@@ -505,6 +505,7 @@ def procesar_datos(registros_sap, mapeo_lista, doctype, company, debug_messages)
                 doc = frappe.get_doc(doc_data)
                 doc.flags.sap_sales_order_sync = True
                 doc.flags.ignore_permissions = True 
+                doc.ignore_pricing_rule = 1
                 doc.insert()
                 frappe.db.commit()
                 respuesta = f"Orden de venta creada correctamente {sap_id}"

@@ -425,12 +425,6 @@ def crear_factura_directa(lista_mapeo, mapeo_lista, doctype, company):
     docduedate_sap = lista_mapeo.get("DocDueDate")
     fecha_doc = getdate(docdate_sap[:10]) if docdate_sap else None
     fecha_vencimiento = getdate(docduedate_sap[:10]) if docduedate_sap else None
-    
-    # fecha_final_entrega = None
-    # if fecha_vencimiento:
-    #     fecha_hoy_obj = getdate(nowdate())
-    #     fecha_final_entrega = fecha_hoy_obj if fecha_vencimiento < fecha_hoy_obj else fecha_vencimiento
-    #     dato_lista["delivery_date"] = fecha_final_entrega
 
     campos_head = mapeo_lista.get("sap_fields", {}).get("head", {})
     for erp_field, sap_field in campos_head.items():
@@ -460,6 +454,7 @@ def crear_factura_directa(lista_mapeo, mapeo_lista, doctype, company):
         dato_lista[erp_field] = valor
 
     dato_lista["company"] = company
+    dato_lista["disable_rounded_total"] = 1
     dato_lista["update_stock"] = descarga_stock
 
     # --- Impuestos (Taxes) ---
@@ -530,19 +525,21 @@ def crear_factura_directa(lista_mapeo, mapeo_lista, doctype, company):
         for erp_field, sap_field in campos_lineas.items():
             valor = linea.get(sap_field)
             if erp_field == "discount_percentage": 
-                item_data[erp_field] = valor if valor > 0 else 0
+                if valor > 0:
+                    item_data["discount_percentage"] = valor
+                else:
+                    # Si es negativo o cero, lo neutralizamos en ERPNext
+                    item_data["discount_percentage"] = 0
+                continue
             elif erp_field == "net_rate": 
                 precio_despues_impuestos = linea.get("PriceAfterVAT")
                 item_data["rate"] = precio_despues_impuestos
                 continue
             elif erp_field not in ["item_code", "warehouse", "uom"]: 
                 item_data[erp_field] = valor
-                print(f"se agregado el precio con impuestos")
         items.append(item_data)
 
     dato_lista["custom_company"] = company
-    #dato_lista["docstatus"] = 1
-    dato_lista["disable_rounded_total"] = 0
     dato_lista["selling_price_list"] = price_list_erpnext
 
     doc_data = {
@@ -610,6 +607,7 @@ def crear_factura_directa(lista_mapeo, mapeo_lista, doctype, company):
         
     # --- 9. Guardado Final ---
     doc.flags.sap_sales_invoice = True
+    doc.ignore_pricing_rule = 1
     doc.save()
     doc.submit()
     frappe.db.commit()

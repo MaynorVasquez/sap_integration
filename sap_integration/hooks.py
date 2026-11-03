@@ -44,6 +44,10 @@ scheduler_events = {
     }
 }
 
+override_doctype_class = {
+    "Delivery Note": "sap_integration.overrides.delivery_note.CustomDeliveryNote"
+}
+
 
 # scheduler_events = {
 #     "all": [
@@ -100,7 +104,9 @@ fixtures = [
                 "Delivery Note-custom_docnum",
                 "Delivery Note-custom_docentry",
                 "Delivery Note-custom_comments",
-                "Delivery Note Item-custom_linenum"
+                "Delivery Note-custom_allow_expired_batch",
+                "Delivery Note Item-custom_linenum",
+                
                 
 
             ]]
