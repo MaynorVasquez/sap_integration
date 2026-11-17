@@ -163,6 +163,16 @@
     "valor": null
    },
    {
+    "campo_erpnext": "payment_terms",
+    "campo_sap": "PayTermsGrpCode",
+    "nivel": "head",
+    "parent": "Mapeo Cliente",
+    "parentfield": "mapeo_cliente",
+    "parenttype": "Mapeo Cliente",
+    "tipo": "map",
+    "valor": null
+   },
+   {
     "campo_erpnext": "address_title",
     "campo_sap": "AddressName",
     "nivel": "DocumentLines",
@@ -261,19 +271,9 @@
     "parenttype": "Mapeo Cliente",
     "tipo": "map",
     "valor": null
-   },
-   {
-    "campo_erpnext": "payment_terms",
-    "campo_sap": "PayTermsGrpCode",
-    "nivel": "head",
-    "parent": "Mapeo Cliente",
-    "parentfield": "mapeo_cliente",
-    "parenttype": "Mapeo Cliente",
-    "tipo": "map",
-    "valor": null
    }
   ],
-  "modified": "2026-09-24 15:35:20.355258",
+  "modified": "2026-11-17 12:06:01.087251",
   "name": "Mapeo Cliente"
  }
 ]
