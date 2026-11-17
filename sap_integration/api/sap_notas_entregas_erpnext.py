@@ -3,14 +3,21 @@ from frappe import _
 import json
 import traceback  # Importación añadida
 from datetime import datetime
-from frappe.utils import flt, cint
+from frappe.utils import flt, add_days,today
 from frappe.utils import getdate, nowdate
 from sap_integration.utils.procesar_empresa_individual import procesar_empresa_individual
 from sap_integration.utils.logs_transactional import logs_transactional
 # Importamos ambas funciones con un alias para evitar conflictos
 from erpnext.selling.doctype.sales_order.sales_order import make_delivery_note as make_dn_from_so
 from erpnext.accounts.doctype.sales_invoice.sales_invoice import make_delivery_note as make_dn_from_si
-from sap_integration.api.sap_auth import login_sap
+from sap_integration.api.sap_auth import get_credentials, login_sap
+from sap_integration.utils.sync_safety import (
+    calculate_stock_shortfall,
+    is_cancelled_source_document,
+    is_cancellation_document,
+)
+from erpnext.stock.doctype.batch.batch import get_batch_qty
+
 
 @frappe.whitelist()
 def sincronizar_notas_entregas_erpnext(docname=None):
@@ -53,13 +60,18 @@ def sincronizar_notas_entregas_erpnext(docname=None):
 def procesar_datos(registros_sap, mapeo_lista, doctype, company, debug_messages):
     sap_key_field = mapeo_lista["key_field"]   # "DocNum"
     erp_key_field = mapeo_lista["erp_key_field"]
+    processed = 0
+    failed = 0
 
     for lista_mapeo in registros_sap:
         sap_id = lista_mapeo.get(sap_key_field)
         DocEntry = lista_mapeo.get("DocEntry")
         DocNum = lista_mapeo.get("DocNum")
+        cancel_status = lista_mapeo.get("CancelStatus")
+        print(f"Valor de cancelación {cancel_status}")
 
         if not DocEntry:
+            failed += 1
             continue
 
         try:
@@ -67,13 +79,92 @@ def procesar_datos(registros_sap, mapeo_lista, doctype, company, debug_messages)
             # 1. OBTENER DELIVERY NOTE COMPLETA DESDE SAP
             # ============================================================
             full_data = obtener_delivery_note_completo(DocEntry, company)
+            cancel_status = full_data.get("CancelStatus")
+            if is_cancellation_document(cancel_status):
+                document_lines = full_data.get("DocumentLines", [])
+                base_entries = {
+                    line.get("BaseEntry")
+                    for line in document_lines
+                    if line.get("BaseEntry")
+                }
+                print("Se inicia proceso de cancelación de Nota de entrega")
+
+                if not base_entries:
+                    failed += 1
+                    frappe.log_error(
+                        message=(
+                            f"La cancelación SAP DocEntry {DocEntry} no contiene "
+                            "un BaseEntry; no se creará como Delivery Note normal."
+                        ),
+                        title=f"Cancelación SAP sin entrega base: {DocNum}",
+                    )
+                    continue
+
+                if len(base_entries) > 1:
+                    failed += 1
+                    frappe.log_error(
+                        message=(
+                            f"La cancelación SAP DocEntry {DocEntry} referencia "
+                            f"múltiples entregas base: {sorted(base_entries)}."
+                        ),
+                        title=f"Cancelación SAP ambigua: {DocNum}",
+                    )
+                    continue
+
+                for base_entry in base_entries:
+                    delivery_note_name = frappe.db.get_value(
+                        "Delivery Note",
+                        {
+                            "custom_docentry": base_entry,
+                            "company": company,
+                        },
+                        "name",
+                    )
+                    if not delivery_note_name:
+                        failed += 1
+                        frappe.log_error(
+                            message=(
+                                f"No se encontró Delivery Note de {company} con "
+                                f"custom_docentry={base_entry}."
+                            ),
+                            title=f"Cancelación SAP no conciliada: {DocNum}",
+                        )
+                        continue
+
+                    delivery_note = frappe.get_doc("Delivery Note", delivery_note_name)
+                    if delivery_note.docstatus == 1:
+                        delivery_note.cancel()
+                        frappe.db.commit()
+                        print(
+                            f"¡Éxito! La Nota de entrega "
+                            f"{delivery_note.name} ha sido cancelada."
+                        )
+                        processed += 1
+                    elif delivery_note.docstatus == 2:
+                        processed += 1
+                    else:
+                        failed += 1
+                        frappe.log_error(
+                            message=(
+                                f"La Delivery Note {delivery_note.name} está en borrador "
+                                "y no puede cancelarse."
+                            ),
+                            title=f"Cancelación SAP no aplicada: {DocNum}",
+                        )
+
+                # Una cancelación nunca debe caer al flujo de creación normal.
+                continue
+
+            if is_cancelled_source_document(cancel_status):
+                print(f"Nota de entrega SAP cancelada omitida: {DocNum}")
+                processed += 1
+                continue
 
             DeliveryNote = frappe.db.get_value(
                 doctype,
                 {
                     "custom_docnum": DocNum,
-                    "company": company,
-                    "docstatus": 1
+                    "company": company
                 },
                 "name"
             )
@@ -83,6 +174,7 @@ def procesar_datos(registros_sap, mapeo_lista, doctype, company, debug_messages)
                     f"La DeliveryNote ya existe "
                     f"DocEntry: {DocEntry} -- DocNum: {DocNum}"
                 )
+                processed += 1
                 continue
 
             # ============================================================
@@ -272,13 +364,13 @@ def procesar_datos(registros_sap, mapeo_lista, doctype, company, debug_messages)
                 # Igual que con SO, tu función actual genera la cabecera
                 # desde un documento base único.
                 # --------------------------------------------------------
-                if len(entradas_si) > 1:
-                    frappe.throw(
-                        f"La Delivery Note SAP {DocNum} contiene "
-                        f"varias Facturas como documento base: "
-                        f"{entradas_si}. "
-                        f"El proceso actual espera una sola Factura."
-                    )
+                # if len(entradas_si) > 1:
+                #     frappe.throw(
+                #         f"La Delivery Note SAP {DocNum} contiene "
+                #         f"varias Facturas como documento base: "
+                #         f"{entradas_si}. "
+                #         f"El proceso actual espera una sola Factura."
+                #     )
 
                 erpnext_si_names = {}
 
@@ -328,6 +420,7 @@ def procesar_datos(registros_sap, mapeo_lista, doctype, company, debug_messages)
             # ============================================================
             doc.custom_docnum = full_data.get("DocNum")
             doc.custom_docentry = full_data.get("DocEntry")
+            doc.custom_comments = full_data.get("Comments")
 
             # Vaciamos las líneas que Frappe haya creado automáticamente
             doc.items = []
@@ -545,40 +638,15 @@ def procesar_datos(registros_sap, mapeo_lista, doctype, company, debug_messages)
             # ============================================================
             # 7. INSERTAR DELIVERY NOTE
             # ============================================================
-            print("\n========================================")
-            print("ANTES DE INSERTAR DELIVERY NOTE")
-            print("========================================")
-
-            for item in doc.items:
-                print(
-                    f"idx={item.idx} | "
-                    f"name={item.name} | "
-                    f"item_code={item.item_code} | "
-                    f"custom_linenum={item.custom_linenum} | "
-                    f"so_detail={item.so_detail} | "
-                    f"si_detail={item.si_detail}"
-                )
 
             doc.flags.sap_delivery_note_sync = True
+            doc.ignore_pricing_rule = 1
             doc.insert()
+            
             #doc.flags.sap_delivery_note_sync = True
             dn_name = doc.name
 
-            #doc.reload()
-
-            print("\n========================================")
-            print("DESPUES DE INSERTAR / RELOAD")
-            print("========================================")
-
-            for item in doc.items:
-                print(
-                    f"idx={item.idx} | "
-                    f"name={item.name} | "
-                    f"item_code={item.item_code} | "
-                    f"custom_linenum={item.custom_linenum} | "
-                    f"so_detail={item.so_detail} | "
-                    f"si_detail={item.si_detail}"
-                )
+            # #doc.reload()
 
             # ============================================================
             # 8. PROCESAR LOTES
@@ -662,6 +730,7 @@ def procesar_datos(registros_sap, mapeo_lista, doctype, company, debug_messages)
                 # CREAR SERIAL AND BATCH BUNDLE
                 # ========================================================
                 if lotes:
+                    print(f"lotes encontrados ----- {lotes}")
 
                     bundle_id = crear_paquete_de_lotes(
                         item_code=item.item_code,
@@ -723,8 +792,10 @@ def procesar_datos(registros_sap, mapeo_lista, doctype, company, debug_messages)
                 f"Delivery Note {doc.name} "
                 f"sometida exitosamente."
             )
+            processed += 1
 
         except Exception as e:
+            failed += 1
 
             frappe.db.rollback()
 
@@ -737,292 +808,12 @@ def procesar_datos(registros_sap, mapeo_lista, doctype, company, debug_messages)
 
             continue
 
-    return None, None
+    return {
+        "processed": processed,
+        "failed": failed,
+        "complete": failed == 0,
+    }
 
-# def procesar_datos(registros_sap, mapeo_lista, doctype, company, debug_messages):
-#     sap_key_field = mapeo_lista["key_field"]   # "DocNum"
-#     erp_key_field = mapeo_lista["erp_key_field"]
-
-#     for lista_mapeo in registros_sap:
-#         sap_id = lista_mapeo.get(sap_key_field)
-#         DocEntry = lista_mapeo.get("DocEntry")
-#         DocNum = lista_mapeo.get("DocNum")
-#         if not DocEntry:
-#             continue
-
-#         try:
-#             # --- 1. Obtener la nota de entrega completa desde SAP (con lotes) ---
-#             full_data = obtener_delivery_note_completo(DocEntry, company)
-
-#             DeliveryNote = frappe.db.get_value(doctype, 
-#                                     {"custom_docnum": DocNum,
-#                                     "company": company,
-#                                     "docstatus": 1}, 
-#                                     "name")
-#             if DeliveryNote:
-#                 print(f"La DeliveryNote ya existe DocEntry: {DocEntry} -- DocNum: {DocNum}")
-#                 continue
-            
-#             # --- 2. Identificar Referencias en SAP ---
-#             DocumentReferences = full_data.get("DocumentReferences", [])
-#             lineas_sap = full_data.get("DocumentLines", [])
-#             sap_so_dict = {}
-#             sap_si_dict = {}
-
-#             for ref in DocumentReferences:
-#                 ref_type = ref.get("RefObjType")
-#                 ref_entry = ref.get("RefDocEntr")
-#                 ref_num = ref.get("RefDocNum")
-
-#                 if ref_type == "rot_SalesOrder":
-#                     sap_so_dict[ref_entry] = ref_num
-
-#                 elif ref_type == "rot_SalesInvoice":
-#                     sap_si_dict[ref_entry] = ref_num
-
-#             # -------------------------------------------------------
-#             # LA FUENTE DE VERDAD SON LAS LÍNEAS
-#             # -------------------------------------------------------
-#             bases_lineas = {}
-
-#             for linea in lineas_sap:
-#                 base_type = linea.get("BaseType")
-#                 base_entry = linea.get("BaseEntry")
-
-#                 if base_type not in (17, 13):
-#                     continue
-
-#                 if not base_entry:
-#                     continue
-
-#                 bases_lineas.setdefault(base_type, set()).add(base_entry)
-
-#             print(f"Referencias SAP - Orders: {sap_so_dict} | Invoices: {sap_si_dict}")
-#             print(f"Bases detectadas en DocumentLines: {bases_lineas}")
-
-#             # --- 3. Determinar Modo y Construir Cabecera ---
-#             doc = None
-#             modo_creacion = None
-#             documento_base_global = None
-
-#             if sap_si_dict:
-#                 print(f"Estas una Delivery note con base Factura de Cliente (Reserva) {sap_si_dict}")
-#                 # ESCENARIO 1: Priorizamos la Factura de Cliente (Reserva)
-#                 modo_creacion = "Factura"
-#                 erpnext_si_names = {}
-                
-#                 for base_entry, doc_num in sap_si_dict.items():
-#                     si_name = frappe.db.get_value("Sales Invoice", {"custom_docnum": doc_num, "company": company}, "name")
-#                     if si_name:
-#                         erpnext_si_names[base_entry] = si_name
-
-#                 if not erpnext_si_names:
-#                     frappe.throw("La Factura de SAP no existe en ERPNext.")
-                
-#                 print(f"Creando DN a partir de Factura de Reserva: {erpnext_si_names}")
-#                 documento_base_global = list(erpnext_si_names.values())[0]
-#                 doc = make_dn_from_si(documento_base_global)
-#                 dict_nombres_base = erpnext_si_names
-
-#             elif sap_so_dict:
-#                 # ESCENARIO 2: Solo hay Orden de Venta
-#                 print(f"Estas una Delivery note con base Orden de venta {sap_so_dict}")
-#                 modo_creacion = "Orden"
-#                 erpnext_so_names = {}
-                
-#                 for base_entry, doc_num in sap_so_dict.items():
-#                     so_name = frappe.db.get_value("Sales Order", {"custom_docnum": doc_num, "company": company}, "name")
-#                     if so_name:
-#                         erpnext_so_names[base_entry] = so_name
-                        
-#                 if not erpnext_so_names:
-#                     frappe.throw("La Orden de Venta de SAP no existe en ERPNext.")
-
-#                 print(f"Creando DN a partir de Orden de Venta: {erpnext_so_names}")
-#                 documento_base_global = list(erpnext_so_names.values())[0]
-#                 doc = make_dn_from_so(documento_base_global)
-#                 dict_nombres_base = erpnext_so_names
-                
-#             else:
-#                 frappe.throw(f"No se encontraron referencias válidas (SO o SI) en SAP para DocEntry {DocEntry}")
-            
-#             # Configuramos campos generales
-#             doc.custom_docnum = full_data.get("DocNum")
-#             doc.custom_entry = full_data.get("DocEntry")
-#             doc.items = [] # Vaciamos líneas predeterminadas
-            
-#             lineas_sap = full_data.get("DocumentLines", [])
-#             print(f"Líneas de SAP a procesar: {len(lineas_sap)} en Modo {modo_creacion}")
-
-#             # --- 4. Procesamiento de Líneas (Dinámico según el Modo) ---
-#             for linea_sap in lineas_sap:
-#                 base_entry = linea_sap.get("BaseEntry")
-#                 ItemCode_SAP = linea_sap.get("ItemCode")
-#                 BaseLine = linea_sap.get("BaseLine")
-
-#                 # Traducción del ItemCode
-#                 ItemCode_ERPNEXT_query = frappe.db.sql("""
-#                     SELECT T0.name
-#                     FROM `tabItem` T0
-#                     INNER JOIN `tabItem Default` T1 ON T0.name = T1.parent
-#                     WHERE T0.custom_itemcode = %s AND T1.company = %s LIMIT 1
-#                 """, (ItemCode_SAP, company), as_list=True)
-#                 item_code = ItemCode_ERPNEXT_query[0][0] if ItemCode_ERPNEXT_query else ItemCode_SAP 
-                
-#                 # Identificamos el nombre del documento padre para esta línea
-#                 doc_padre_erpnext = dict_nombres_base.get(base_entry) or documento_base_global
-#                 if not doc_padre_erpnext:
-#                     continue 
-#                 print(f"Procesando línea SAP BaseEntry {base_entry} -> ERPNext Doc: {doc_padre_erpnext}")
-
-#                 nueva_entrada_lote = None
-#                 nueva_entrada_lote = {
-#                     "item_code": item_code,
-#                     "qty": linea_sap.get("Quantity"),
-#                     "rate": linea_sap.get("Price") or 0,
-#                     "warehouse": linea_sap.get("WarehouseCode"),
-#                     "custom_linenum": linea_sap.get("LineNum"),
-#                     "use_serial_batch_fields": 0,
-#                     "batch_no": None,
-#                     "serial_no": None
-#                 }
-
-#                 # LÓGICA MODO FACTURA
-#                 if modo_creacion == "Factura":
-#                     si_item = frappe.get_all("Sales Invoice Item", 
-#                         filters={"parent": doc_padre_erpnext, "item_code": item_code, "custom_linenum": BaseLine},
-#                         fields=["name", "rate", "uom", "stock_uom", "conversion_factor", "warehouse", "sales_order", "so_detail"],
-#                         limit=1
-#                     )
-#                     print(f"detalle de item de la Factura: {si_item}")
-#                     #continue  # Saltamos si no encontramos el item en la Factura
-
-#                     if si_item:
-#                         ref_name = si_item[0].name
-#                         linea_sap["_ref_detail"] = ref_name  # <--- Guardamos la referencia única
-#                         nueva_entrada_lote.update({
-#                             "against_sales_invoice": doc_padre_erpnext,            
-#                             "si_detail": ref_name,
-#                             "against_sales_order": si_item[0].sales_order, # Heredado de la Factura
-#                             "so_detail": si_item[0].so_detail,      # Heredado de la Factura
-#                             "rate": si_item[0].rate,
-#                             "uom": si_item[0].uom,
-#                             "stock_uom": si_item[0].stock_uom,
-#                             "conversion_factor": si_item[0].conversion_factor,
-#                             "warehouse": si_item[0].warehouse,
-#                             "custom_linenum": linea_sap.get("LineNum"),
-#                             "use_serial_batch_fields": 0,
-#                             "batch_no": None,
-#                             "serial_no": None
-#                         })
-#                 # LÓGICA MODO ORDEN DE VENTA
-#                 elif modo_creacion == "Orden":
-#                     so_item = frappe.get_all("Sales Order Item", 
-#                         filters={"parent": doc_padre_erpnext, "item_code": item_code, "custom_linenum": BaseLine},
-#                         fields=["name", "rate", "uom", "stock_uom", "conversion_factor", "warehouse"],
-#                         limit=1
-#                     )
-#                     print(f"detalle de item de la Orden: {so_item}")
-#                     if so_item:
-#                         ref_name = so_item[0].name
-#                         linea_sap["_ref_detail"] = ref_name  # <--- Guardamos la referencia única
-#                         nueva_entrada_lote.update( {
-#                             "against_sales_order": doc_padre_erpnext,            
-#                             "so_detail": ref_name,                  
-#                             "rate": so_item[0].rate,
-#                             "uom": so_item[0].uom,
-#                             "stock_uom": so_item[0].stock_uom,
-#                             "conversion_factor": so_item[0].conversion_factor,
-#                             "warehouse": so_item[0].warehouse,
-#                             "custom_linenum": linea_sap.get("LineNum"),
-#                             "use_serial_batch_fields": 0,
-#                             "batch_no": None,
-#                             "serial_no": None
-#                         })                        
-
-#                 # Si logramos armar la línea, la agregamos
-#                 if nueva_entrada_lote:
-#                     print(f"\n--- Agregando Línea al Delivery Note ---")
-#                     print(json.dumps(nueva_entrada_lote, indent=4))
-#                     doc.append("items", nueva_entrada_lote)
-        
-#             # Insertamos el documento
-#             doc.insert()
-#             dn_name = doc.name
-#             doc.reload() # Importante para los lotes
-
-#             # --- 5. Procesar cada línea y asociar lotes ---
-#             print(f"Procensando lotes para cada línea del Delivery Note Paso ####5 {dn_name}...")
-#             todos_lotes = []
-#             for linea in lineas_sap:
-#                 line_num = linea.get("LineNum")
-#                 for lote in linea.get("BatchNumbers", []):
-#                     lote["_LineNum"] = line_num
-#                     lote["Quantity"] = lote.get("Quantity", 0)
-#                     todos_lotes.append(lote)
-
-#             print(f"Todos los obtenidos de SAP: ")
-#             print(json.dumps( todos_lotes, indent=4))
-
-
-#             for item in doc.items:
-#                 ref_detail_erp = item.si_detail if modo_creacion == "Factura" else item.so_detail
-#                 line_num_erp = item.custom_linenum
-
-#                  # Buscamos la línea de SAP exacta basándonos en esa referencia
-#                 sap_line = next((l for l in lineas_sap if l.get("_ref_detail") == ref_detail_erp), None)
-
-#                 if not sap_line:
-#                     print(
-#                         f"⚠️ No existe línea SAP para custom_linenum={line_num_erp}. "
-#                         f"Item ERPNext={item.item_code}"
-#                     )
-#                     continue
-            
-#                 # Rescatamos el LineNum real y original con el que SAP nos mandó esta fila
-#                 line_num_sap = sap_line.get("LineNum")
-
-#                 # Obtenemos los lotes respetando el LineNum de SAP
-#                 lotes = [
-#                     b for b in todos_lotes
-#                     if b.get("_LineNum") == line_num_sap
-#                 ]
-                
-#                 if lotes:
-#                     bundle_id = crear_paquete_de_lotes(
-#                         item_code=item.item_code,
-#                         warehouse=item.warehouse,
-#                         lotes_sap=lotes,
-#                         voucher_type="Delivery Note",
-#                         voucher_no=dn_name,
-#                         voucher_detail_no=item.name,  
-#                         company=company
-#                     )
-#                     item.serial_and_batch_bundle = bundle_id
-#                 else:
-#                     # sap_line = next((l for l in lineas_sap if l.get("LineNum") == line_num_erp), None)
-#                     # item.qty = sap_line.get("Quantity", 0) if sap_line else 0
-#                     item.qty = sap_line.get("Quantity", 0)
-
-#             # --- 6. Guardar y Someter ---
-#             for item in doc.items:
-#                 print("------------------------")
-#                 print("Item:", item.item_code)
-#                 print("Linked SO:", item.against_sales_order)
-#                 print("Linked SI:", item.against_sales_invoice)
-
-#             doc.save()
-#             doc.submit()
-#             frappe.db.commit()
-#             print(f"Delivery Note {doc.name} sometida exitosamente.")
-
-#         except Exception as e:
-#             frappe.db.rollback()
-#             frappe.log_error(message=frappe.get_traceback(), title=f"Error DN SAP {sap_id}")
-#             frappe.db.commit() 
-#             continue
-
-#     return None, None
 
 
 def crear_paquete_de_lotes(item_code, warehouse, lotes_sap, voucher_type, voucher_no, voucher_detail_no, company ):
@@ -1051,28 +842,36 @@ def crear_paquete_de_lotes(item_code, warehouse, lotes_sap, voucher_type, vouche
     for lote in lotes_sap:
         sap_batch_number = lote["BatchNumber"]
         qty = lote["Quantity"]
+        ExpiryDate = lote.get("ExpiryDate")
+        custom_batchnum = lote.get("BatchNumber")  # Usamos el BatchNumber de SAP como custom_batchnum
 
-        # Buscar el lote real en ERPNext usando custom_batchnum
-        batch_name = frappe.get_value(
-            "Batch",
-            {"custom_batchnum": sap_batch_number, "item": item_code},
-            "name"
-        )
+
+        batch_name = obtener_o_crear_batch( item_code, ExpiryDate, custom_batchnum)
+
 
         if not batch_name:
+            print(f"Error: No se encontró el lote '{sap_batch_number}' para el artículo '{item_code}' en ERPNext.")
             frappe.throw(
                 f"Sincronización abortada: No se encontró el lote '{sap_batch_number}' "
                 f"para el artículo '{item_code}' en ERPNext."
             )
+            
+
+        qty_batch_disponible = obtener_stock_lote(item_code, warehouse, batch_name)
+        print(f"Stock disponible para lote {batch_name} en almacén {warehouse}: {qty_batch_disponible}")
 
         print(f"Lote mapeado: SAP({sap_batch_number}) -> ERPNext({batch_name}). Qty: {qty}")
-        
-        # En v15/v16 para Outward la cantidad se mantiene positiva en la tabla entries
-        # bundle.append("entries", {
-        #     "batch_no": batch_name,
-        #     "qty": qty, 
-        #     "warehouse": warehouse
-        # })
+
+        stock_shortfall = calculate_stock_shortfall(qty, qty_batch_disponible)
+        if stock_shortfall > 0:
+            print(f"⚠️ Advertencia: La cantidad solicitada ({qty}) para el lote {batch_name} "
+                  f"excede el stock disponible ({qty_batch_disponible}). "
+                  f"Creando entrada solo por el faltante ({stock_shortfall}).")
+            Material_Receipt = crear_stock_entry_entrada(
+                item_code, stock_shortfall, batch_name, warehouse
+            )
+            print(f"Material Receipt creado: {Material_Receipt}")
+
         nueva_entrada_lote = {
             "batch_no": batch_name,
             "qty": qty, 
@@ -1092,11 +891,169 @@ def crear_paquete_de_lotes(item_code, warehouse, lotes_sap, voucher_type, vouche
 
     return bundle.name
 
+def obtener_stock_lote(item_code, warehouse, batch_no):
+    """
+    Obtiene el stock disponible de un lote específico
+    para un artículo y almacén.
+
+    Retorna float.
+    """
+
+    try:
+        stock = get_batch_qty(
+            batch_no=batch_no,
+            warehouse=warehouse,
+            item_code=item_code,
+            for_stock_levels=True
+        )
+
+        return flt(stock or 0)
+
+    except Exception:
+        frappe.log_error(
+            message=frappe.get_traceback(),
+            title=f"Error consultando stock lote {batch_no}"
+        )
+        raise
+
+def obtener_o_crear_batch( item_code, expiry_date=None, custom_batchnum=None):
+    if not custom_batchnum:
+        return None
+
+    # Buscar lote existente
+    batch_name = frappe.db.get_value(
+        "Batch",
+        {
+            "custom_batchnum": custom_batchnum,
+            "item": item_code
+        },
+        "name"
+    )
+    
+
+    if batch_name:
+        print(f"✅ Lote existente encontrado: {batch_name} para item {item_code} con custom_batchnum {custom_batchnum}")
+        return batch_name
+
+    print(f"No se encontró lote existente para item {item_code} con custom_batchnum {custom_batchnum}. Creando nuevo lote...")
+
+    batch_no = f"{item_code}-{custom_batchnum}"
+
+    # Verifica lote vencido y ajusta la fecha si es necesario
+    expiry_date = str(expiry_date).strip()
+    # Eliminar la parte de hora/timezone
+    if "T" in expiry_date:
+        expiry_date = expiry_date.split("T")[0]
+    if expiry_date and getdate(expiry_date) < getdate(today()):
+        hoy = getdate(nowdate())
+        expiry_date = add_days(hoy, 5)
+        print(f"⚠ Lote vencido detectado para {item_code} lote {batch_no}. Fecha ajustada a {expiry_date}.")
+
+    # Crear lote
+    batch_doc = frappe.get_doc({
+        "doctype": "Batch",
+        "batch_id": batch_no,
+        "item": item_code,
+        "expiry_date": expiry_date,
+        "custom_batchnum": custom_batchnum
+    })
+
+    batch_doc.insert(ignore_permissions=True)
+
+    print(f"✅ Lote creado-----: {batch_doc.name} para item {item_code} con custom_batchnum {custom_batchnum}")
+
+    return batch_doc.name
+
+def crear_stock_entry_entrada(item_code, qty, batch_no, warehouse, valuation_rate=1):
+
+    try:
+        if not item_code:
+            raise ValueError("No se indicó item_code.")
+
+        if not qty or qty <= 0:
+            raise ValueError(
+                f"Cantidad inválida para {item_code}: {qty}"
+            )
+
+        if not warehouse:
+            raise ValueError(
+                f"No se indicó bodega para {item_code}."
+            )
+
+        # ==================================================
+        # Crear Stock Entry
+        # ==================================================
+
+        se = frappe.new_doc("Stock Entry")
+
+        se.stock_entry_type = "Material Receipt"
+        se.purpose = "Material Receipt"
+
+        item_data = {
+            "item_code": item_code,
+            "qty": qty,
+            "basic_rate": valuation_rate,
+            "valuation_rate": valuation_rate,
+            "t_warehouse": warehouse
+        }
+
+        # Asignar lote
+        if batch_no:
+            item_data["batch_no"] = batch_no
+            item_data["use_serial_batch_fields"] = 1
+
+        se.append("items", item_data)
+
+        print(
+            f"📦 Material Receipt preparado: "
+            f"{item_code} | Lote: {batch_no or 'N/A'} | "
+            f"Cantidad: {qty} | Bodega: {warehouse} | "
+            f"Costo: {valuation_rate}"
+        )
+
+        # ==================================================
+        # Insertar y enviar
+        # ==================================================
+
+        se.flags.ignore_permissions = True
+
+        se.insert(ignore_permissions=True)
+        se.submit()
+
+        mensaje = (
+            f"🚚 Stock Entry creado y enviado: {se.name} | "
+            f"{item_code} | Lote: {batch_no or 'N/A'} | "
+            f"Cantidad: {qty} | Bodega: {warehouse}"
+        )
+
+        print(mensaje)
+
+        return se.name
+
+    except Exception as e:
+        frappe.db.rollback()
+        mensaje = (
+            f"Error creando Material Receipt: "
+            f"Item={item_code}, "
+            f"Lote={batch_no}, "
+            f"Cantidad={qty}, "
+            f"Bodega={warehouse}: {str(e)}"
+        )
+        frappe.log_error(
+            frappe.get_traceback(),
+            mensaje
+        )
+        raise
 
 def obtener_delivery_note_completo(docentry, company):
     session = login_sap(company)
-    url = f"https://apisap.yaesta.com.gt/b1s/v2/DeliveryNotes({docentry})"
-    response = session.get(url)
-    print(f"Inicio de sesión exitoso para DocEntry {docentry}")
-    response.raise_for_status()
-    return response.json()
+    try:
+        _credentials, sap_url, _login_endpoint = get_credentials(company)
+        url = f"{sap_url.rstrip('/')}/DeliveryNotes({docentry})"
+        response = session.get(url, timeout=(10, 60))
+        print(f"Inicio de sesión exitoso para DocEntry {docentry}")
+        response.raise_for_status()
+        return response.json()
+    finally:
+        session.close()
+

@@ -1,7 +1,7 @@
 {
  "charts": [],
  "content": "[{\"id\":\"0eEPkxeRf9\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\">SAP Integration</span>\",\"col\":12}},{\"id\":\"10tE37o8kY\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"UNzOXoj4D1\",\"type\":\"card\",\"data\":{\"card_name\":\"Configuraci\u00f3n\",\"col\":4}},{\"id\":\"aQLhGKJQ05\",\"type\":\"card\",\"data\":{\"card_name\":\"Sincronizacion de datos\",\"col\":4}},{\"id\":\"TnKYAo1z4m\",\"type\":\"card\",\"data\":{\"card_name\":\"Sincronizar datos maestros\",\"col\":4}},{\"id\":\"_kdfA6VaV3\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\"><b>                          Mapeo de datos para el funcionamiento del consumo de la API</b></span>\",\"col\":12}},{\"id\":\"ZJC_5u2EfM\",\"type\":\"card\",\"data\":{\"card_name\":\"Mapeo de datos iniciales\",\"col\":4}},{\"id\":\"Bn0A-g2C5s\",\"type\":\"card\",\"data\":{\"card_name\":\"Mapeo de datos maestros\",\"col\":4}},{\"id\":\"eKVZqezt5a\",\"type\":\"card\",\"data\":{\"card_name\":\"Mapeo datos transaccionales\",\"col\":4}},{\"id\":\"l1dnW91ReA\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\"><b>Historial de datos sincronizados desde SAP</b></span>\",\"col\":12}},{\"id\":\"Dz9dHk1pad\",\"type\":\"card\",\"data\":{\"card_name\":\"Datos maestros sincronizados\",\"col\":4}},{\"id\":\"4PgGpl7scu\",\"type\":\"card\",\"data\":{\"card_name\":\"Logs transaccionales\",\"col\":4}}]",
- "creation": "2026-07-30 10:38:08.334582",
+ "creation": "2026-08-17 08:58:10.272835",
  "custom_blocks": [],
  "docstatus": 0,
  "doctype": "Workspace",
@@ -380,8 +380,47 @@
   {
    "hidden": 0,
    "is_query_report": 0,
+   "label": "Mapeo datos transaccionales",
+   "link_count": 3,
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Card Break"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Mapeo Factura SAP",
+   "link_count": 0,
+   "link_to": "Mapeo Factura SAP",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Mapeo Orden De Venta SAP",
+   "link_count": 0,
+   "link_to": "Mapeo Orden De Venta SAP",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Mapeo Nota de Entrega SAP",
+   "link_count": 0,
+   "link_to": "Mapeo Nota de Entrega SAP",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
    "label": "Configuraci\u00f3n",
-   "link_count": 4,
+   "link_count": 5,
    "link_type": "DocType",
    "onboard": 0,
    "type": "Card Break"
@@ -429,44 +468,15 @@
   {
    "hidden": 0,
    "is_query_report": 0,
-   "label": "Mapeo datos transaccionales",
-   "link_count": 3,
-   "link_type": "DocType",
-   "onboard": 0,
-   "type": "Card Break"
-  },
-  {
-   "hidden": 0,
-   "is_query_report": 0,
-   "label": "Mapeo Factura SAP",
+   "label": "Perfiles de facturacion",
    "link_count": 0,
-   "link_to": "Mapeo Factura SAP",
-   "link_type": "DocType",
-   "onboard": 0,
-   "type": "Link"
-  },
-  {
-   "hidden": 0,
-   "is_query_report": 0,
-   "label": "Mapeo Orden De Venta SAP",
-   "link_count": 0,
-   "link_to": "Mapeo Orden De Venta SAP",
-   "link_type": "DocType",
-   "onboard": 0,
-   "type": "Link"
-  },
-  {
-   "hidden": 0,
-   "is_query_report": 0,
-   "label": "Mapeo Nota de Entrega SAP",
-   "link_count": 0,
-   "link_to": "Mapeo Nota de Entrega SAP",
+   "link_to": "Perfiles de facturacion",
    "link_type": "DocType",
    "onboard": 0,
    "type": "Link"
   }
  ],
- "modified": "2026-08-04 12:07:50.513474",
+ "modified": "2026-08-17 13:48:35.913672",
  "modified_by": "Administrator",
  "module": "Sap Integration",
  "name": "SAP Integration",
